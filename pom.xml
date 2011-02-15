@@ -6,7 +6,10 @@
     <packaging>jar</packaging>
     <version>1.0.1.0.RC</version>
     <name>Turbine</name>
-    <description>Stomp 1.0 Client</description>
+    <description>
+        Turbine is the Java client of the STOMP protocol. It implements the latest STOMP specification - which is 1.0.
+        Implementation was contributed by the Reficio (TM) open source initiative.
+    </description>
     <url>http://reficio.org/</url>
 
     <licenses>
@@ -218,6 +221,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -289,7 +293,7 @@
                     </additionalparam>
                 </configuration>
             </plugin>
-
+            -->
         </plugins>
     </reporting>
 
