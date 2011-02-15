@@ -313,8 +313,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/reficio/turbine</connection>
-        <developerConnection>scm:git:git://github.com/reficio/turbine</developerConnection>
+        <connection>scm:git:git://github.com/reficio/turbine.git</connection>
+        <developerConnection>scm:git:git@github.com:reficio/turbine.git</developerConnection>
         <url>https://github.com/reficio/turbine</url>
     </scm>
 
