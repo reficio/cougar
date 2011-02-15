@@ -4,7 +4,7 @@
     <groupId>org.reficio</groupId>
     <artifactId>turbine</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1.0.GA</version>
+    <version>1.0.1.0.RC</version>
     <name>Turbine</name>
     <description>Stomp 1.0 Client</description>
     <url>http://reficio.org/</url>
@@ -24,7 +24,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
@@ -195,10 +194,6 @@
             </plugin>
 
 
-
-
-
-
         </plugins>
         <extensions>
             <extension>
@@ -298,10 +293,30 @@
         </site>
     </distributionManagement>
 
-   <issueManagement>
-      <system>GitHub</system>
-      <url>https://github.com/reficio/stomp/issues</url>
-   </issueManagement>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/reficio/turbine/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>tom.bujok</id>
+            <name>Tom Bujok</name>
+            <email>tom.bujok@reficio.org</email>
+            <roles>
+                <role>Project Lead</role>
+                <role>Architect</role>
+            </roles>
+            <organization>Reficio</organization>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/reficio/turbine</connection>
+        <developerConnection>scm:git:git://github.com/reficio/turbine</developerConnection>
+        <url>https://github.com/reficio/turbine</url>
+    </scm>
 
     <pluginRepositories>
         <pluginRepository>
