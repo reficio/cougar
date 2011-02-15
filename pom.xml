@@ -9,6 +9,13 @@
     <description>Stomp 1.0 Client</description>
     <url>http://reficio.org/</url>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>src/main/resources/license.txt</url>
+        </license>
+    </licenses>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cglib.version>2.2</cglib.version>
