@@ -124,9 +124,9 @@
 <pre class="prettyprint lang-java">
 public interface StompResource {
 
-    void init(String hostname, int port, String username, String password, String encoding);
-    void init(String hostname, int port, String username, String password, String encoding, int timeout);
-    void close();
+    void init(String hostname, int port, String username, String password, String encoding) throws StompException;
+    void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
+    void close() throws StompException;
 
     String getHostname();
     String getPassword();

@@ -17,6 +17,8 @@
 
 package org.reficio.stomp.core;
 
+import org.reficio.stomp.StompException;
+
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-11-22
@@ -27,11 +29,11 @@ package org.reficio.stomp.core;
  */
 public interface StompResource {
 
-	void init(String hostname, int port, String username, String password, String encoding);
+	void init(String hostname, int port, String username, String password, String encoding) throws StompException;
 
-	void init(String hostname, int port, String username, String password, String encoding, int timeout);
+	void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
 
-	void close();
+	void close() throws StompException;
 
 
 	String getHostname();
