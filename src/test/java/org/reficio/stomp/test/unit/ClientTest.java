@@ -17,6 +17,7 @@
 
 package org.reficio.stomp.test.unit;
 
+import org.apache.activemq.transport.stomp.StompConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,7 +121,7 @@ public class ClientTest {
         connection.init("localhost", 61613, "user", "pass", "UTF-8");
     }
 
-    @Test(expected = StompConnectionException.class)
+    @Test
     public void errorStateCheck() {
         // initialize the connection
         Exception e = null;
@@ -131,6 +132,7 @@ public class ClientTest {
             e = ex;
         } finally {
             assertNotNull(e);
+            assertEquals(e.getClass(), StompConnectionException.class);
         }
         connection.send(new Frame(CommandType.ACK));
     }

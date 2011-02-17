@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.ResourceState;
 import org.reficio.stomp.impl.TxConnectionImpl;
 
 import java.net.Socket;
@@ -40,6 +41,7 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
     private MockConnectionStub stub;
 
     public MockTxConnectionImpl() {
+        super();
         this.stub = new MockConnectionStub();
     }
 
@@ -67,22 +69,29 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
         this.writer = this.stub.getMockClientWriter();
     }
 
+
     @Override
-    public void close() {
-        assertInitialized();
-        setOperational(false);
-        disconnect();
-        receive();
+	public synchronized void close() {
+		assertOperational();
+		logger.info(String.format("Closing connection=[%s]", this));
+        setState(ResourceState.CLOSING);
+		disconnect();
+        unmarshall();
         this.stub.close();
         closeCommunication();
-        setInitialized(false);
-    }
-
+        setState(ResourceState.CLOSED);
+	}
 
     @Override
-    public void send(Frame frame) throws StompException {
+	protected void marshall(Frame frame) throws StompException {
         stub.getExecutor().submit(getServer());
-        super.send(frame);
+		logger.info("Sending frame: \n" + frame);
+        try {
+		    wireFormat.marshal(frame, writer);
+        } catch(RuntimeException ex) {
+            setState(ResourceState.ERROR);
+            throw ex;
+        }
     }
 
     public MockConnectionStub getStub() {

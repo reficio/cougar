@@ -111,21 +111,26 @@ public class ConnectionImpl extends ClientImpl implements Connection {
 		send(frame);
 	}
 
-	@Override
-	public String subscribe(String destination, FrameDecorator frameDecorator) {
+    @Override
+    public String subscribe(String destination, FrameDecorator frameDecorator) {
         Frame frame = new Frame(CommandType.SUBSCRIBE);
         frame.destination(destination);
-		preprocessor.decorate(frame, frameDecorator);
+        preprocessor.decorate(frame, frameDecorator);
         String subscriptionId = frame.subscriptionId();
-        if(subscriptionId == null) {
+        if (subscriptionId == null) {
             subscriptionId = register.subscribe(null);
             frame.subscriptionId(subscriptionId);
         } else {
             register.subscribe(subscriptionId);
         }
-		send(frame);
-        return subscriptionId;
-	}
+        try {
+            send(frame);
+            return subscriptionId;
+        } catch (RuntimeException ex) {
+            register.unsubscribe(subscriptionId);
+            throw ex;
+        }
+    }
 
     @Override
 	public String subscribe(String destination) throws StompException {
@@ -143,8 +148,13 @@ public class ConnectionImpl extends ClientImpl implements Connection {
         frame.destination(destination);
         frame.subscriptionId(id);
 		preprocessor.decorate(frame, frameDecorator);
-        register.subscribe(id);
-		send(frame);
+        try {
+            register.subscribe(id);
+		    send(frame);
+        } catch (RuntimeException ex) {
+            register.unsubscribe(id);
+            throw ex;
+        }
         return id;
     }
 

@@ -19,6 +19,7 @@ package org.reficio.stomp.test.unit;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
+import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.CommandType;
@@ -70,7 +71,7 @@ public class WireFormatTest {
         assertEquals(expectedResult, writer.toString());
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test(expected = StompIOException.class)
     public void marshallIOException() throws IOException {
         String hLogin = "test_login";
         String hPassCode = "test_passcode";
@@ -201,15 +202,16 @@ public class WireFormatTest {
         Frame frame = wireFormat.unmarshal(reader);
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test
     public void headerContentLengthHeaderNumericException() {
        String payload = "test_payload";
        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
-       marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + "ThisWillBeNumerciException:)" +WireFormatImpl.END_OF_LINE;
+       marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + "ThisHeaderWillBeIgnoredDueToNumericException:)" +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
        StompWireFormat wireFormat = new WireFormatImpl();
        Frame frame = wireFormat.unmarshal(reader);
+       assertNotNull(frame);
     }
 
     @Test(expected = StompWireFormatException.class)
@@ -250,7 +252,7 @@ public class WireFormatTest {
        Frame frame = wireFormat.unmarshal(reader);
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test(expected = StompIOException.class)
     public void ioExceptionInReadUntilEndMarker() throws IOException {
        Reader reader = mock(BufferedReader.class);
        doThrow(new IOException()).when(reader).read();
@@ -302,7 +304,7 @@ public class WireFormatTest {
        Frame frame = wireFormat.unmarshal(reader);
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test(expected = StompIOException.class)
     public void ioExceptionInparsePayload() throws IOException {
        String payload = "test_payload";
        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;

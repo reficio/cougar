@@ -18,6 +18,9 @@
 package org.reficio.stomp.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.CommandType;
@@ -41,6 +44,8 @@ import java.util.Map;
  * http://www.reficio.org
  */
 public class WireFormatImpl implements StompWireFormat {
+
+    private static final Log logger = LogFactory.getLog(WireFormatImpl.class);
 
     public static final String VERSION = "1";
 
@@ -88,7 +93,7 @@ public class WireFormatImpl implements StompWireFormat {
             output.write(builder.toString());
             output.flush();
         } catch (IOException e) {
-            throw new StompWireFormatException("Error during data send", e);
+            throw new StompIOException("Error during data send", e);
         }
     }
 
@@ -148,7 +153,8 @@ public class WireFormatImpl implements StompWireFormat {
         try {
             return contentLengthHeader != null ? Integer.parseInt(contentLengthHeader.getValue()) : null;
         } catch(NumberFormatException ex) {
-             throw new StompWireFormatException("Error during content length parsing");
+            logger.warn("Error during content length parsing - header is ignored.");
+            return null;
         }
     }
 
@@ -172,7 +178,7 @@ public class WireFormatImpl implements StompWireFormat {
                 return readUntilEndMarker(input, MAX_PAYLOAD_LENGTH, END_OF_FRAME, "Error during payload parsing", false);
             }
         } catch (IOException e) {
-            throw new StompWireFormatException("Error during payload data receipt", e);
+            throw new StompIOException("Error during payload data receipt", e);
         }
     }
 
@@ -201,7 +207,7 @@ public class WireFormatImpl implements StompWireFormat {
            }
            return output.toString();
        } catch(IOException ex) {
-           throw new StompWireFormatException(errorMessage, ex);
+           throw new StompIOException(errorMessage, ex);
        }
     }
 

@@ -23,6 +23,7 @@ import org.reficio.stomp.StompProtocolException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -37,19 +38,20 @@ public class SubscriptionRegister {
     private Set<String> subscriptions;
 
     public SubscriptionRegister() {
-        subscriptions = new HashSet<String>();
+        subscriptions = new ConcurrentSkipListSet<String>();
     }
 
     public String subscribe(String id) {
         String subscriptionId = id;
         if(StringUtils.isBlank(subscriptionId)) {
             subscriptionId = UUID.randomUUID().toString();
+            subscriptions.add(subscriptionId);
         } else {
-            if(subscriptions.contains(id)) {
+            boolean wasNotThere = subscriptions.add(subscriptionId);
+            if(wasNotThere == false) {
                 throw new StompProtocolException("Subscription id is already used");
             }
         }
-        subscriptions.add(subscriptionId);
         return subscriptionId;
     }
 

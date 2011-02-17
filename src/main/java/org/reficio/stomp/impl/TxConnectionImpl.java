@@ -43,7 +43,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	private static final Log logger = LogFactory.getLog(TxConnectionImpl.class);
 	
 	private String transactionId;
-	private boolean transactional;
+	private boolean autoTransactional;
 	
 	public TxConnectionImpl() {
 		super();
@@ -71,7 +71,8 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 		beginTransactionIfRequired();
 		Frame frame = super.receive();
 	    // ack will contain transactionID due to the method override
-        if(isOperational()) {
+        // do not send ack if it is the connect/connected message sequence
+        if(isInitialized()) {
 		    ack(frame.messageId());
         }
 		return frame;
@@ -97,16 +98,19 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	// StompTransactionalConnection methods - also transaction-aware :)
 	// ----------------------------------------------------------------------------------
 	public void begin() {
-		assertInitialized();
 		assertNotInTransaction();
 		this.transactionId = UUID.randomUUID().toString();
 		logger.info(String.format("Beginnig transaction id=[%s]", transactionId));
-		begin(transactionId);
+		try {
+            begin(transactionId);
+        } catch(RuntimeException ex) {
+            this.transactionId = null;
+            throw ex;
+        }
 	}
 	
 	@Override
 	public void rollback(FrameDecorator frameDecorator) throws StompException {
-		assertInitialized();
 		assertInTransaction();
 		Frame frame = new Frame(CommandType.ABORT);
 		frame.transaction(transactionId);
@@ -121,7 +125,6 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 
 	@Override
 	public void commit(FrameDecorator frameDecorator) throws StompException {
-		assertInitialized();
 		assertInTransaction();
         Frame frame = new Frame(CommandType.COMMIT);
 		frame.transaction(transactionId);
@@ -131,7 +134,6 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 
 	@Override
 	public void commit() throws StompException {
-		assertInitialized();
 		assertInTransaction();
 		logger.info(String.format("Committing transaction id=[%s]", transactionId));
 		commit(transactionId);
@@ -139,13 +141,13 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	
 	@Override
 	public boolean getAutoTransactional() {
-		return this.transactional;
+		return this.autoTransactional;
 	}
 
 	@Override
 	public void setAutoTransactional(boolean transactional) throws StompException {
 		assertNotInTransaction();
-		this.transactional = transactional;
+		this.autoTransactional = transactional;
 	}
 	
 	// ----------------------------------------------------------------------------------
@@ -171,7 +173,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	// Transaction handling helpers
 	// ----------------------------------------------------------------------------------
 	private void beginTransactionIfRequired() {
-		if(getAutoTransactional()==true && isInTransaction()==false && isOperational()==true) {
+		if(getAutoTransactional()==true && isInTransaction()==false && isInitialized()==true) {
 			begin();
 		}
 	}

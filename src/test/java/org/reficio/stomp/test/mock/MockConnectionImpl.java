@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.ResourceState;
 
 import java.net.Socket;
 
@@ -44,9 +45,15 @@ public class MockConnectionImpl extends ConnectionImpl {
     }
 
     @Override
-	public void send(Frame frame) throws StompException {
+	protected void marshall(Frame frame) throws StompException {
         stub.getExecutor().submit(getServer());
-        super.send(frame);
+		logger.info("Sending frame: \n" + frame);
+        try {
+		    wireFormat.marshal(frame, writer);
+        } catch(RuntimeException ex) {
+            setState(ResourceState.ERROR);
+            throw ex;
+        }
     }
 
     @Override
@@ -73,15 +80,16 @@ public class MockConnectionImpl extends ConnectionImpl {
     }
 
     @Override
-    public void close() {
-      	assertInitialized();
-        setOperational(false);
-        disconnect();
-        receive();
+	public synchronized void close() {
+		assertOperational();
+		logger.info(String.format("Closing connection=[%s]", this));
+        setState(ResourceState.CLOSING);
+		disconnect();
+        unmarshall();
         this.stub.close();
-		closeCommunication();
-        setInitialized(false);
-    }
+        closeCommunication();
+        setState(ResourceState.CLOSED);
+	}
 
     public MockConnectionStub getStub() {
         return this.stub;

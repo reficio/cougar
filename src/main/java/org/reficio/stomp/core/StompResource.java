@@ -27,13 +27,10 @@ package org.reficio.stomp.core;
  */
 public interface StompResource {
 
-	// stomp connect
 	void init(String hostname, int port, String username, String password, String encoding);
 
-	// stomp connect
 	void init(String hostname, int port, String username, String password, String encoding, int timeout);
 
-	// stomp disconnect
 	void close();
 
 
