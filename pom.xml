@@ -181,7 +181,7 @@
                     <excludes>
                         <exclude>target/**</exclude>
                         <exclude>.clover/**</exclude>
-                        <exclude>*.xlsx</exclude>
+                        <exclude>**/*.xlsx</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <mapping>
