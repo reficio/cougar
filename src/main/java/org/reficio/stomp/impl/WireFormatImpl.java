@@ -99,17 +99,22 @@ public class WireFormatImpl implements StompWireFormat {
 
     @Override
     public Frame unmarshal(Reader reader) {
-        CommandType command = parseCommand(reader);
-        Map<String, Header> headers = parseHeaders(reader);
-        String payload = parsePayload(reader, parseContentLength(headers));
-        Boolean subscriptionValid = null;
-        if(register != null) {
-            Header id = headers.get(HeaderType.SUBSCRIPTION_ID.getName());
-            if(id != null && StringUtils.isNotBlank(id.getValue())) {
-                subscriptionValid = register.isSubscriptionActive(id.getValue());
+        try {
+            CommandType command = parseCommand(reader);
+            Map<String, Header> headers = parseHeaders(reader);
+            String payload = parsePayload(reader, parseContentLength(headers));
+            Boolean subscriptionValid = null;
+            if(register != null) {
+                Header id = headers.get(HeaderType.SUBSCRIPTION_ID.getName());
+                if(id != null && StringUtils.isNotBlank(id.getValue())) {
+                    subscriptionValid = register.isSubscriptionActive(id.getValue());
+                }
             }
+            return new Frame(command, headers, payload, subscriptionValid);
+        } catch(StompWireFormatException ex) {
+            flushUntilEndMarker(reader);
+            throw ex;
         }
-        return new Frame(command, headers, payload, subscriptionValid);
     }
 
     private String readLine(Reader input, int maxLength, String errorMessage, boolean skipLeadingEndMarkers){
@@ -120,7 +125,7 @@ public class WireFormatImpl implements StompWireFormat {
         String commandString = readLine(input, MAX_COMMAND_LENGTH, "Error during command parsing", true);
         CommandType command = CommandType.getCommand(commandString.trim());
         if(command == null) {
-            throw new StompWireFormatException(String.format("CommandType [%s] not recognized", commandString));
+            throw new StompWireFormatException(commandString, String.format("CommandType [%s] not recognized", commandString));
         }
         return command;
     }
@@ -139,7 +144,7 @@ public class WireFormatImpl implements StompWireFormat {
             }
             int offset = headerString.indexOf(HEADER_DELIMITER);
             if(offset <= 0) {
-                throw new StompWireFormatException("Error during header split");
+                throw new StompWireFormatException(headerString, "Error during header split");
             }
             Header header = Header.createHeader(headerString.substring(0, offset), headerString.substring(offset+1));
             headers.put(header.getName(), header);
@@ -168,7 +173,7 @@ public class WireFormatImpl implements StompWireFormat {
                 }
                 int nextByte = input.read();
                 if(nextByte < 0) {
-                    throw new StompWireFormatException("Mismatch during content read. Wrong content-length header! No end of frame after content reception.");
+                    throw new StompIOException("End of stream has been reached");
                 }
                 if(nextByte!=END_OF_FRAME) {
                     throw new StompWireFormatException("Mismatch during content read. Wrong content-length header! Content-length header value TOO SMALL.");
@@ -193,7 +198,7 @@ public class WireFormatImpl implements StompWireFormat {
                }
                currentByte = input.read();
                if(currentByte < 0) {
-                   throw new StompWireFormatException("End of stream has been reached");
+                   throw new StompIOException("End of stream has been reached");
                } else if((char)currentByte == endMarker) {
                    if(receivedContent || !skipLeadingEndMarkers) {
                        break;
@@ -208,6 +213,27 @@ public class WireFormatImpl implements StompWireFormat {
            return output.toString();
        } catch(IOException ex) {
            throw new StompIOException(errorMessage, ex);
+       }
+    }
+
+    private void flushUntilEndMarker(Reader input) {
+       int currentByte;
+       long received = 0;
+       try {
+           while (true) {
+               currentByte = input.read();
+               if(currentByte < 0) {
+                   throw new StompWireFormatException("End of stream has been reached");
+               } else if((char)currentByte == END_OF_FRAME) {
+                   break;
+               }
+               received+=1;
+               if(received > MAX_COMMAND_LENGTH + MAX_HEADERS * MAX_HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
+                    throw new StompWireFormatException("Max frame length exceeded while flushing error-prone frame");
+               }
+           }
+       } catch(IOException ex) {
+           throw new StompIOException("Error during stream flush", ex);
        }
     }
 

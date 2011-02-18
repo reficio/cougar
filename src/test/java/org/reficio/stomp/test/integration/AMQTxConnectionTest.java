@@ -78,5 +78,4 @@ public class AMQTxConnectionTest {
         assertFalse(conn.isInitialized());
     }
 
-
 }

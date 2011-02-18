@@ -69,7 +69,6 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
         this.writer = this.stub.getMockClientWriter();
     }
 
-
     @Override
 	public synchronized void close() {
 		assertOperational();
@@ -101,6 +100,5 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
     public MockServer getServer() {
         return this.stub.getServer();
     }
-
 
 }

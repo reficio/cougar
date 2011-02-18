@@ -99,5 +99,4 @@ public class MockConnectionImpl extends ConnectionImpl {
         return this.stub.getServer();
     }
 
-
 }

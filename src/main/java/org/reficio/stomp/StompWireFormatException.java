@@ -29,12 +29,29 @@ public class StompWireFormatException extends StompException {
 
 	private static final long serialVersionUID = 1L;
 
-	public StompWireFormatException(String message, Throwable cause) {
+    private String errorContent;
+
+	public StompWireFormatException(String errorContent, String message, Throwable cause) {
 		super(message, cause);
+        this.errorContent = errorContent;
 	}
 
-	public StompWireFormatException(String message) {
+	public StompWireFormatException(String errorContent, String message) {
+		super(message);
+        this.errorContent = errorContent;
+	}
+
+    public StompWireFormatException(String message) {
 		super(message);
 	}
+
+    public String getErrorContent() {
+        return this.errorContent;
+    }
+
+    public void setErrorContent(String errorContent) {
+        this.errorContent = errorContent;
+    }
+
 
 }

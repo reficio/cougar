@@ -169,7 +169,8 @@ public class HeaderTypeTest {
         new StompException("message");
         new StompProtocolException("message", ex);
         new StompProtocolException("message");
-        new StompWireFormatException("message", ex);
+        new StompWireFormatException("Haadader", "message", ex);
+        new StompWireFormatException("Haadader", "message");
         new StompWireFormatException("message");
     }
 

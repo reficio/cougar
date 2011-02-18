@@ -239,7 +239,7 @@ public class WireFormatTest {
        Frame frame = wireFormat.unmarshal(reader);
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test(expected = StompIOException.class)
     public void endOfStreamInReadUntilEndMarker() {
        String payload = "test_payload";
        String headerPrefix = "header" + WireFormatImpl.HEADER_DELIMITER;
@@ -282,7 +282,7 @@ public class WireFormatTest {
        Frame frame = wireFormat.unmarshal(reader);
     }
 
-    @Test(expected = StompWireFormatException.class)
+    @Test(expected = StompIOException.class)
     public void parsePayloadWithContentLengthTooBigSpecialCase() throws IOException {
        String payload = "test_payload";
        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
@@ -378,5 +378,48 @@ public class WireFormatTest {
        StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
        wireFormat.getVersion();
     }
+
+
+    @Test
+    public void flushAfterParseError() {
+        String hLogin = "test_login";
+        String hPassCode = "test_passcode";
+        String hEncoding = "UTF-8";
+        String payload = "test_payload";
+
+        String marshalledFrame =
+                "YO YO FEEL THE FLOW COMMAND" + WireFormatImpl.END_OF_LINE +
+                HeaderType.ENCODING.getName() + WireFormatImpl.HEADER_DELIMITER + hEncoding + WireFormatImpl.END_OF_LINE +
+                HeaderType.LOGIN.getName() + WireFormatImpl.HEADER_DELIMITER + hLogin + WireFormatImpl.END_OF_LINE +
+                HeaderType.PASS_CODE.getName() + WireFormatImpl.HEADER_DELIMITER + hPassCode + WireFormatImpl.END_OF_LINE +
+                WireFormatImpl.END_OF_LINE+
+                payload+WireFormatImpl.END_OF_FRAME;
+
+        Frame frame = new Frame(CommandType.CONNECT);
+        frame.login(hLogin);
+        frame.passcode(hPassCode);
+        frame.encoding(hEncoding);
+        frame.payload(payload);
+
+        StringWriter writer = new StringWriter();
+        StompWireFormat wireFormat = new WireFormatImpl();
+        wireFormat.marshal(frame, writer);
+
+        StringReader reader = new StringReader(marshalledFrame + writer);
+
+        Exception catched = null;
+        try {
+            wireFormat.unmarshal(reader);
+        } catch(Exception ex) {
+           catched = ex;
+        } finally {
+            assertNotNull(catched);
+            assertEquals(StompWireFormatException.class, catched.getClass());
+            assertNotNull(((StompWireFormatException)catched).getErrorContent());
+        }
+        wireFormat.unmarshal(reader);
+    }
+
+
 
 }
