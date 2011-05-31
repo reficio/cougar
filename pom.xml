@@ -5,7 +5,7 @@
     <groupId>org.reficio</groupId>
     <artifactId>turbine</artifactId>
     <name>Turbine Distribution</name>
-    <version>1.0.1.0.RC</version>
+    <version>1.0.0.RC</version>
     <packaging>pom</packaging>
     <modules>
         <module>turbine-parent</module>

@@ -4,15 +4,15 @@
     <groupId>org.reficio</groupId>
     <artifactId>turbine-spring</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1.0.RC</version>
-    <name>Turbine Core</name>
+    <version>1.0.0.RC</version>
+    <name>Turbine Spring</name>
     
     <url>http://reficio.org/</url>
 	<parent>
 		<groupId>org.reficio</groupId>
 		<artifactId>turbine-parent</artifactId>
 		<relativePath>../turbine-parent</relativePath>
-		<version>1.0.1.0.RC</version>
+		<version>1.0.0.RC</version>
 	</parent>
 
     <properties>

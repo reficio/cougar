@@ -4,8 +4,8 @@
     <groupId>org.reficio</groupId>
     <artifactId>turbine-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1.0.RC</version>
-    <name>Turbine</name>
+    <version>1.0.0.RC</version>
+    <name>Turbine Parent</name>
     <description>
         Turbine is the Java client of the STOMP protocol. It implements the latest version of the STOMP specification that has been already released - 1.0.
         Implementation was fully contributed by the Reficio (TM) open source initiative. The main goal of the Turbine project
