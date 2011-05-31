@@ -20,8 +20,8 @@ package org.reficio.stomp.test.unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.reficio.stomp.IllegalTransactionStateException;
-import org.reficio.stomp.InvalidHeaderException;
+import org.reficio.stomp.StompIllegalTransactionStateException;
+import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
@@ -190,7 +190,7 @@ public class TxConnectionTest {
         assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
     }
 
-    @Test(expected = InvalidHeaderException.class)
+    @Test(expected = StompInvalidHeaderException.class)
     public void transactionSetExplicitly() {
         final String payload = "msg1";
         connection.send("queue1", new FrameDecorator() {
@@ -304,13 +304,13 @@ public class TxConnectionTest {
     }
 
 
-    @Test(expected = IllegalTransactionStateException.class)
+    @Test(expected = StompIllegalTransactionStateException.class)
     public void doubleBegin() {
         connection.begin();
         connection.begin();
     }
 
-    @Test(expected = IllegalTransactionStateException.class)
+    @Test(expected = StompIllegalTransactionStateException.class)
     public void comitNoBegin() {
         connection.commit();
     }

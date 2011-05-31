@@ -25,15 +25,15 @@ package org.reficio.stomp;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class IllegalTransactionStateException extends StompException {
+public class StompIllegalTransactionStateException extends StompException {
 
 	private static final long serialVersionUID = 1L;
 
-	public IllegalTransactionStateException(String message, Throwable cause) {
+	public StompIllegalTransactionStateException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public IllegalTransactionStateException(String message) {
+	public StompIllegalTransactionStateException(String message) {
 		super(message);
 	}
 	

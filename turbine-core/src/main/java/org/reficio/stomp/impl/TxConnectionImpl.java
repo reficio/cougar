@@ -19,8 +19,8 @@ package org.reficio.stomp.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.reficio.stomp.IllegalTransactionStateException;
-import org.reficio.stomp.InvalidHeaderException;
+import org.reficio.stomp.StompIllegalTransactionStateException;
+import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.TxConnection;
 import org.reficio.stomp.core.FrameDecorator;
@@ -159,13 +159,13 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	
 	private void assertInTransaction() {
 		if(isInTransaction() == false) {
-			throw new IllegalTransactionStateException("Transaction has not begun");
+			throw new StompIllegalTransactionStateException("Transaction has not begun");
 		}
 	}
 	
 	private void assertNotInTransaction() {
 		if(isInTransaction() == true) {
-			throw new IllegalTransactionStateException("Transaction has begun");
+			throw new StompIllegalTransactionStateException("Transaction has begun");
 		}
 	}
 
@@ -189,7 +189,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 		public void decorateFrame(Frame frame) {
 			originalDecorator.decorateFrame(frame);
 			if(frame.transaction()!= null) {
-				throw new InvalidHeaderException("TransactionId header can't be set manually in transactional connection");
+				throw new StompInvalidHeaderException("TransactionId header can't be set manually in transactional connection");
 			}
 			frame.transaction(transactionId);
 		}
@@ -206,7 +206,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 		public void decorateFrame(Frame frame) {
 			originalDecorator.decorateFrame(frame);
 			if(frame.ack()!= null) {
-				throw new InvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
+				throw new StompInvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
 			}
 			frame.ack(AckType.CLIENT);
 		}

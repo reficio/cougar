@@ -25,15 +25,15 @@ package org.reficio.stomp;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class EncodingException extends StompException {
+public class StompEncodingException extends StompException {
 
 	private static final long serialVersionUID = 1L;
 
-	public EncodingException(String message, Throwable cause) {
+	public StompEncodingException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public EncodingException(String message) {
+	public StompEncodingException(String message) {
 		super(message);
 	}
 

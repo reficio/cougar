@@ -25,15 +25,15 @@ package org.reficio.stomp;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class InvalidHeaderException extends StompException {
+public class StompInvalidHeaderException extends StompException {
 	
 	private static final long serialVersionUID = 1L;
 
-	public InvalidHeaderException(String message, Throwable cause) {
+	public StompInvalidHeaderException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public InvalidHeaderException(String message) {
+	public StompInvalidHeaderException(String message) {
 		super(message);
 	}
 

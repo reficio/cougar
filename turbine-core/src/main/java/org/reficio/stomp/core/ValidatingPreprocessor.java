@@ -78,7 +78,7 @@ public class ValidatingPreprocessor implements FramePreprocessor {
 //            } else if(method.getReturnType().equals(FrameBuilder.class)) {
 //                String name = (String)args[0];
 //                if(headersSetBeforeDecoration.contains(name)) {
-//                    throw new InvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
+//                    throw new StompInvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
 //                }
 //            }
 //
@@ -125,7 +125,7 @@ public class ValidatingPreprocessor implements FramePreprocessor {
 //            } else if (method.getName().equals(ADD_HEADER_METHOD_NAME)) {
 //                String name = (String)args[0];
 //                if(headersSetBeforeDecoration.contains(name)) {
-//                    throw new InvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
+//                    throw new StompInvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
 //                }
 //            } else if (method.getName().equals(GET_TARGET_FRAME_METHOD_NAME)) {
 //                // Handle getTargetSession method: return underlying Session.

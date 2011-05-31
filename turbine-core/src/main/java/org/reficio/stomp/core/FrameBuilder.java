@@ -18,7 +18,7 @@
 package org.reficio.stomp.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.reficio.stomp.InvalidHeaderException;
+import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.domain.*;
 
 import java.util.*;
@@ -72,7 +72,7 @@ public class FrameBuilder {
     private void validate(HeaderType type) {
         if(isValidationEnabled()) {
             if(type.isAllowed((Frame)this) == false) {
-                throw new InvalidHeaderException(String.format("Header [%s] is not allowed in frame [%s]", type.name(), command));
+                throw new StompInvalidHeaderException(String.format("Header [%s] is not allowed in frame [%s]", type.name(), command));
             }
         }
     }
@@ -88,7 +88,7 @@ public class FrameBuilder {
         } else {
             if(isFrozen()) {
                 if(frozenHeaders.contains(name)) {
-                    throw new InvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
+                    throw new StompInvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
                 }
             }
             this.headers.put(name, Header.createHeader(name, value));
@@ -330,11 +330,11 @@ public class FrameBuilder {
         return getHeaderValue(name);
     }
 
-    private void validateEnumValue(Class enumClass, String value) throws InvalidHeaderException {
+    private void validateEnumValue(Class enumClass, String value) throws StompInvalidHeaderException {
         try {
             Enum.valueOf(enumClass, value);
         } catch(IllegalArgumentException ex) {
-            throw new InvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
+            throw new StompInvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
         }
     }
 }

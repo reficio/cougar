@@ -41,7 +41,7 @@ public class HeaderTypeTest {
         frame.encoding("007");
     }
 
-    @Test(expected = InvalidHeaderException.class)
+    @Test(expected = StompInvalidHeaderException.class)
     public void disconnect() {
         Frame frame = new Frame(CommandType.DISCONNECT);
         frame.login("007");
@@ -66,7 +66,7 @@ public class HeaderTypeTest {
         frame.receipt("007");
     }
 
-    @Test(expected = InvalidHeaderException.class)
+    @Test(expected = StompInvalidHeaderException.class)
     public void unsubscribeFails() {
         Frame frame = new Frame(CommandType.UNSUBSCRIBE);
         frame.destination("007");
@@ -157,12 +157,12 @@ public class HeaderTypeTest {
     public void totalDummy() {
         // let's pimp up the code coverage indicators :)
         Exception ex = new RuntimeException();
-        new EncodingException("message", ex);
-        new EncodingException("message");
-        new IllegalTransactionStateException("message", ex);
-        new IllegalTransactionStateException("message");
-        new InvalidHeaderException("message", ex);
-        new InvalidHeaderException("message");
+        new StompEncodingException("message", ex);
+        new StompEncodingException("message");
+        new StompIllegalTransactionStateException("message", ex);
+        new StompIllegalTransactionStateException("message");
+        new StompInvalidHeaderException("message", ex);
+        new StompInvalidHeaderException("message");
         new StompConnectionException("message", ex);
         new StompConnectionException("message");
         new StompException("message", ex);

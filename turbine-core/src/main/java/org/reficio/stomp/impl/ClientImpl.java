@@ -302,7 +302,7 @@ public class ClientImpl implements Client {
            writer = new OutputStreamWriter(socket.getOutputStream(), encoding);
        } catch (UnsupportedEncodingException e) {
            setState(ResourceState.ERROR);
-           throw new EncodingException("Error during connection initialization", e);
+           throw new StompEncodingException("Error during connection initialization", e);
        } catch (IOException e) {
            setState(ResourceState.ERROR);
            throw new StompConnectionException("Error during connection initialization", e);
