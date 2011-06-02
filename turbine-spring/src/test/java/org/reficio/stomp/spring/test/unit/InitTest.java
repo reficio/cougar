@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.spring;
+package org.reficio.stomp.spring.test.unit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.spring.service.TransactionalOrchestrator;
+import org.reficio.stomp.spring.StompTemplate;
+import org.reficio.stomp.spring.test.service.TransactionalOrchestrator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,7 +56,6 @@ public class InitTest {
 		FrameDecorator decorator = new FrameDecorator() {
 			@Override
 			public void decorateFrame(Frame frame) {
-				// frame.destination(UUID.randomUUID().toString());
 				frame.payload("My wife is the best wife in the world.");
 				return;
 			}
@@ -68,7 +68,6 @@ public class InitTest {
 		FrameDecorator decorator = new FrameDecorator() {
 			@Override
 			public void decorateFrame(Frame frame) {
-				// frame.destination(UUID.randomUUID().toString());
 				frame.payload("My wife is the best wife in the world.");
 				return;
 			}

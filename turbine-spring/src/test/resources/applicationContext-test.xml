@@ -28,7 +28,7 @@
 
 	<tx:annotation-driven transaction-manager="jmsTransactionManager"/>
 
-	<bean id="stompConnectionFactory" class="org.reficio.stomp.spring.mock.MockConnectionFactory">
+	<bean id="stompConnectionFactory" class="org.reficio.stomp.spring.test.mock.MockConnectionFactory">
 		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.test.mock.MockTxConnectionImpl"/>
         <property name="hostname" value="127.0.0.1"/>
         <property name="port" value="4444"/>
@@ -58,11 +58,11 @@
 		<property name="connectionFactory"><ref local="stompConnectionFactory"/></property>
 	</bean>
 	
-	<bean id="transactionalOperations" class="org.reficio.stomp.spring.service.TransactionalOperations">
+	<bean id="transactionalOperations" class="org.reficio.stomp.spring.test.service.TransactionalOperations">
 		<property name="stompTemplate"><ref local="transactionalStompTemplate"/></property>
 	</bean>
 	
-	<bean id="transactionalOrchestrator" class="org.reficio.stomp.spring.service.TransactionalOrchestrator">
+	<bean id="transactionalOrchestrator" class="org.reficio.stomp.spring.test.service.TransactionalOrchestrator">
 		<property name="top"><ref local="transactionalOperations"/></property>
 	</bean>
 

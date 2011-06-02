@@ -21,8 +21,11 @@ import org.junit.Test;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.impl.ClientImpl;
 import org.reficio.stomp.impl.ConnectionImpl;
 import org.reficio.stomp.test.mock.MockFactoryConnectionImpl;
+import org.reficio.stomp.test.mock.PrivateConstructorResource;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,6 +39,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class ConnectionFactoryTest {
 
+    abstract class CanInstantiateAbstract extends ConnectionImpl {
+    }
 
     @Test
     public void createConnection() {
@@ -54,25 +59,18 @@ public class ConnectionFactoryTest {
         assertEquals(factory.getPassword(), conn.getPassword());
     }
 
-    class CanInstantiateImpl extends ConnectionImpl {
-        private CanInstantiateImpl() {
-        }
-    }
-
     @Test(expected = StompException.class)
     public void createConnectionEx() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(CanInstantiateImpl.class);
+        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(CanInstantiateAbstract.class);
         factory.createConnection();
     }
 
     @Test(expected = StompException.class)
     public void createConnectionEx2() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(CanInstantiateAbstract.class);
+        StompConnectionFactory<PrivateConstructorResource> factory = new StompConnectionFactory<PrivateConstructorResource>(PrivateConstructorResource.class);
         factory.createConnection();
     }
 
-
 }
 
-abstract class CanInstantiateAbstract extends ConnectionImpl {
-}
+

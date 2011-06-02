@@ -29,15 +29,19 @@ import org.apache.commons.lang.StringUtils;
  */
 public enum CommandType {
 
+
     CONNECT(true),
-    SEND(true),
+    DISCONNECT(true),
+
     SUBSCRIBE(true),
     UNSUBSCRIBE(true),
+
     BEGIN(true),
     COMMIT(true),
     ABORT(true),
     ACK(true),
-    DISCONNECT(true),
+
+    SEND(true),
 
     CONNECTED(false),
     MESSAGE(false),

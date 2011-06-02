@@ -18,13 +18,19 @@
 package org.reficio.stomp.test.integration;
 
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.*;
 import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
+import org.reficio.stomp.impl.ConnectionImpl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -62,15 +68,19 @@ public class AMQClientTest {
         broker.getAdminView().removeQueue(destinationName);
     }
 
-    @Test
-    public void connect() {
+    private StompConnectionFactory<Client> getConnectionFactory() {
         StompConnectionFactory<Client> factory = new StompConnectionFactory<Client>(ClientImpl.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
         factory.setUsername("system");
         factory.setPassword("manager");
+        return factory;
+    }
 
+    @Test
+    public void connect() {
+        StompConnectionFactory<Client> factory = getConnectionFactory();
         Client client = factory.createConnection();
         assertTrue(client.isInitialized());
         client.close();
@@ -78,18 +88,34 @@ public class AMQClientTest {
     }
 
     @Test
-    public void connect2() {
-        StompConnectionFactory<Client> factory = new StompConnectionFactory<Client>(ClientImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("system");
-        factory.setPassword("manager");
-
+    public void send() throws Exception {
+        StompConnectionFactory<Client> factory = getConnectionFactory();
         Client client = factory.createConnection();
-        assertTrue(client.isInitialized());
+
+        final String receiptSubscribe = UUID.randomUUID().toString();
+        Frame frameSubscribe = new Frame(CommandType.SUBSCRIBE);
+        frameSubscribe.destination(stompQueuePrefix + destinationName);
+        frameSubscribe.receipt(receiptSubscribe);
+        client.send(frameSubscribe);
+        Frame responseSubscribe = client.receive();
+        assertNotNull(responseSubscribe);
+
+        final String payload = "TEST MESSAGE";
+        final String receiptId = UUID.randomUUID().toString();
+        Frame frame = new Frame(CommandType.SEND);
+        frame.destination(stompQueuePrefix + destinationName);
+        frame.payload(payload);
+        frame.receipt(receiptId);
+        client.send(frame);
+        Frame receipt = client.receive();
+        assertTrue(receipt.getCommand().equals(CommandType.RECEIPT));
+
+        Frame receivedFrame = client.receive();
+        assertNotNull(receivedFrame);
+        assertEquals(payload, receivedFrame.payload());
+        assertEquals(stompQueuePrefix + destinationName, receivedFrame.destination());
+
         client.close();
-        assertFalse(client.isInitialized());
     }
 
 }

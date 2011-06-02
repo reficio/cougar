@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.spring.service;
+package org.reficio.stomp.spring.test.service;
 
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;

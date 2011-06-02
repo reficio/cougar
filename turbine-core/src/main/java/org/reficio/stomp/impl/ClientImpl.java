@@ -55,7 +55,7 @@ public class ClientImpl implements Client {
     protected StompWireFormat wireFormat;
     protected FramePreprocessor preprocessor;
 
-	private String sessionId;	
+	private String sessionId;
 
     protected Socket socket;
     protected Writer writer;
@@ -63,9 +63,6 @@ public class ClientImpl implements Client {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
     public static final int DEFAULT_TIMEOUT = 600;
-
-
-
 
     private AtomicBoolean operational;
     private ResourceState state;
@@ -80,7 +77,7 @@ public class ClientImpl implements Client {
         this.wireFormat = new WireFormatImpl();
         this.preprocessor = new ValidatingPreprocessor();
 	}
-	
+
 	// ----------------------------------------------------------------------------------
 	// Helper connection state modifiers
 	// ----------------------------------------------------------------------------------
@@ -100,16 +97,16 @@ public class ClientImpl implements Client {
         if(session != null) {
             setSessionId(session.getValue());
         } else {
-            logger.warn("Server does not returned session id");
+            logger.warn("Server has not returned session id");
         }
 	}
-	
+
 	protected void disconnect() {
 		Frame frame = new Frame(CommandType.DISCONNECT);
 		frame.session(sessionId);
 		marshall(frame);
 	}
-	
+
 	// ----------------------------------------------------------------------------------
 	// StompResource methods
 	// ----------------------------------------------------------------------------------
@@ -142,7 +139,7 @@ public class ClientImpl implements Client {
         doSetAttributes(hostname, port, username, password, encoding);
         doInitialize(timeout);
     }
-	
+
 	@Override
 	public synchronized void close() {
 		assertOperational();
@@ -288,8 +285,6 @@ public class ClientImpl implements Client {
         try {
             socket = new Socket();
             socket.connect(new InetSocketAddress(hostname, port), timeout);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), encoding));
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), encoding));
         } catch (IOException e) {
             setState(ResourceState.ERROR);
             throw new StompConnectionException("Error during connection initialization", e);
@@ -297,18 +292,17 @@ public class ClientImpl implements Client {
     }
 
     protected void initializeStreams(int timeout) {
-       try {
-           reader = new InputStreamReader(socket.getInputStream(), encoding);
-           writer = new OutputStreamWriter(socket.getOutputStream(), encoding);
-       } catch (UnsupportedEncodingException e) {
-           setState(ResourceState.ERROR);
-           throw new StompEncodingException("Error during connection initialization", e);
-       } catch (IOException e) {
-           setState(ResourceState.ERROR);
-           throw new StompConnectionException("Error during connection initialization", e);
-       }
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), encoding));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), encoding));
+        } catch (UnsupportedEncodingException e) {
+            setState(ResourceState.ERROR);
+            throw new StompEncodingException("Error during connection initialization", e);
+        } catch (IOException e) {
+            setState(ResourceState.ERROR);
+            throw new StompConnectionException("Error during connection initialization", e);
+        }
     }
-
 
     protected void closeSocket() {
         try {

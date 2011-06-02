@@ -67,15 +67,19 @@ public class AMQConnectionTest {
         broker.getAdminView().removeQueue(destinationName);
     }
 
-    @Test
-    public void connect() {
+    private StompConnectionFactory<Connection> getConnectionFactory() {
         StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(ConnectionImpl.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
         factory.setUsername("system");
         factory.setPassword("manager");
+        return factory;
+    }
 
+    @Test
+    public void connect() {
+        StompConnectionFactory<Connection> factory = getConnectionFactory();
         Connection conn = factory.createConnection();
         assertTrue(conn.isInitialized());
         conn.close();
@@ -84,12 +88,7 @@ public class AMQConnectionTest {
 
     @Test
     public void sendReceive() throws Exception {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(ConnectionImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("system");
-        factory.setPassword("manager");
+        StompConnectionFactory<Connection> factory = getConnectionFactory();
 
         final String receiptId = UUID.randomUUID().toString();
         final String payload = "James Bond 007!";

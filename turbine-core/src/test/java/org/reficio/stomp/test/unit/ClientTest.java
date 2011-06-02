@@ -86,9 +86,17 @@ public class ClientTest {
 
     @Test
     public void connectNoSessionIdInResponse() {
+        connection = new MockConnectionImpl();
+        // register handlers, no session id in response to connect command
+        connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+            @Override
+            public Frame respond(Frame request) {
+                Frame response = new Frame(CommandType.CONNECTED);
+                return response;
+            }
+        });
         // initialize the connection
         connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.close();
     }
 
     @Test(expected = StompProtocolException.class)

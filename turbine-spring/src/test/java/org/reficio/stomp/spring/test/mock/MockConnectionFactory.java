@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.spring.mock;
+package org.reficio.stomp.spring.test.mock;
 
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.connection.StompConnectionFactory;
@@ -52,7 +52,6 @@ public class MockConnectionFactory<T extends StompResource> extends StompConnect
     }
 
     private void registerHandlers(StompResource resource) {
-
         MockServer server = null;
         if (resource instanceof MockConnectionImpl) {
             server = ((MockConnectionImpl) resource).getServer();
