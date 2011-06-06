@@ -27,12 +27,14 @@
 		<version>1.0</version>
 	</skin>
     <body>
-        <menu name="Overview">
-            <item name="Usage" href="">
-                <item name="Manual" href="manual.html"/>
-                <item name="FAQ" href="faq.html"/>
+         <menu name="Modules">
+            <item name="Turbine" href="../index.html"/>
+            <item name="Modules" href="">
+                <item name="Turbine Core" href="index.html" />
+                <item name="Turbine Spring" href="../turbine-spring/index.html"/>
+                <item name="Turbine Features" href="../turbine-features/index.html"/>
             </item>
         </menu>
-		$reports
+        <menu ref="reports" />
 	</body>
 </project>
