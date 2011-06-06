@@ -17,9 +17,9 @@
 
 package org.reficio.stomp.core;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.domain.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -31,7 +31,7 @@ import org.reficio.stomp.domain.Frame;
  */
 public class ValidatingPreprocessor implements FramePreprocessor {
 
-    private static final Log logger = LogFactory.getLog(ValidatingPreprocessor.class);
+    private static final transient Logger log = LoggerFactory.getLogger(ValidatingPreprocessor.class);
 
     @Override
     public void decorate(Frame frame, FrameDecorator decorator) {

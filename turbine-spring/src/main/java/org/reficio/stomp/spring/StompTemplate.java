@@ -16,21 +16,21 @@
  */
 package org.reficio.stomp.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.spring.connection.ConnectionFactoryUtils;
-import org.reficio.stomp.spring.connection.StompResourceHolder;
 import org.reficio.stomp.connection.TxConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.spring.connection.ConnectionFactoryUtils;
+import org.reficio.stomp.spring.connection.StompResourceHolder;
 import org.reficio.stomp.spring.core.ConnectionCallback;
 import org.reficio.stomp.spring.core.StompAccessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class StompTemplate extends StompAccessor {
 
-	private static final Log logger = LogFactory.getLog(StompTemplate.class);
+	private static final transient Logger log = LoggerFactory.getLogger(StompTemplate.class);
 
 	/**
 	 * Internal ResourceFactory adapter for interacting with
@@ -88,8 +88,8 @@ public class StompTemplate extends StompAccessor {
 				connection = createConnection();
 				connToClose = connection;
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing callback on Stomp Connection: "
+			if (log.isDebugEnabled()) {
+				log.debug("Executing callback on Stomp Connection: "
 						+ connection);
 			}
 			return action.doInStomp(connection);

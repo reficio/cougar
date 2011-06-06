@@ -16,14 +16,14 @@
  */
 package org.reficio.stomp.spring.test.unit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.spring.StompTemplate;
 import org.reficio.stomp.spring.test.service.TransactionalOrchestrator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations={"/applicationContext-test.xml"})
 public class InitTest {
 
-	private static final Log logger = LogFactory.getLog(InitTest.class);
+	private static final transient Logger log = LoggerFactory.getLogger(InitTest.class);
 
     @Autowired
     @Qualifier("stompTemplate")
@@ -48,7 +48,7 @@ public class InitTest {
 	
 	@Test
 	public void init() {
-		logger.info(stompTemplate);
+		log.info(stompTemplate.toString());
 	}
 	
 	@Test

@@ -17,9 +17,10 @@
 
 package org.reficio.stomp.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.reficio.stomp.*;
+import org.reficio.stomp.StompConnectionException;
+import org.reficio.stomp.StompEncodingException;
+import org.reficio.stomp.StompException;
+import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.core.StompWireFormat;
@@ -28,6 +29,8 @@ import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -44,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ClientImpl implements Client {
 
-	private static final Log logger = LogFactory.getLog(ClientImpl.class);
+	private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
 
     private String hostname;
     private int port;
@@ -97,7 +100,7 @@ public class ClientImpl implements Client {
         if(session != null) {
             setSessionId(session.getValue());
         } else {
-            logger.warn("Server has not returned session id");
+            log.warn("Server has not returned session id");
         }
 	}
 
@@ -119,7 +122,7 @@ public class ClientImpl implements Client {
     }
 
     private void doInitialize(int timeout) {
-        logger.info(String.format("Initializing connection=[%s]", this));
+        log.info(String.format("Initializing connection=[%s]", this));
         initializeCommunication(timeout);
         setState(ResourceState.COMMUNICATION_INITIALIZED);
 		connect();
@@ -143,7 +146,7 @@ public class ClientImpl implements Client {
 	@Override
 	public synchronized void close() {
 		assertOperational();
-		logger.info(String.format("Closing connection=[%s]", this));
+		log.info(String.format("Closing connection=[%s]", this));
 
         setState(ResourceState.CLOSING);
 		disconnect();
@@ -202,10 +205,10 @@ public class ClientImpl implements Client {
 	// StompAccessor methods
 	// ----------------------------------------------------------------------------------
 	protected Frame unmarshall() throws StompException {
-		logger.info("Receiving frame: ");
+		log.info("Receiving frame: ");
         try {
 		    Frame frame = wireFormat.unmarshal(reader);
-            logger.info(frame);
+            log.info(frame.toString());
 		    return frame;
         } catch(RuntimeException ex) {
             setState(ResourceState.ERROR);
@@ -214,7 +217,7 @@ public class ClientImpl implements Client {
 	}
 
 	protected void marshall(Frame frame) throws StompException {
-		logger.info("Sending frame: \n" + frame);
+		log.info("Sending frame: \n" + frame);
         try {
 		    wireFormat.marshal(frame, writer);
         } catch(RuntimeException ex) {

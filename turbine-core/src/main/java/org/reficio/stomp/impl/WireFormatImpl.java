@@ -18,8 +18,6 @@
 package org.reficio.stomp.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
@@ -28,6 +26,8 @@ import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
 import org.reficio.stomp.util.SubscriptionRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class WireFormatImpl implements StompWireFormat {
 
-    private static final Log logger = LogFactory.getLog(WireFormatImpl.class);
+    private static final transient Logger log = LoggerFactory.getLogger(WireFormatImpl.class);
 
     public static final String VERSION = "1";
 
@@ -158,7 +158,7 @@ public class WireFormatImpl implements StompWireFormat {
         try {
             return contentLengthHeader != null ? Integer.parseInt(contentLengthHeader.getValue()) : null;
         } catch(NumberFormatException ex) {
-            logger.warn("Error during content length parsing - header is ignored.");
+            log.warn("Error during content length parsing - header is ignored.");
             return null;
         }
     }

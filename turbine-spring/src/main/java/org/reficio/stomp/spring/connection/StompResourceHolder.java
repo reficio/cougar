@@ -23,13 +23,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.TxConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.ResourceHolderSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 public class StompResourceHolder extends ResourceHolderSupport {
 
-	private static final Log logger = LogFactory.getLog(StompResourceHolder.class);
+	private static final transient Logger log = LoggerFactory.getLogger(StompResourceHolder.class);
 
 	private boolean frozen = false;
 

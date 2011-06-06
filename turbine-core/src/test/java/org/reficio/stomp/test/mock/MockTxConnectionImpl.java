@@ -17,12 +17,12 @@
 
 package org.reficio.stomp.test.mock;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ResourceState;
 import org.reficio.stomp.impl.TxConnectionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
 
@@ -36,7 +36,7 @@ import java.net.Socket;
  */
 public class MockTxConnectionImpl extends TxConnectionImpl {
 
-    private static final Log logger = LogFactory.getLog(MockTxConnectionImpl.class);
+    private static final transient Logger log = LoggerFactory.getLogger(MockTxConnectionImpl.class);
 
     private MockConnectionStub stub;
 
@@ -72,7 +72,7 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
     @Override
 	public synchronized void close() {
 		assertOperational();
-		logger.info(String.format("Closing connection=[%s]", this));
+		log.info(String.format("Closing connection=[%s]", this));
         setState(ResourceState.CLOSING);
 		disconnect();
         unmarshall();
@@ -84,7 +84,7 @@ public class MockTxConnectionImpl extends TxConnectionImpl {
     @Override
 	protected void marshall(Frame frame) throws StompException {
         stub.getExecutor().submit(getServer());
-		logger.info("Sending frame: \n" + frame);
+		log.info("Sending frame: \n" + frame);
         try {
 		    wireFormat.marshal(frame, writer);
         } catch(RuntimeException ex) {

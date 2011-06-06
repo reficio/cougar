@@ -17,16 +17,16 @@
 
 package org.reficio.stomp.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.TxConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
@@ -40,7 +40,7 @@ import java.util.UUID;
  */
 public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 
-	private static final Log logger = LogFactory.getLog(TxConnectionImpl.class);
+	private static final transient Logger log = LoggerFactory.getLogger(TxConnectionImpl.class);
 	
 	private String transactionId;
 	private boolean autoTransactional;
@@ -100,7 +100,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	public void begin() {
 		assertNotInTransaction();
 		this.transactionId = UUID.randomUUID().toString();
-		logger.info(String.format("Beginnig transaction id=[%s]", transactionId));
+		log.info(String.format("Beginnig transaction id=[%s]", transactionId));
 		try {
             begin(transactionId);
         } catch(RuntimeException ex) {
@@ -135,7 +135,7 @@ public class TxConnectionImpl extends ConnectionImpl implements TxConnection {
 	@Override
 	public void commit() throws StompException {
 		assertInTransaction();
-		logger.info(String.format("Committing transaction id=[%s]", transactionId));
+		log.info(String.format("Committing transaction id=[%s]", transactionId));
 		commit(transactionId);
 	}
 	

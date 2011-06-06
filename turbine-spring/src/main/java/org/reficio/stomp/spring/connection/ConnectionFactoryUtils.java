@@ -16,18 +16,18 @@
  */
 package org.reficio.stomp.spring.connection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.ConnectionFactory;
 import org.reficio.stomp.connection.TxConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.ResourceHolderSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
 public class ConnectionFactoryUtils {
 
-	private static final Log logger = LogFactory.getLog(ConnectionFactoryUtils.class);
+	private static final transient Logger log = LoggerFactory.getLogger(ConnectionFactoryUtils.class);
 	
 	public static void releaseConnection(TxConnection connection) {
 		if (connection == null) {
@@ -37,7 +37,7 @@ public class ConnectionFactoryUtils {
 			connection.close();
 		}
 		catch (Throwable ex) {
-			logger.debug("Could not close Stomp Connection", ex);
+			log.debug("Could not close Stomp Connection", ex);
 		}
 	}
 	

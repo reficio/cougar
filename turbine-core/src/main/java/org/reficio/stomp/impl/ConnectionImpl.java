@@ -17,14 +17,14 @@
 
 package org.reficio.stomp.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.util.SubscriptionRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -36,7 +36,7 @@ import org.reficio.stomp.util.SubscriptionRegister;
  */
 public class ConnectionImpl extends ClientImpl implements Connection {
 
-	private static final Log logger = LogFactory.getLog(ConnectionImpl.class);
+	private static final transient Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
 
     private SubscriptionRegister register;
 
