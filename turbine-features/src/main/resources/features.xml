@@ -22,6 +22,7 @@
 
     <feature name="turbine" version="${project.version}">
         <bundle>mvn:org.reficio/turbine-core/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
     </feature>
 
     <feature name="turbine-spring" version="${project.version}">

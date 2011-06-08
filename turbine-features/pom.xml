@@ -5,7 +5,7 @@
     <artifactId>turbine-features</artifactId>
     <packaging>bundle</packaging>
     <version>1.0.0.RC</version>
-    <name>Turbine OSGi Karaf Features</name>
+    <name>Turbine OSGi Features</name>
 
     <url>http://reficio.org/</url>
     <parent>
