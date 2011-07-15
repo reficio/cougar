@@ -23,7 +23,7 @@
          xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
     <skin>
         <groupId>org.reficio</groupId>
-        <artifactId>maven-site-skin</artifactId>
+        <artifactId>skin</artifactId>
         <version>1.0</version>
     </skin>
 
