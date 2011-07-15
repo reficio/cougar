@@ -1,0 +1,129 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.reficio</groupId>
+    <artifactId>turbine-performance</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0.RC</version>
+    <name>Turbine Performance</name>
+
+    <url>http://reficio.org/</url>
+    <parent>
+        <groupId>org.reficio</groupId>
+        <artifactId>turbine</artifactId>
+        <relativePath>../</relativePath>
+        <version>1.0.0.RC</version>
+    </parent>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>../src/main/resources/license.txt</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <spring.version>3.0.5.RELEASE</spring.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.germane-software.gozirra</groupId>
+            <artifactId>gozirra-client</artifactId>
+            <version>0.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>pk.aamir</groupId>
+            <artifactId>stompj</artifactId>
+            <version>0.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-all</artifactId>
+            <version>5.4.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reficio</groupId>
+            <artifactId>turbine-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+            <version>${spring.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>Tanesha (WTF?)</id>
+            <url>http://tanesha.net/maven2/</url>
+        </repository>
+        <repository>
+            <id>Egovframe (WTF?)</id>
+            <url>http://opendev.egovframe.go.kr/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+
+
+</project>

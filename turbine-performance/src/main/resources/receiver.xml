@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="connectionFactory"
+          class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://${activemq.brokerName}"/>
+    </bean>
+
+
+    <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="maximumActive" value="2"/>
+    </bean>
+
+    <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="pooledConnectionFactory"/>
+        <property name="destinationName" value="request"/>
+        <property name="messageListener" ref="listener"/>
+    </bean>
+
+    <bean id="listener" class="org.reficio.stomp.perf.receiver.MessageListener" singleton="true"/>
+
+</beans>
