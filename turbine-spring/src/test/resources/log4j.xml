@@ -32,6 +32,12 @@
 		<level value="debug" />
 	</logger>
 
+	<logger name="org.reficio.stomp.test.mock.MockServer">
+		<level value="warn" />
+	</logger>
+
+
+
     <logger name="org.reficio.stomp">
 		<level value="debug" />
 	</logger>

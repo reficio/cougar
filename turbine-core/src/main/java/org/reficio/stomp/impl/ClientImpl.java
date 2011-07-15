@@ -205,10 +205,12 @@ public class ClientImpl implements Client {
 	// StompAccessor methods
 	// ----------------------------------------------------------------------------------
 	protected Frame unmarshall() throws StompException {
-		log.info("Receiving frame: ");
+        if(log.isInfoEnabled())
+		    log.info("Receiving frame: ");
         try {
 		    Frame frame = wireFormat.unmarshal(reader);
-            log.info(frame.toString());
+            if(log.isInfoEnabled())
+                log.info(frame.toString());
 		    return frame;
         } catch(RuntimeException ex) {
             setState(ResourceState.ERROR);
@@ -217,7 +219,8 @@ public class ClientImpl implements Client {
 	}
 
 	protected void marshall(Frame frame) throws StompException {
-		log.info("Sending frame: \n" + frame);
+        if(log.isInfoEnabled())
+		    log.info("Sending frame: \n" + frame);
         try {
 		    wireFormat.marshal(frame, writer);
         } catch(RuntimeException ex) {

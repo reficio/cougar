@@ -152,13 +152,19 @@ public class FrameBuilder {
 	// Tweaked builder setters and getters
 	// ----------------------------------------------------------------------------------
     public FrameBuilder payload(String payload) {
+		return payload(payload, false);
+	}
+
+    public FrameBuilder payload(String payload, boolean disableContentLenghtHeader) {
 		this.payload=payload;
-        CommandType comm = getCommand();
-        if(comm.equals(CommandType.SEND) || comm.equals(CommandType.MESSAGE) || comm.equals(CommandType.ERROR)) {
-            if(payload != null) {
-                contentLength(Integer.valueOf(payload.length()).toString());
-            } else {
-                contentLength(null);
+        if(disableContentLenghtHeader == false) {
+            CommandType comm = getCommand();
+            if(comm.equals(CommandType.SEND) || comm.equals(CommandType.MESSAGE) || comm.equals(CommandType.ERROR)) {
+                if(payload != null) {
+                    contentLength(Integer.valueOf(payload.length()).toString());
+                } else {
+                    contentLength(null);
+                }
             }
         }
 		return this;

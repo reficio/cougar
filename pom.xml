@@ -21,6 +21,9 @@
         <module>turbine-core</module>
         <module>turbine-spring</module>
         <module>turbine-features</module>
+        <!--
+        <module>turbine-performance</module>
+        -->
     </modules>
 
     <properties>
@@ -114,7 +117,7 @@
                 <configuration>
                     <strictCheck>false</strictCheck>
                     <basedir>${basedir}</basedir>
-                    <header>${basedir}/src/main/resources/license.txt</header>
+                    <header>../src/main/resources/license.txt</header>
                     <quiet>false</quiet>
                     <failIfMissing>true</failIfMissing>
                     <aggregate>false</aggregate>
@@ -375,11 +378,12 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <license><![CDATA[rNONsoolsEwnIwabhcmfvcpqMMRkOsfAMThtuDdtNmXgHD
-mi2KCMBx2U7bBKl>nS2Ht4Xi2K6MNKjueWXfFKmGD5>xGk
-pMQNXsRNnQmPQRQMRqOwxopQROOOOrqRQnwxSXVxTxSxws
-onmpmUUnpmtnvsmmmmmmUUnpmtnvsmmmmmmUU1ZXabjfZU
-Un]]></license>
+                            <license><![CDATA[pQpNWVNGLIACiRgGggNwBHXpqNObaHdjqWrXDCENiqbtQF
+mi2K8qPlHIEh1yNZX2r<pJcV2KPafI7LpHsld8fHYQ9qCa
+nRmQVUmmoPPPmoPpRrptsRmNRqMMORrRPnVUVvvSsXsUTw
+NnmpmUUnpnmrsrsmmmmmUUnpnmrsrsmmmmmUU1ZXabjfZU
+Un
+]]></license>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -394,9 +398,7 @@ Un]]></license>
                 </plugins>
             </reporting>
         </profile>
-
     </profiles>
-
 
     <distributionManagement>
         <site>

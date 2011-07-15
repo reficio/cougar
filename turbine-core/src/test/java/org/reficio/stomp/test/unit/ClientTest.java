@@ -48,7 +48,8 @@ public class ClientTest {
     public void initialize() {
         connection = new MockConnectionImpl();
         // register handlers
-        connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(CommandType.CONNECT,
+                new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
                 Frame response = new Frame(CommandType.CONNECTED);

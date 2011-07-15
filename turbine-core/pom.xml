@@ -18,7 +18,7 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>src/main/resources/license.txt</url>
+            <url>../src/main/resources/license.txt</url>
         </license>
     </licenses>
 
@@ -131,8 +131,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jdepend-maven-plugin</artifactId>
+                <version>2.0-beta-2</version>
             </plugin>
         </plugins>
     </reporting>
+
 
 </project>
