@@ -17,13 +17,17 @@
 
 package org.reficio.stomp.test.unit;
 
+import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.StompConnectionException;
+import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.connection.StompConnectionFactory;
 import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
@@ -347,7 +351,5 @@ public class TxConnectionTest {
         Frame disconnect = frames.get(4);
         assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
     }
-
-
 
 }

@@ -17,7 +17,7 @@
 package org.reficio.stomp.spring;
 
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.TxConnection;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.spring.connection.ConnectionFactoryUtils;
@@ -30,136 +30,175 @@ import org.springframework.util.Assert;
 
 public class StompTemplate extends StompAccessor {
 
-	private static final transient Logger log = LoggerFactory.getLogger(StompTemplate.class);
+    private static final transient Logger log = LoggerFactory.getLogger(StompTemplate.class);
 
-	/**
-	 * Internal ResourceFactory adapter for interacting with
-	 * ConnectionFactoryUtils
-	 */
-	private final StompTemplateResourceFactory transactionalResourceFactory = new StompTemplateResourceFactory();
+    /**
+     * Internal ResourceFactory adapter for interacting with
+     * ConnectionFactoryUtils
+     */
+    private final StompTemplateResourceFactory transactionalResourceFactory = new StompTemplateResourceFactory();
 
-	private boolean connectionTransacted = false;
+    private boolean connectionTransacted = false;
+    private boolean receptionTransacted = false;
 
-	public void send(final String destination,
-			final FrameDecorator frameDecorator) {
-		execute(new ConnectionCallback<Object>() {
-			@Override
-			public Object doInStomp(TxConnection connection) throws StompException {
-				doSend(connection, destination, frameDecorator);
-				return null;
-			}
-		});
-	}
+    public void send(final String destination,
+                     final FrameDecorator frameDecorator) {
+        execute(new ConnectionCallback<Object>() {
+            @Override
+            public Object doInStomp(TransactionalConnection connection) throws StompException {
+                doSend(connection, destination, frameDecorator);
+                return null;
+            }
+        });
+    }
 
-	// unsubscribe from previous subscription
-	// always use client ack mode in order to discard messages from previous
-	// subscription
-	// subscribe
-	public Frame receive(String destination) {
-		execute(new ConnectionCallback<Object>() {
-			@Override
-			public Object doInStomp(TxConnection connection) throws StompException {
-				return connection.receive();
-			}
-		});
-		return null;
-	}
+    public Frame receive(final String destination) {
+        return execute(new FrameReceiverCallback(destination));
+    }
 
-	public Frame receiveSelected(String destination, String selector) {
-		execute(new ConnectionCallback<Object>() {
-			@Override
-			public Object doInStomp(TxConnection connection) throws StompException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		});
-		return null;
-	}
+    public Frame receiveSelected(String destination, String selector) {
+        return execute(new FrameReceiverCallback(destination, selector));
+    }
 
-	@Override
-	public <T> T execute(ConnectionCallback<T> action) throws StompException {
-		Assert.notNull(action, "Callback object must not be null");
-		TxConnection connection = null;
-		TxConnection connToClose = null;
-		try {
-			connection = ConnectionFactoryUtils.doGetTransactionalConnection(
-					getConnectionFactory(), this.transactionalResourceFactory);
-			if (connection == null) {
-				connection = createConnection();
-				connToClose = connection;
-			}
-			if (log.isDebugEnabled()) {
-				log.debug("Executing callback on Stomp Connection: "
-						+ connection);
-			}
-			return action.doInStomp(connection);
-		} finally {
-			ConnectionFactoryUtils.releaseConnection(connToClose);
-		}
-	}
+    @Override
+    public <T> T execute(ConnectionCallback<T> action) throws StompException {
+        Assert.notNull(action, "Callback object must not be null");
+        TransactionalConnection connection = null;
+        TransactionalConnection connToClose = null;
+        try {
+            connection = ConnectionFactoryUtils.doGetTransactionalConnection(
+                    getConnectionFactory(), this.transactionalResourceFactory);
+            if (connection == null) {
+                connection = createConnection();
+                connToClose = connection;
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Executing callback on Stomp Connection: "
+                        + connection);
+            }
+            return action.doInStomp(connection);
+        } finally {
+            ConnectionFactoryUtils.releaseConnection(connToClose);
+        }
+    }
 
-	protected void doSend(TxConnection connection, String destination,
-			FrameDecorator frameDecorator) throws StompException {
+    protected void doSend(TransactionalConnection connection, String destination,
+                          FrameDecorator frameDecorator) throws StompException {
 
-		Assert.notNull(frameDecorator, "FrameDecorator must not be null");
-		connection.send(destination, frameDecorator);
-		// Check commit - avoid commit call within a JTA transaction.
-		if (connection.getAutoTransactional() && isConnectionLocallyTransacted(connection)) {
-			// Transacted session created by this spring -> commit.
-			connection.commit();
-		}
-	}
+        Assert.notNull(frameDecorator, "FrameDecorator must not be null");
+        connection.send(destination, frameDecorator);
+        // Check commit - avoid commit call within a JTA transaction.
+        if (connection.isAutoTransactional() && isConnectionLocallyTransacted(connection)) {
+            // Transacted session created by this spring -> commit.
+            connection.commit();
+        }
+    }
 
-	/**
-	 * This implementation overrides the superclass method to use JMS 1.0.2 API.
-	 */
-	protected TxConnection createConnection() throws StompException {
-		TxConnection conn = getConnectionFactory().createConnection();
-		conn.setAutoTransactional(this.isConnectionTransacted());
-		return conn;
-	}
+    /**
+     * This implementation overrides the superclass method to use JMS 1.0.2 API.
+     */
+    protected TransactionalConnection createConnection() throws StompException {
+        TransactionalConnection conn = getConnectionFactory().createConnection();
+        conn.setAutoTransactional(this.isConnectionTransacted());
+        return conn;
+    }
 
-	/**
-	 * Return whether the JMS {@link Session sessions} used by this accessor are
-	 * supposed to be transacted.
-	 * 
-	 * @see #setSessionTransacted(boolean)
-	 */
-	public boolean isConnectionTransacted() {
-		return this.connectionTransacted;
-	}
+    protected boolean isConnectionLocallyTransacted(TransactionalConnection connection) {
+        // TODO - analyze condition once more
+        return // isConnectionTransacted() &&
+                !ConnectionFactoryUtils.isConnectionTransactional(
+                        connection, getConnectionFactory());
+    }
 
-	protected boolean isConnectionLocallyTransacted(TxConnection connection) {
-		// TODO - analyze condition once more
-		return // isConnectionTransacted() && 
-				!ConnectionFactoryUtils.isConnectionTransactional(
-						connection, getConnectionFactory());
-	}
+    private class FrameReceiverCallback implements ConnectionCallback<Frame> {
+        private final String destination;
+        private final String selector;
 
-	/**
-	 * ResourceFactory implementation that delegates to this spring's
-	 * protected callback methods.
-	 */
-	private class StompTemplateResourceFactory implements
-			ConnectionFactoryUtils.ResourceFactory {
+        public FrameReceiverCallback(String destination) {
+            this(destination, null);
+        }
 
-		public TxConnection getConnection(StompResourceHolder holder) {
-			return StompTemplate.this.getConnection(holder);
-		}
+        public FrameReceiverCallback(String destination, String selector) {
+            this.destination = destination;
+            this.selector = selector;
+        }
 
-		public TxConnection createConnection() throws StompException {
-			TxConnection conn = StompTemplate.this.createConnection();
-			conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
-			return conn;
-		}
+        @Override
+        public Frame doInStomp(TransactionalConnection connection) throws StompException {
+            String subscriptionId = null;
+            try {
+                if (selector == null) {
+                    subscriptionId = connection.subscribe(destination);
+                } else {
+                    subscriptionId = connection.subscribe(destination, new FrameDecorator() {
+                        @Override
+                        public void decorateFrame(Frame frame) {
+                            frame.selector(selector);
+                        }
+                    });
+                }
+                return connection.receive();
+            } finally {
+                // TODO - check this part, because if error occurs the connection shouldn't be reused
+                // cleanup
+                if (subscriptionId != null) {
+                    connection.unsubscribe(subscriptionId);
+                }
+            }
+        }
+    }
 
-		public boolean isSynchedLocalTransactionAllowed() {
-			return StompTemplate.this.isConnectionTransacted();
-		}
-	}
+    /**
+     * ResourceFactory implementation that delegates to this spring's
+     * protected callback methods.
+     */
+    private class StompTemplateResourceFactory implements
+            ConnectionFactoryUtils.ResourceFactory {
 
-	public void setConnectionTransacted(boolean connectionTransacted) {
-		this.connectionTransacted = connectionTransacted;
-	}
+        public TransactionalConnection getConnection(StompResourceHolder holder) {
+            return StompTemplate.this.getConnection(holder);
+        }
+
+        public TransactionalConnection createConnection() throws StompException {
+            TransactionalConnection conn = StompTemplate.this.createConnection();
+            conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
+            conn.setReceptionTransactional(isReceptionTransactionAllowed());
+            return conn;
+        }
+
+        @Override
+        public boolean isSynchedLocalTransactionAllowed() {
+            return StompTemplate.this.isConnectionTransacted();
+        }
+
+        @Override
+        public boolean isReceptionTransactionAllowed() {
+            return StompTemplate.this.isReceptionTransacted();
+        }
+    }
+
+    public boolean isConnectionTransacted() {
+        return this.connectionTransacted;
+    }
+
+    public void setConnectionTransacted(boolean connectionTransacted) {
+        this.connectionTransacted = connectionTransacted;
+    }
+
+    public boolean isReceptionTransacted() {
+        return receptionTransacted;
+    }
+
+    public void setReceptionTransacted(boolean receptionTransacted) {
+        this.receptionTransacted = receptionTransacted;
+    }
 
 }
+
+// COMMENTS:
+// AcitveMQ, no transactional message receipt - if client ack, tx and and abort
+//  -> means only that the ACK is not delivered, message will not be delivered to a different client!
+//  -> message will be delivered if client closes connection before sending ack
+
+// Consume one message only
+//  -> subsciribe, receive exactly one, unsubscribe -> if more messages sent to the client, will be redelivered after unsubscribe

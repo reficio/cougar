@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.FramePreprocessor;
-import org.reficio.stomp.core.ValidatingPreprocessor;
+import org.reficio.stomp.core.FrameValidator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 
@@ -47,7 +47,7 @@ public class PreprocessorTest {
             }
         };
 
-        FramePreprocessor processor = new ValidatingPreprocessor();
+        FramePreprocessor processor = new FrameValidator();
         processor.decorate(frame, decorator);
     }
 
@@ -62,7 +62,7 @@ public class PreprocessorTest {
             }
         };
 
-        FramePreprocessor processor = new ValidatingPreprocessor();
+        FramePreprocessor processor = new FrameValidator();
         processor.decorate(frame, decorator);
     }
 

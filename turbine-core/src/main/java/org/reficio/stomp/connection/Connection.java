@@ -45,7 +45,7 @@ public interface Connection extends StompResource, StompOperations {
 	void commit(String transactionId) throws StompException;
 	
 	void ack(String messageId, FrameDecorator frameDecorator) throws StompException;
-	
+
 	void ack(String messageId) throws StompException;
 
 }

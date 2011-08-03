@@ -19,10 +19,8 @@ package org.reficio.stomp.spring.connection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.TxConnection;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.ResourceHolderSupport;
@@ -35,12 +33,12 @@ public class StompResourceHolder extends ResourceHolderSupport {
 
 	private boolean frozen = false;
 
-	private final List<TxConnection> connections = new LinkedList<TxConnection>();
+	private final List<TransactionalConnection> connections = new LinkedList<TransactionalConnection>();
 
 	public StompResourceHolder() {
 	}
 
-	public StompResourceHolder(TxConnection connection) {
+	public StompResourceHolder(TransactionalConnection connection) {
 		addConnection(connection);
 	}
 
@@ -48,7 +46,7 @@ public class StompResourceHolder extends ResourceHolderSupport {
 		return this.frozen;
 	}
 
-	public final void addConnection(TxConnection connection) {
+	public final void addConnection(TransactionalConnection connection) {
 		Assert.isTrue(!this.frozen, "Cannot add Connection because StompResourceHolder is frozen");
 		Assert.notNull(connection, "Connection must not be null");
 		if (!this.connections.contains(connection)) {
@@ -56,27 +54,27 @@ public class StompResourceHolder extends ResourceHolderSupport {
 		}
 	}
 
-	public TxConnection getConnection() {
+	public TransactionalConnection getConnection() {
 		return (!this.connections.isEmpty() ? this.connections.get(0) : null);
 	}
 
-	public TxConnection getConnection(Class<? extends TxConnection> connectionType) {
+	public TransactionalConnection getConnection(Class<? extends TransactionalConnection> connectionType) {
 		return CollectionUtils.findValueOfType(this.connections, connectionType);
 	}
 
-	public boolean containsConnection(TxConnection connection) {
+	public boolean containsConnection(TransactionalConnection connection) {
 		return this.connections.contains(connection);
 	}
 	
 	public void commitAll() throws StompException {
-		for (TxConnection connection : this.connections) {
+		for (TransactionalConnection connection : this.connections) {
 			connection.commit();
 		}			
 		// Let IllegalStateException through: It might point out an unexpectedly closed session.
 	}
 
 	public void closeAll() {
-		for (TxConnection con : this.connections) {
+		for (TransactionalConnection con : this.connections) {
 			ConnectionFactoryUtils.releaseConnection(con);
 		}
 		this.connections.clear();

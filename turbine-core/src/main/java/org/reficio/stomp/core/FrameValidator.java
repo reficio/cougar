@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.domain;
+package org.reficio.stomp.core;
 
-import org.reficio.stomp.core.FrameBuilder;
-
-import java.util.Map;
+import org.reficio.stomp.domain.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -29,34 +29,13 @@ import java.util.Map;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class Frame extends FrameBuilder {
+public class FrameValidator implements FramePreprocessor {
 
-    public Frame(CommandType command, Map<String, Header> headers, String payload /*, Boolean subscriptionValid*/) {
-        super(command, headers, payload /*, subscriptionValid*/);
+    private static final transient Logger log = LoggerFactory.getLogger(FrameValidator.class);
+
+    @Override
+    public void decorate(Frame frame, FrameDecorator decorator) {
+        frame.freeze();
+        decorator.decorateFrame(frame);
     }
-
-	public Frame(CommandType command) {
-		super(command);
-	}
-
-	public boolean indicatesError() {
-		return command.equals(CommandType.ERROR.getName());
-	}
-
-//    public Boolean isSubscribionValid() {
-//        return this.subscriptionValid;
-//    }
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("CommandType:\t[%s]\n", command));
-		builder.append("Headers:\n");
-		for(Header header : headers.values()) {
-			builder.append(String.format("  %s\n", header));
-		}
-		builder.append(String.format("Payload:\t[%s]", payload !=null ? payload : ""));
-		return builder.toString();
-	}
-
 }

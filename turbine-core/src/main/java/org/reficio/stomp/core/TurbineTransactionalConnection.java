@@ -15,12 +15,16 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.connection;
+package org.reficio.stomp.core;
 
 import org.reficio.stomp.StompException;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.domain.Frame;
+
+import java.util.List;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -30,18 +34,8 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface TxConnection extends StompResource, StompOperations {
+public interface TurbineTransactionalConnection extends TransactionalConnection {
 
-	void rollback(FrameDecorator frameDecorator) throws StompException;
-	
-	void rollback() throws StompException;
-	
-	void commit(FrameDecorator frameDecorator) throws StompException;
-	
-	void commit() throws StompException;
-	
-	void setAutoTransactional(boolean transactional) throws StompException;
-	
-	boolean getAutoTransactional();
-	
+    public List<Frame> getReceivedInCurrentTransaction();
+
 }

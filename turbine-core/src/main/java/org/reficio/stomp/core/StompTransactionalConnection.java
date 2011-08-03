@@ -14,13 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.spring.core;
+
+package org.reficio.stomp.core;
 
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.StompOperations;
+import org.reficio.stomp.core.StompResource;
 
-public interface ConnectionCallback<T> {
+/**
+ * User: Tom Bujok (tom.bujok@reficio.org)
+ * Date: 2010-12-30
+ * Time: 12:48 AM
+ * <p/>
+ * Reficio (TM) - Reestablish your software!
+ * http://www.reficio.org
+ */
+public interface StompTransactionalConnection extends TransactionalConnection {
 
-	T doInStomp(TransactionalConnection connection) throws StompException;
+    void ack(String messageId, FrameDecorator frameDecorator) throws StompException;
+
+    void ack(String messageId) throws StompException;
+
+    void setAutoAcknowledge(boolean acknowledge) throws StompException;
+
+	boolean getAutoAcknowledge();
 
 }

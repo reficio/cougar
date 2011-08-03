@@ -336,47 +336,50 @@ public class WireFormatTest {
 //       Frame frame = wireFormat.unmarshal(reader);
 //    }
 
-    @Test
-    public void registerUsage() throws IOException {
-       String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
-       marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + "123" +WireFormatImpl.END_OF_LINE;
-       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
-       StringReader reader = new StringReader(marshalledFrame);
-       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
-       Frame frame = wireFormat.unmarshal(reader);
-       assertFalse(frame.isSubscribionValid());
-    }
+    // Subscription Register removed from the implementation due to protocol limitations @see AMQ-3327
+//    @Test
+//    public void registerUsage() throws IOException {
+//       String payload = "test_payload";
+//       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+//       marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + "123" +WireFormatImpl.END_OF_LINE;
+//       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
+//       StringReader reader = new StringReader(marshalledFrame);
+//       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
+//       Frame frame = wireFormat.unmarshal(reader);
+//       assertFalse(frame.isSubscribionValid());
+//    }
+//
+    // Subscription Register removed from the implementation due to protocol limitations @see AMQ-3327
+//    @Test
+//    public void registerUsageWithoutId() throws IOException {
+//       String payload = "test_payload";
+//       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+//       // marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + "123" +WireFormatImpl.END_OF_LINE;
+//       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
+//       StringReader reader = new StringReader(marshalledFrame);
+//       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
+//       Frame frame = wireFormat.unmarshal(reader);
+//       assertNull(frame.isSubscribionValid());
+//    }
 
-    @Test
-    public void registerUsageWithoutId() throws IOException {
-       String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
-       // marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + "123" +WireFormatImpl.END_OF_LINE;
-       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
-       StringReader reader = new StringReader(marshalledFrame);
-       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
-       Frame frame = wireFormat.unmarshal(reader);
-       assertNull(frame.isSubscribionValid());
-    }
-
-    @Test
-    public void registerUsageWithNullId() throws IOException {
-       String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
-       marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + WireFormatImpl.END_OF_LINE;
-       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
-       StringReader reader = new StringReader(marshalledFrame);
-       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
-       Frame frame = wireFormat.unmarshal(reader);
-       assertNull(frame.isSubscribionValid());
-    }
+    // Subscription Register removed from the implementation due to protocol limitations @see AMQ-3327
+//    @Test
+//    public void registerUsageWithNullId() throws IOException {
+//       String payload = "test_payload";
+//       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+//       marshalledFrame += HeaderType.SUBSCRIPTION_ID.getName() + WireFormatImpl.HEADER_DELIMITER + WireFormatImpl.END_OF_LINE;
+//       marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
+//       StringReader reader = new StringReader(marshalledFrame);
+//       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
+//       Frame frame = wireFormat.unmarshal(reader);
+//       assertNotNull(frame.isSubscribionValid());
+//    }
 
     @Test
     public void getVersion() {
         // cool to have 100% coverage in such a vital test:)
-       StompWireFormat wireFormat = new WireFormatImpl(new SubscriptionRegister());
-       wireFormat.getVersion();
+       StompWireFormat wireFormat = new WireFormatImpl();
+       assertNotNull(wireFormat.getVersion());
     }
 
 

@@ -24,7 +24,7 @@ import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.core.ValidatingPreprocessor;
+import org.reficio.stomp.core.FrameValidator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
@@ -78,7 +78,7 @@ public class ClientImpl implements Client {
         this.operational = new AtomicBoolean(false);
         // TODO delegate creation to factory methods???
         this.wireFormat = new WireFormatImpl();
-        this.preprocessor = new ValidatingPreprocessor();
+        this.preprocessor = new FrameValidator();
 	}
 
 	// ----------------------------------------------------------------------------------
@@ -88,6 +88,8 @@ public class ClientImpl implements Client {
 		Frame frame = new Frame(CommandType.CONNECT);
 		frame.login(username);
 		frame.passcode(password);
+        // TODO verify
+        frame.encoding(encoding);
 		marshall(frame);
 
 		Frame handshake = unmarshall();
@@ -330,5 +332,7 @@ public class ClientImpl implements Client {
             // Ignore that
         }
     }
+
+
 
 }

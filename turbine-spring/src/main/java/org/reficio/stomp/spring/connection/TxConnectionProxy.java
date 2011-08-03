@@ -16,9 +16,9 @@
  */
 package org.reficio.stomp.spring.connection;
 
-import org.reficio.stomp.connection.TxConnection;
+import org.reficio.stomp.connection.TransactionalConnection;
 
-public interface TxConnectionProxy extends TxConnection {
+public interface TxConnectionProxy extends TransactionalConnection {
 
 	/**
 	 * Return the target Session of this proxy.
@@ -28,6 +28,6 @@ public interface TxConnectionProxy extends TxConnection {
 	 * 
 	 * @return the underlying Session (never <code>null</code>)
 	 */
-	TxConnection getTargetConnection();
+	TransactionalConnection getTargetConnection();
 
 }

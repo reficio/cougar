@@ -17,6 +17,7 @@
 
 package org.reficio.stomp.impl;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.lang.StringUtils;
 import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
@@ -60,16 +61,16 @@ public class WireFormatImpl implements StompWireFormat {
 
     public static final int AVG_PAYLOAD_SIZE = 1024 * 16; // 16KB
 
-    private SubscriptionRegister register;
+    // private SubscriptionRegister register;
 
     public WireFormatImpl() {
 		super();
 	}
 
-	public WireFormatImpl(SubscriptionRegister register) {
-		super();
-        this.register = register;
-	}
+//	public WireFormatImpl(SubscriptionRegister register) {
+//		super();
+//        this.register = register;
+//	}
 
     @Override
     public void marshal(Frame frame, Writer output) {
@@ -103,15 +104,16 @@ public class WireFormatImpl implements StompWireFormat {
             CommandType command = parseCommand(reader);
             Map<String, Header> headers = parseHeaders(reader);
             String payload = parsePayload(reader, parseContentLength(headers));
-            Boolean subscriptionValid = null;
-            if(register != null) {
-                Header id = headers.get(HeaderType.SUBSCRIPTION_ID.getName());
-                if(id != null && StringUtils.isNotBlank(id.getValue())) {
-                    subscriptionValid = register.isSubscriptionActive(id.getValue());
-                }
-            }
-            return new Frame(command, headers, payload, subscriptionValid);
+//            Boolean subscriptionValid = null;
+//            if(register != null) {
+//                Header id = headers.get(HeaderType.SUBSCRIPTION_ID.getName());
+//                if(id != null && StringUtils.isNotBlank(id.getValue())) {
+//                    subscriptionValid = register.isSubscriptionActive(id.getValue());
+//                }
+//            }
+            return new Frame(command, headers, payload /*, subscriptionValid*/);
         } catch(StompWireFormatException ex) {
+            // TODO - why it is needed, if error occurs connection can't be reused, why then to bother and receive the rest of the message?
             flushUntilEndMarker(reader);
             throw ex;
         }

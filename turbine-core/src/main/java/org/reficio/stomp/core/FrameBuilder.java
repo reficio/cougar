@@ -38,14 +38,14 @@ public class FrameBuilder {
     protected String payload;
 	private boolean validate;
     private Set<String> frozenHeaders;
-    protected Boolean subscriptionValid;
+    // protected Boolean subscriptionValid;
 
-    protected FrameBuilder(CommandType command, Map<String, Header> headers, String payload, Boolean subscriptionValid) {
+    protected FrameBuilder(CommandType command, Map<String, Header> headers, String payload /*, Boolean subscriptionValid*/) {
         this.command = command.getName();
 		this.headers = headers;
         this.payload = payload;
 		this.validate = true;
-        this.subscriptionValid = subscriptionValid;
+        // this.subscriptionValid = subscriptionValid;
     }
 
 	public FrameBuilder(CommandType command) {

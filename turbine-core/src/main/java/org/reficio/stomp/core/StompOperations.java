@@ -30,17 +30,17 @@ import org.reficio.stomp.domain.Frame;
  */
 public interface StompOperations {
 
-	void send(String destination, FrameDecorator frameDecorator) throws StompException;
+    void send(String destination, FrameDecorator frameDecorator) throws StompException;
 
-	String subscribe(String destination) throws StompException;
+    String subscribe(String destination) throws StompException;
 
-	String subscribe(String destination, FrameDecorator frameDecorator) throws StompException;
+    String subscribe(String destination, FrameDecorator frameDecorator) throws StompException;
 
     String subscribe(String id, String destination) throws StompException;
 
     String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException;
 
-	void unsubscribe(String id) throws StompException;
+    void unsubscribe(String id) throws StompException;
 
     void unsubscribe(String id, FrameDecorator frameDecorator) throws StompException;
 

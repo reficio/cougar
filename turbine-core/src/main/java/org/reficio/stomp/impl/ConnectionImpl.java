@@ -26,6 +26,8 @@ import org.reficio.stomp.util.SubscriptionRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-11-22
@@ -38,7 +40,7 @@ public class ConnectionImpl extends ClientImpl implements Connection {
 
 	private static final transient Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
 
-    private SubscriptionRegister register;
+    // private SubscriptionRegister register;
 
 	public ConnectionImpl() {
 		super();
@@ -47,8 +49,8 @@ public class ConnectionImpl extends ClientImpl implements Connection {
     @Override
     protected void doSetAttributes(String hostname, int port, String username, String password, String encoding) {
         super.doSetAttributes(hostname, port, username, password, encoding);
-        this.register = new SubscriptionRegister();
-        this.wireFormat = new WireFormatImpl(this.register);
+        // this.register = new SubscriptionRegister();
+        this.wireFormat = new WireFormatImpl(/*this.register*/);
     }
 
 	@Override
@@ -118,16 +120,14 @@ public class ConnectionImpl extends ClientImpl implements Connection {
         preprocessor.decorate(frame, frameDecorator);
         String subscriptionId = frame.subscriptionId();
         if (subscriptionId == null) {
-            subscriptionId = register.subscribe(null);
-            frame.subscriptionId(subscriptionId);
-        } else {
-            register.subscribe(subscriptionId);
+            subscriptionId = UUID.randomUUID().toString(); // register.subscribe(null);
         }
+        frame.subscriptionId(subscriptionId);
         try {
             send(frame);
             return subscriptionId;
         } catch (RuntimeException ex) {
-            register.unsubscribe(subscriptionId);
+            // register.unsubscribe(subscriptionId);
             throw ex;
         }
     }
@@ -148,13 +148,13 @@ public class ConnectionImpl extends ClientImpl implements Connection {
         frame.destination(destination);
         frame.subscriptionId(id);
 		preprocessor.decorate(frame, frameDecorator);
-        try {
-            register.subscribe(id);
+        // try {
+        //     register.subscribe(id);
 		    send(frame);
-        } catch (RuntimeException ex) {
-            register.unsubscribe(id);
-            throw ex;
-        }
+        // } catch (RuntimeException ex) {
+        //     register.unsubscribe(id);
+        //    throw ex;
+        // }
         return id;
     }
 
@@ -168,7 +168,7 @@ public class ConnectionImpl extends ClientImpl implements Connection {
 		Frame frame = new Frame(CommandType.UNSUBSCRIBE);
         frame.subscriptionId(id);
 		preprocessor.decorate(frame, frameDecorator);
-        register.unsubscribe(id);
+        // register.unsubscribe(id);
 		send(frame);
 	}
 

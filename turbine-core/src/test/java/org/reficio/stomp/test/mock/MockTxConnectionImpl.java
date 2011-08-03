@@ -20,7 +20,7 @@ package org.reficio.stomp.test.mock;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ResourceState;
-import org.reficio.stomp.impl.TxConnectionImpl;
+import org.reficio.stomp.impl.StompTxConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import java.net.Socket;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class MockTxConnectionImpl extends TxConnectionImpl {
+public class MockTxConnectionImpl extends StompTxConnectionImpl {
 
     private static final transient Logger log = LoggerFactory.getLogger(MockTxConnectionImpl.class);
 
