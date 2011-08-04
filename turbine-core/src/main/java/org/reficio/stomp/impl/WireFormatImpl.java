@@ -26,7 +26,6 @@ import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
-import org.reficio.stomp.util.SubscriptionRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

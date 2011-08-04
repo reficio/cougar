@@ -25,7 +25,6 @@ import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.StompConnectionFactory;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;

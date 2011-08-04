@@ -17,9 +17,10 @@
 
 package org.reficio.stomp.impl;
 
+import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompReceptionRollbackException;
-import org.reficio.stomp.core.TurbineTransactionalConnection;
+import org.reficio.stomp.connection.TurbineTransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
@@ -45,10 +46,34 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
     private boolean transactionalReception = true;
     private String redeliveryDestination = "";
 
-    public TurbineTxConnectionImpl() {
+    protected TurbineTxConnectionImpl() {
         super();
         super.setAutoTransactional(true);
         super.setAutoAcknowledge(true);
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Factory methods
+    // ----------------------------------------------------------------------------------
+    public static TurbineTxConnectionImpl create() {
+        return new TurbineTxConnectionImpl();
+    }
+
+    @Override
+    public TurbineTxConnectionImpl autoTransactional(boolean autoTransactional) {
+        throw new StompConnectionException("This option cannot be mutated - implicitly set to true");
+    }
+
+    @Override
+    public TurbineTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
+        throw new StompConnectionException("This option cannot be mutated - implicitly set to true");
+    }
+
+    @Override
+    public TurbineTxConnectionImpl receptionTransactional(boolean receptionTransactional) {
+        assertNew();
+        setReceptionTransactional(receptionTransactional);
+        return this;
     }
 
     // TODO make sure to make received frames immutable
@@ -78,7 +103,7 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
             for (Frame frame : receivedInTransaction) {
                 frame.transaction(transactionId);
                 frame.custom("redelivered", "true");
-                if(redeliveryDestination != null) {
+                if (redeliveryDestination != null) {
                     frame.destination(redeliveryDestination);
                 }
                 super.send(frame);
@@ -92,18 +117,18 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
 
     // IMPORTANT!!! DO NOT USE TRANSACTIONS WHILE SENDING ACK
     @Override
-	public void ack(String messageId, FrameDecorator frameDecorator) {
-		Frame frame = new Frame(CommandType.ACK);
+    public void ack(String messageId, FrameDecorator frameDecorator) {
+        Frame frame = new Frame(CommandType.ACK);
         frame.messageId(messageId);
         preprocessor.decorate(frame, frameDecorator);
-		send(frame);
-	}
+        send(frame);
+    }
 
     // IMPORTANT!!! DO NOT USE TRANSACTIONS WHILE SENDING ACK
-	@Override
-	public void ack(String messageId) {
-		ack(messageId, emptyDecorator);
-	}
+    @Override
+    public void ack(String messageId) {
+        ack(messageId, emptyDecorator);
+    }
 
 
     @Override
@@ -144,8 +169,7 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
         return this.transactionalReception;
     }
 
-    @Override
-    public void setReceptionTransactional(boolean receptionTransactional) throws StompException {
+    protected void setReceptionTransactional(boolean receptionTransactional) throws StompException {
         this.transactionalReception = receptionTransactional;
     }
 

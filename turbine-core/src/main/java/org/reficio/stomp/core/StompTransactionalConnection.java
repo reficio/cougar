@@ -37,8 +37,6 @@ public interface StompTransactionalConnection extends TransactionalConnection {
 
     void ack(String messageId) throws StompException;
 
-    void setAutoAcknowledge(boolean acknowledge) throws StompException;
-
-	boolean getAutoAcknowledge();
+	boolean isAutoAcknowledge();
 
 }

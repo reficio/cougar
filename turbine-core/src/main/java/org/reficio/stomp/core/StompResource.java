@@ -29,25 +29,26 @@ import org.reficio.stomp.StompException;
  */
 public interface StompResource {
 
-	void init(String hostname, int port, String username, String password, String encoding) throws StompException;
+	// void init(String hostname, int port, String username, String password, String encoding) throws StompException;
+	// void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
 
-	void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
-
+    StompResource init();
 	void close() throws StompException;
 
+    StompResource hostname(String hostname);
+    StompResource port(int port);
+    StompResource username(String username);
+    StompResource password(String password);
+    StompResource encoding(String encoding);
+    StompResource timeout(int timeout);
 
 	String getHostname();
-
 	String getPassword();
-
 	String getUsername();
-
 	int getPort();
-
 	String getSessionId();
-
     String getEncoding();
-
+    int getTimeout();
     boolean isInitialized();
 
 }

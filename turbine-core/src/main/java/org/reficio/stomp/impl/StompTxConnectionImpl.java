@@ -17,6 +17,7 @@
 
 package org.reficio.stomp.impl;
 
+import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
@@ -46,9 +47,31 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
     protected boolean autoTransactional = true;
     protected boolean autoAcknowledge = true;
 
-    public StompTxConnectionImpl() {
+    protected StompTxConnectionImpl() {
         super();
     }
+
+    // ----------------------------------------------------------------------------------
+	// Factory methods
+	// ----------------------------------------------------------------------------------
+    public static StompTxConnectionImpl create() {
+        return new StompTxConnectionImpl();
+    }
+
+    @Override
+    public StompTxConnectionImpl autoTransactional(boolean autoTransactional) {
+        assertNew();
+        setAutoTransactional(autoTransactional);
+        return this;
+    }
+
+    @Override
+    public StompTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
+        assertNew();
+        setAutoAcknowledge(autoAcknowledge);
+        return this;
+    }
+
 
     // ----------------------------------------------------------------------------------
     // Overridden transaction-aware methods
@@ -154,29 +177,23 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
         return this.autoTransactional;
     }
 
-    @Override
-    public void setAutoTransactional(boolean transactional) throws StompException {
+    protected void setAutoTransactional(boolean transactional) throws StompException {
         assertNotInTransaction();
         this.autoTransactional = transactional;
     }
 
     @Override
-    public boolean getAutoAcknowledge() {
+    public boolean isAutoAcknowledge() {
         return this.autoAcknowledge;
     }
 
-    @Override
-    public void setAutoAcknowledge(boolean autoAcknowledge) throws StompException {
+    protected void setAutoAcknowledge(boolean autoAcknowledge) throws StompException {
         this.autoAcknowledge = autoAcknowledge;
     }
 
     // ----------------------------------------------------------------------------------
     // Helper methods - connection state verification
     // ----------------------------------------------------------------------------------
-    protected boolean isAutoAcknowledge() {
-        return autoAcknowledge;
-    }
-
     protected boolean isInTransaction() {
         return this.transactionId != null;
     }
@@ -244,16 +261,6 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
             }
             frame.ack(AckType.CLIENT);
         }
-    }
-
-    @Override
-    public boolean isReceptionTransactional() {
-        return false;
-    }
-
-     @Override
-    public void setReceptionTransactional(boolean receptionTransactional) throws StompException {
-        throw new StompIllegalTransactionStateException("Transactional reception is not supported in this kind of connections. Provide different factory.");
     }
 
 }

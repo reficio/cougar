@@ -18,9 +18,9 @@
 package org.reficio.stomp.test.mock;
 
 import org.reficio.stomp.StompException;
+import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
-import org.reficio.stomp.impl.ResourceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class MockConnectionImpl extends ConnectionImpl {
         try {
 		    wireFormat.marshal(frame, writer);
         } catch(RuntimeException ex) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw ex;
         }
     }
@@ -83,12 +83,12 @@ public class MockConnectionImpl extends ConnectionImpl {
 	public synchronized void close() {
 		assertOperational();
 		log.info(String.format("Closing connection=[%s]", this));
-        setState(ResourceState.CLOSING);
+        setState(StompResourceState.CLOSING);
 		disconnect();
         unmarshall();
         this.stub.close();
         closeCommunication();
-        setState(ResourceState.CLOSED);
+        setState(StompResourceState.CLOSED);
 	}
 
     public MockConnectionStub getStub() {

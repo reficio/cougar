@@ -22,9 +22,7 @@ import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.connection.Client;
-import org.reficio.stomp.core.FramePreprocessor;
-import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.core.FrameValidator;
+import org.reficio.stomp.core.*;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
@@ -54,6 +52,7 @@ public class ClientImpl implements Client {
     private String username;
     private String password;
     private String encoding;
+    private int timeout;
 
     protected StompWireFormat wireFormat;
     protected FramePreprocessor preprocessor;
@@ -68,13 +67,13 @@ public class ClientImpl implements Client {
     public static final int DEFAULT_TIMEOUT = 600;
 
     private AtomicBoolean operational;
-    private ResourceState state;
+    private StompResourceState state;
 
 	// ----------------------------------------------------------------------------------
 	// StompResource methods
 	// ----------------------------------------------------------------------------------
-	public ClientImpl() {
-        this.state = ResourceState.NEW;
+	protected ClientImpl() {
+        this.state = StompResourceState.NEW;
         this.operational = new AtomicBoolean(false);
         // TODO delegate creation to factory methods???
         this.wireFormat = new WireFormatImpl();
@@ -94,7 +93,7 @@ public class ClientImpl implements Client {
 
 		Frame handshake = unmarshall();
         if(handshake.getCommand().equals(CommandType.CONNECTED) == false) {
-            this.setState(ResourceState.ERROR);
+            this.setState(StompResourceState.ERROR);
             throw new StompProtocolException("Expected CONNECTED command, instead received "
                     + handshake.getCommand().name());
         }
@@ -115,84 +114,170 @@ public class ClientImpl implements Client {
 	// ----------------------------------------------------------------------------------
 	// StompResource methods
 	// ----------------------------------------------------------------------------------
-    protected void doSetAttributes(String hostname, int port, String username, String password, String encoding) {
-        this.hostname = hostname;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
+    // TODO delete this method
+    @Deprecated
+    protected void doSetAttributes(String hostname, int port, String username, String password, String encoding, int timeout) {
+        setHostname(hostname);
+		setPort(port);
+		setUsername(username);
+		setPassword(password);
+        setEncoding(encoding);
+        setTimeout(timeout);
     }
 
-    private void doInitialize(int timeout) {
-        log.info(String.format("Initializing connection=[%s]", this));
+    @Override
+	public synchronized Client init() {
+
+        // TODO validate parameters
+
+		log.info(String.format("Initializing connection=[%s]", this));
+        assertNew();
         initializeCommunication(timeout);
-        setState(ResourceState.COMMUNICATION_INITIALIZED);
+        setState(StompResourceState.COMMUNICATION_INITIALIZED);
 		connect();
-        setState(ResourceState.OPERATIONAL);
-    }
-
-	@Override
-	public synchronized void init(String hostname, int port, String username, String password, String encoding) {
-		assertNew();
-        doSetAttributes(hostname, port, username, password, encoding);
-        doInitialize(DEFAULT_TIMEOUT);
+        setState(StompResourceState.OPERATIONAL);
+        return this;
 	}
-
-	@Override
-	public synchronized void init(String hostname, int port, String username, String password, String encoding, int timeout) {
-		assertNew();
-        doSetAttributes(hostname, port, username, password, encoding);
-        doInitialize(timeout);
-    }
 
 	@Override
 	public synchronized void close() {
 		assertOperational();
 		log.info(String.format("Closing connection=[%s]", this));
-
-        setState(ResourceState.CLOSING);
+        setState(StompResourceState.CLOSING);
 		disconnect();
         closeCommunication();
-        setState(ResourceState.CLOSED);
+        setState(StompResourceState.CLOSED);
 	}
 
-	@Override
+
+
+
+    // ----------------------------------------------------------------------------------
+	// Factory methods
+	// ----------------------------------------------------------------------------------
+    public static ClientImpl create() {
+        return new ClientImpl();
+    }
+
+    @Override
+    public ClientImpl hostname(String hostname) {
+        assertNew();
+        setHostname(hostname);
+        return this;
+    }
+
+    @Override
+    public ClientImpl port(int port) {
+        assertNew();
+        setPort(port);
+        return this;
+    }
+
+    @Override
+    public ClientImpl username(String username) {
+        assertNew();
+        setUsername(username);
+        return this;
+    }
+
+    @Override
+    public ClientImpl password(String password) {
+        assertNew();
+        setPassword(password);
+        return this;
+    }
+
+    @Override
+    public ClientImpl encoding(String encoding) {
+        assertNew();
+        setEncoding(encoding);
+        return this;
+    }
+
+    @Override
+    public ClientImpl timeout(int timeout) {
+        assertNew();
+        setTimeout(timeout);
+        return this;
+    }
+
+
+
+
+
+    // ----------------------------------------------------------------------------------
+	// Options getters
+	// ----------------------------------------------------------------------------------
+    protected void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    @Override
 	public String getHostname() {
 		return hostname;
 	}
+
+    protected void setPassword(String password) {
+        this.password = password;
+    }
 
 	@Override
 	public String getPassword() {
 		return password;
 	}
 
+    protected void setPort(int port) {
+        this.port = port;
+    }
+
 	@Override
 	public int getPort() {
 		return port;
 	}
+
+    protected void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+	@Override
+	public int getTimeout() {
+		return timeout;
+	}
+
+    protected void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
 	@Override
 	public String getSessionId() {
 		return sessionId;
 	}
 
+    protected void setUsername(String username) {
+        this.username = username;
+    }
+
 	@Override
 	public String getUsername() {
 		return username;
 	}
+
+    protected void setEncoding(String encoding) {
+        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
+    }
 
     @Override
     public String getEncoding() {
         return encoding;
     }
 
-    protected synchronized ResourceState getState() {
+    protected synchronized StompResourceState getState() {
         return this.state;
     }
 
-    protected synchronized void setState(ResourceState state) {
+    protected synchronized void setState(StompResourceState state) {
         this.state = state;
-        if(state.equals(ResourceState.OPERATIONAL)) {
+        if(state.equals(StompResourceState.OPERATIONAL)) {
             setOperational(true);
         } else {
             setOperational(false);
@@ -215,7 +300,7 @@ public class ClientImpl implements Client {
                 log.info(frame.toString());
 		    return frame;
         } catch(RuntimeException ex) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw ex;
         }
 	}
@@ -226,7 +311,7 @@ public class ClientImpl implements Client {
         try {
 		    wireFormat.marshal(frame, writer);
         } catch(RuntimeException ex) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw ex;
         }
     }
@@ -253,26 +338,17 @@ public class ClientImpl implements Client {
 	// ----------------------------------------------------------------------------------
     protected void assertOperational() {
         if(isInitialized() == false) {
-            ResourceState state = getState();
+            StompResourceState state = getState();
             throw new StompConnectionException(String.format("Connection is not operational. Connection state is [%s]", state));
         }
     }
 
      protected void assertNew() {
-        ResourceState state = getState();
-        if(state.equals(ResourceState.NEW) == false) {
+        StompResourceState state = getState();
+        if(state.equals(StompResourceState.NEW) == false) {
             throw new StompConnectionException("Connection is not in NEW state");
         }
     }
-
-
-	// ----------------------------------------------------------------------------------
-	// Private getter and setters -> helpers
-	// ----------------------------------------------------------------------------------
-    protected void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
 
 
 
@@ -294,7 +370,7 @@ public class ClientImpl implements Client {
             socket = new Socket();
             socket.connect(new InetSocketAddress(hostname, port), timeout);
         } catch (IOException e) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw new StompConnectionException("Error during connection initialization", e);
         }
     }
@@ -304,10 +380,10 @@ public class ClientImpl implements Client {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), encoding));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), encoding));
         } catch (UnsupportedEncodingException e) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw new StompEncodingException("Error during connection initialization", e);
         } catch (IOException e) {
-            setState(ResourceState.ERROR);
+            setState(StompResourceState.ERROR);
             throw new StompConnectionException("Error during connection initialization", e);
         }
     }

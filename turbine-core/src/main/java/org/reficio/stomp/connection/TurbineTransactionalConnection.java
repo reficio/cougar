@@ -15,21 +15,31 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.impl;
+package org.reficio.stomp.connection;
+
+import org.reficio.stomp.StompException;
+import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.StompOperations;
+import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.domain.Frame;
+
+import java.util.List;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2011-02-17
- * Time: 10:53 AM
+ * Date: 2010-12-30
+ * Time: 12:48 AM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public enum ResourceState {
-    NEW,
-    COMMUNICATION_INITIALIZED,
-    OPERATIONAL,
-    ERROR,
-    CLOSING,
-    CLOSED
+public interface TurbineTransactionalConnection extends TransactionalConnection {
+
+    StompResource receptionTransactional(boolean receptionTransactional);
+
+    boolean isReceptionTransactional();
+
+    public List<Frame> getReceivedInCurrentTransaction();
+
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.connection;
+package org.reficio.stomp.spring.connection;
 
 import org.reficio.stomp.core.StompResource;
 

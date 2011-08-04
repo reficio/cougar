@@ -26,6 +26,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
+ * Class cannot be used with stomp 1.0 due to protocol inconsistencies
+ *
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-11-22
  * Time: 7:54 PM
@@ -33,6 +35,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
+@Deprecated
 public class SubscriptionRegister {
 
     private Set<String> subscriptions;
