@@ -17,14 +17,12 @@
 
 package org.reficio.stomp.test.unit;
 
-import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.StompConnectionException;
-import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
@@ -93,8 +91,8 @@ public class TxConnectionTest {
         });
         // initialize the connection
         connection.hostname("localhost")
-                .port(61613)
-                .init();
+                .port(61613);
+                connection.init();
     }
 
     @After
@@ -136,6 +134,7 @@ public class TxConnectionTest {
     @Test
     public void send() {
         final String payload = "msg1";
+        connection.begin();
         connection.send("queue1", new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
@@ -301,8 +300,15 @@ public class TxConnectionTest {
 
     @Test
     public void subscribeReceiveAckCheck() {
-        connection.subscribe("r/queue/1");
-        connection.receive();
+        connection.subscribe("r/queue/1", new FrameDecorator() {
+            @Override
+            public void decorateFrame(Frame frame) {
+                frame.ack(AckType.CLIENT);
+            }
+        });
+        connection.begin();
+        Frame frame = connection.receive();
+        connection.ack(frame.messageId());
         connection.close();
         List<Frame> frames = connection.getServer().getFrames();
         assertEquals(5, frames.size());

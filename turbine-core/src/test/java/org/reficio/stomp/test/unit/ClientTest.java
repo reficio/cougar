@@ -104,6 +104,7 @@ public class ClientTest {
 
     @Test(expected = StompProtocolException.class)
     public void connectHandshakeError() {
+        // TODO - connectio vs. conn???
         // create connection object
         MockConnectionImpl conn = MockConnectionImpl.create();
         // register handlers
@@ -116,7 +117,7 @@ public class ClientTest {
             }
         });
         // initialize the connection
-        connection.hostname("localhost").port(61613).init();
+        conn.hostname("localhost").port(61613).init();
     }
 
     @Test(expected = StompConnectionException.class)
@@ -138,10 +139,10 @@ public class ClientTest {
     public void errorStateCheck() {
         // initialize the connection
         Exception e = null;
-        connection.hostname("localhost").port(61613).encoding(null).init();
+        connection.hostname("localhost").port(61613).init();
         // connection.init("localhost", 61613, "user", "pass", null);
         try {
-            connection.hostname("localhost").port(61613).encoding(null).init();
+            connection.hostname("localhost").port(61613).init();
             // connection.init("localhost", 61613, "user", "pass", null);
         } catch (Exception ex) {
             e = ex;
@@ -157,10 +158,10 @@ public class ClientTest {
         // initialize the connection
         Exception e = null;
         // connection.init("localhost", 61613, "user", "pass", null);
-        connection.hostname("localhost").port(61613).encoding(null).init();
+        connection.hostname("localhost").port(61613).init();
         try {
             // connection.init("localhost", 61613, "user", "pass", null);
-            connection.hostname("localhost").port(61613).encoding(null).init();
+            connection.hostname("localhost").port(61613).init();
         } catch (Exception ex) {
             e = ex;
         } finally {
@@ -180,7 +181,7 @@ public class ClientTest {
                 .username("user")
                 .password("pass")
                 .timeout(100)
-                .encoding(null)
+                .encoding("UTF-8")
                 .init();
         assertEquals(connection.getHostname(), "localhost");
         assertEquals(connection.getPort(), 61613);

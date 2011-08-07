@@ -21,7 +21,7 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.*;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;

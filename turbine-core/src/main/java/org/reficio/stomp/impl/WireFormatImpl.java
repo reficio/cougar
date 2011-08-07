@@ -17,7 +17,6 @@
 
 package org.reficio.stomp.impl;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.lang.StringUtils;
 import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;

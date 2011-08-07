@@ -1,10 +1,7 @@
 package org.reficio.stomp.perf.sender;
 
-import org.apache.activemq.transport.stomp.Stomp;
-import org.apache.activemq.transport.stomp.StompFrame;
 import org.reficio.stomp.connection.Client;
-import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;

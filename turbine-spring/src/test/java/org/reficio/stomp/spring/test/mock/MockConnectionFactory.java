@@ -17,7 +17,7 @@
 package org.reficio.stomp.spring.test.mock;
 
 import org.reficio.stomp.StompConnectionException;
-import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.core.StompResource;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;

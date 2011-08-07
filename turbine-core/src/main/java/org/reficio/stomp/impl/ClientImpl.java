@@ -48,11 +48,11 @@ public class ClientImpl implements Client {
 	private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
 
     private String hostname;
-    private int port;
+    private int port = 61613;
     private String username;
     private String password;
-    private String encoding;
-    private int timeout;
+    private String encoding = DEFAULT_ENCODING;
+    private int timeout = DEFAULT_TIMEOUT;
 
     protected StompWireFormat wireFormat;
     protected FramePreprocessor preprocessor;
@@ -260,7 +260,7 @@ public class ClientImpl implements Client {
 	}
 
     protected void setEncoding(String encoding) {
-        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
+        this.encoding = encoding;
     }
 
     @Override
@@ -346,8 +346,6 @@ public class ClientImpl implements Client {
             throw new StompConnectionException("Connection is not in NEW state");
         }
     }
-
-
 
     // ----------------------------------------------------------------------------------
 	// Socket handlers

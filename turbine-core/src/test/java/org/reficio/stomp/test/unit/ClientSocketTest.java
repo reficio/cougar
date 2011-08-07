@@ -44,7 +44,7 @@ public class ClientSocketTest {
     public void connectAndClose() throws IOException {
         ServerSocket srv = null;
         srv = new ServerSocket(32611);
-        Client client = TestClientImpl.create();
+        Client client = new TestClientImpl();
         client.hostname("localhost").port(32611).init();
         Socket comm = srv.accept();
         assertNotNull(comm);
@@ -58,7 +58,7 @@ public class ClientSocketTest {
         srv = new ServerSocket(32611);
 //        Client client = new TestClientImpl();
 //        client.init("localhost", 32611, "user", "pass", "NO_SUCH_ENCODING");
-        Client client = TestClientImpl.create();
+        Client client = new TestClientImpl();
         client.hostname("localhost").port(32611).encoding("NO_SUCH_ENCODING").init();
     }
 
@@ -66,7 +66,7 @@ public class ClientSocketTest {
     public void connectionError() throws IOException {
 //        Client client = new TestClientImpl();
 //        client.init("localhost", 32612, "user", "pass", "UTF-8");
-        Client client = TestClientImpl.create();
+        Client client = new TestClientImpl();
         client.hostname("localhost").port(32612).encoding("UTF-8").init();
     }
 

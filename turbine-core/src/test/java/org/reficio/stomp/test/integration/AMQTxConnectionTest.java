@@ -19,7 +19,7 @@ package org.reficio.stomp.test.integration;
 
 import org.apache.activemq.broker.BrokerService;
 import org.junit.*;
-import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.impl.TransactionalConnectionImpl;
 
