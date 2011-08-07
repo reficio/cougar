@@ -22,7 +22,6 @@ import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.StompTransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
@@ -38,56 +37,56 @@ import java.util.UUID;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class StompTxConnectionImpl extends ConnectionImpl implements StompTransactionalConnection {
+public class TransactionalConnectionImpl extends ConnectionImpl implements StompTransactionalConnection {
 
-    private static final transient Logger log = LoggerFactory.getLogger(StompTxConnectionImpl.class);
+    private static final transient Logger log = LoggerFactory.getLogger(TransactionalConnectionImpl.class);
 
     protected String transactionId;
 
 //    protected boolean autoAcknowledge = true;
 
-    protected StompTxConnectionImpl() {
+    protected TransactionalConnectionImpl() {
         super();
     }
 
     // ----------------------------------------------------------------------------------
 	// Factory methods
 	// ----------------------------------------------------------------------------------
-    public static StompTxConnectionImpl create() {
-        return new StompTxConnectionImpl();
+    public static TransactionalConnectionImpl create() {
+        return new TransactionalConnectionImpl();
     }
     @Override
-    public StompTxConnectionImpl hostname(String hostname) {
-        return (StompTxConnectionImpl)super.hostname(hostname);
-    }
-
-    @Override
-    public StompTxConnectionImpl port(int port) {
-        return (StompTxConnectionImpl)super.port(port);
+    public TransactionalConnectionImpl hostname(String hostname) {
+        return (TransactionalConnectionImpl)super.hostname(hostname);
     }
 
     @Override
-    public StompTxConnectionImpl username(String username) {
-        return (StompTxConnectionImpl)super.username(username);
+    public TransactionalConnectionImpl port(int port) {
+        return (TransactionalConnectionImpl)super.port(port);
     }
 
     @Override
-    public StompTxConnectionImpl password(String password) {
-        return (StompTxConnectionImpl)super.password(password);
+    public TransactionalConnectionImpl username(String username) {
+        return (TransactionalConnectionImpl)super.username(username);
     }
 
     @Override
-    public StompTxConnectionImpl encoding(String encoding) {
-        return (StompTxConnectionImpl)super.encoding(encoding);
+    public TransactionalConnectionImpl password(String password) {
+        return (TransactionalConnectionImpl)super.password(password);
     }
 
     @Override
-    public StompTxConnectionImpl timeout(int timeout) {
-        return (StompTxConnectionImpl)super.timeout(timeout);
+    public TransactionalConnectionImpl encoding(String encoding) {
+        return (TransactionalConnectionImpl)super.encoding(encoding);
+    }
+
+    @Override
+    public TransactionalConnectionImpl timeout(int timeout) {
+        return (TransactionalConnectionImpl)super.timeout(timeout);
     }
 
 //    @Override
-//    public StompTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
+//    public TransactionalConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
 //        assertNew();
 //        setAutoAcknowledge(autoAcknowledge);
 //        return this;

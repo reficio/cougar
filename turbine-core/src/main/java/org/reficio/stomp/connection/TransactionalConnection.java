@@ -1,8 +1,9 @@
 package org.reficio.stomp.connection;
 
+import org.reficio.stomp.StompException;
+import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
-import org.reficio.stomp.core.StompTransactionalResource;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -12,5 +13,16 @@ import org.reficio.stomp.core.StompTransactionalResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface TransactionalConnection extends StompTransactionalResource, StompResource, StompOperations {
+public interface TransactionalConnection extends StompResource, StompOperations {
+
+    void begin() throws StompException;
+
+    void rollback(FrameDecorator frameDecorator) throws StompException;
+
+	void rollback() throws StompException;
+
+	void commit(FrameDecorator frameDecorator) throws StompException;
+
+	void commit() throws StompException;
+
 }

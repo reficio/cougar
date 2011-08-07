@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.core;
+package org.reficio.stomp.connection;
 
-import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.TransactionalConnection;
-import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
 
 /**
@@ -31,12 +27,8 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface StompTransactionalConnection extends TransactionalConnection {
+public interface ConnectionFactory<T extends StompResource> {
 
-    void ack(String messageId, FrameDecorator frameDecorator) throws StompException;
-
-    void ack(String messageId) throws StompException;
-
-//	boolean isAutoAcknowledge();
-
+	T createConnection();
+	
 }

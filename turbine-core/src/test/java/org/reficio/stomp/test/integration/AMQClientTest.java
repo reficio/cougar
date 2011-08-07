@@ -27,6 +27,7 @@ import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
 import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.StompConnectionFactory;
 
 import java.util.UUID;
 

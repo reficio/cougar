@@ -46,4 +46,9 @@ public interface StompOperations {
 
     Frame receive() throws StompException;
 
+    void ack(String messageId, FrameDecorator frameDecorator) throws StompException;
+
+    void ack(String messageId) throws StompException;
+
+
 }

@@ -23,7 +23,8 @@ import org.reficio.stomp.connection.StompConnectionFactory;
 import org.reficio.stomp.core.StompTransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.StompTxConnectionImpl;
+import org.reficio.stomp.impl.StompConnectionFactory;
+import org.reficio.stomp.impl.TransactionalConnectionImpl;
 
 import java.util.UUID;
 
@@ -58,7 +59,7 @@ public class AMQTxConnectionTest {
 //    }
 
     private StompConnectionFactory<StompTransactionalConnection> getConnectionFactory() {
-        StompConnectionFactory<StompTransactionalConnection> factory = new StompConnectionFactory<StompTransactionalConnection>(StompTxConnectionImpl.class);
+        StompConnectionFactory<StompTransactionalConnection> factory = new StompConnectionFactory<StompTransactionalConnection>(TransactionalConnectionImpl.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
@@ -80,7 +81,7 @@ public class AMQTxConnectionTest {
 
     @Test
     public void connect() {
-        StompConnectionFactory<StompTransactionalConnection> factory = new StompConnectionFactory<StompTransactionalConnection>(StompTxConnectionImpl.class);
+        StompConnectionFactory<StompTransactionalConnection> factory = new StompConnectionFactory<StompTransactionalConnection>(TransactionalConnectionImpl.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);

@@ -25,6 +25,7 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.StompConnectionFactory;
 
 import java.util.UUID;
 

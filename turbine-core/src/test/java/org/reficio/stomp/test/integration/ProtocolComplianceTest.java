@@ -9,8 +9,7 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
-import org.reficio.stomp.impl.StompTxConnectionImpl;
-import org.reficio.stomp.test.unit.TxConnectionTest;
+import org.reficio.stomp.impl.TransactionalConnectionImpl;
 
 import java.util.UUID;
 
@@ -61,7 +60,7 @@ public class ProtocolComplianceTest {
     }
 
     private TransactionalConnection createTransactionalCnnection() {
-        TransactionalConnection conn = StompTxConnectionImpl.create().hostname("localhost").port(61613);
+        TransactionalConnection conn = TransactionalConnectionImpl.create().hostname("localhost").port(61613);
         conn.init();
         return conn;
     }
