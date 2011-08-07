@@ -50,6 +50,7 @@ public class TxConnectionTest {
 
     private MockTxConnectionImpl connection;
     private EmptyDecorator decorator;
+
     class EmptyDecorator implements FrameDecorator {
         @Override
         public void decorateFrame(Frame frame) {
@@ -58,9 +59,9 @@ public class TxConnectionTest {
 
     @Before
     public void initialize() {
-        connection = MockTxConnectionImpl.create();
-        connection.autoTransactional(true);
-        // connection.setTransactional(true);
+        connection = new MockTxConnectionImpl();
+        // TODO - commented out - maybe necessary to modify test logic
+        // connection.setAutoTransactional(true);
         decorator = new EmptyDecorator();
         // register handlers
         connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
@@ -91,8 +92,9 @@ public class TxConnectionTest {
             }
         });
         // initialize the connection
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.hostname("localhost").port(61613).init();
+        connection.hostname("localhost")
+                .port(61613)
+                .init();
     }
 
     @After
@@ -101,8 +103,10 @@ public class TxConnectionTest {
         decorator = null;
     }
 
+
     @Test
-    public void ackInAutoTransactional() {
+    public void ackInTransactiona() {
+        connection.begin();
         connection.ack("msg1", decorator);
         connection.commit();
         connection.close();
@@ -128,36 +132,6 @@ public class TxConnectionTest {
         Frame disconnect = frames.get(4);
         assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
     }
-
-//    @Test
-//    public void ackInManualTransactional() {
-//        connection.setTransactional(false);
-//        connection.begin();
-//        connection.ack("msg1", decorator);
-//        connection.commit();
-//        connection.close();
-//        List<Frame> frames = connection.getServer().getFrames();
-//        assertEquals(5, frames.size());
-//        // connect
-//        Frame connect = frames.get(0);
-//        assertEquals(CommandType.CONNECT, connect.getCommand());
-//        // begin
-//        Frame begin = frames.get(1);
-//        assertEquals(CommandType.BEGIN, begin.getCommand());
-//        assertNotNull(begin.transaction());
-//        String transactionId = begin.transaction();
-//        // ack
-//        Frame ack = frames.get(2);
-//        assertEquals(CommandType.ACK, ack.getCommand());
-//        assertEquals(transactionId, ack.transaction());
-//        // commit
-//        Frame commit = frames.get(3);
-//        assertEquals(CommandType.COMMIT, commit.getCommand());
-//        assertEquals(transactionId, commit.transaction());
-//        // disconnect
-//        Frame disconnect = frames.get(4);
-//        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
-//    }
 
     @Test
     public void send() {

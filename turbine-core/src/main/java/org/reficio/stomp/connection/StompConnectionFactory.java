@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.impl;
+package org.reficio.stomp.connection;
 
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.connection.ConnectionFactory;

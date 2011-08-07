@@ -20,7 +20,7 @@ package org.reficio.stomp.impl;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.core.StompTransactionalConnection;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
@@ -37,13 +37,11 @@ import java.util.UUID;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class TransactionalConnectionImpl extends ConnectionImpl implements StompTransactionalConnection {
+public class TransactionalConnectionImpl extends ConnectionImpl implements TransactionalConnection {
 
     private static final transient Logger log = LoggerFactory.getLogger(TransactionalConnectionImpl.class);
 
     protected String transactionId;
-
-//    protected boolean autoAcknowledge = true;
 
     protected TransactionalConnectionImpl() {
         super();
@@ -85,18 +83,10 @@ public class TransactionalConnectionImpl extends ConnectionImpl implements Stomp
         return (TransactionalConnectionImpl)super.timeout(timeout);
     }
 
-//    @Override
-//    public TransactionalConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
-//        assertNew();
-//        setAutoAcknowledge(autoAcknowledge);
-//        return this;
-//    }
-
-
     // ----------------------------------------------------------------------------------
     // Overridden transaction-aware methods
     // ----------------------------------------------------------------------------------
-    // TODO be aware that ack acknowledges all previous not-acknowledged messages too
+    // TODO Be aware that ack acknowledges all previous not-acknowledged messages too
     @Override
     public void ack(String messageId) {
         // beginTransactionIfRequired();
@@ -117,34 +107,6 @@ public class TransactionalConnectionImpl extends ConnectionImpl implements Stomp
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
         super.send(destination, txDecorator);
     }
-
-
-//    @Override
-//    public Frame receive() throws StompException {
-//        // beginTransactionIfRequired();
-//        Frame frame = super.receive();
-////        if (isInitialized() && isAutoAcknowledge() && frame.getCommand().equals(CommandType.MESSAGE)) {
-////            // ack will contain transactionID due to the method override
-////            ack(frame.messageId());
-////        }
-//        return frame;
-//    }
-
-
-//    // ----------------------------------------------------------------------------------
-//    // Subscribe methods override - in order to set CLIENT ack mode
-//    // ----------------------------------------------------------------------------------
-//    @Override
-//    public String subscribe(String destination, FrameDecorator frameDecorator) {
-//        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
-//        return super.subscribe(destination, ackDecorator);
-//    }
-//
-//    @Override
-//    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
-//        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
-//        return super.subscribe(id, destination, ackDecorator);
-//    }
 
     // ----------------------------------------------------------------------------------
     // StompTransactionalConnection methods - also transaction-aware :)
@@ -191,15 +153,6 @@ public class TransactionalConnectionImpl extends ConnectionImpl implements Stomp
         log.info(String.format("Committing transaction id=[%s]", transactionId));
         commit(transactionId);
     }
-
-//    @Override
-//    public boolean isAutoAcknowledge() {
-//        return this.autoAcknowledge;
-//    }
-//
-//    protected void setAutoAcknowledge(boolean autoAcknowledge) throws StompException {
-//        this.autoAcknowledge = autoAcknowledge;
-//    }
 
     // ----------------------------------------------------------------------------------
     // Helper methods - connection state verification
@@ -255,22 +208,5 @@ public class TransactionalConnectionImpl extends ConnectionImpl implements Stomp
             frame.transaction(transactionId);
         }
     }
-
-//    static class ClientModeSubscriptionDecorator implements FrameDecorator {
-//        public ClientModeSubscriptionDecorator(final FrameDecorator originalDecorator) {
-//            this.originalDecorator = originalDecorator;
-//        }
-//
-//        private FrameDecorator originalDecorator;
-//
-//        @Override
-//        public void decorateFrame(Frame frame) {
-//            originalDecorator.decorateFrame(frame);
-//            if (frame.ack() != null) {
-//                throw new StompInvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
-//            }
-//            frame.ack(AckType.CLIENT);
-//        }
-//    }
 
 }

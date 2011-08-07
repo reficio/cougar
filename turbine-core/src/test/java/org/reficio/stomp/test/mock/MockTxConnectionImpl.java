@@ -18,8 +18,8 @@
 package org.reficio.stomp.test.mock;
 
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +39,6 @@ public class MockTxConnectionImpl extends TransactionalConnectionImpl {
     private static final transient Logger log = LoggerFactory.getLogger(MockTxConnectionImpl.class);
 
     private MockConnectionStub stub;
-
-    public static MockTxConnectionImpl create() {
-        return new MockTxConnectionImpl();
-    }
-
 
     public MockTxConnectionImpl() {
         super();
@@ -75,24 +70,24 @@ public class MockTxConnectionImpl extends TransactionalConnectionImpl {
     }
 
     @Override
-    public synchronized void close() {
-        assertOperational();
-        log.info(String.format("Closing connection=[%s]", this));
+	public synchronized void close() {
+		assertOperational();
+		log.info(String.format("Closing connection=[%s]", this));
         setState(StompResourceState.CLOSING);
-        disconnect();
+		disconnect();
         unmarshall();
         this.stub.close();
         closeCommunication();
         setState(StompResourceState.CLOSED);
-    }
+	}
 
     @Override
-    protected void marshall(Frame frame) throws StompException {
+	protected void marshall(Frame frame) throws StompException {
         stub.getExecutor().submit(getServer());
-        log.info("Sending frame: \n" + frame);
+		log.info("Sending frame: \n" + frame);
         try {
-            wireFormat.marshal(frame, writer);
-        } catch (RuntimeException ex) {
+		    wireFormat.marshal(frame, writer);
+        } catch(RuntimeException ex) {
             setState(StompResourceState.ERROR);
             throw ex;
         }
