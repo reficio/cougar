@@ -19,9 +19,11 @@ package org.reficio.stomp.impl;
 
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompException;
+import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.StompReceptionRollbackException;
 import org.reficio.stomp.connection.TurbineTransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
@@ -48,8 +50,6 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
 
     protected TurbineTxConnectionImpl() {
         super();
-        super.setAutoTransactional(true);
-        super.setAutoAcknowledge(true);
     }
 
     // ----------------------------------------------------------------------------------
@@ -58,16 +58,40 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
     public static TurbineTxConnectionImpl create() {
         return new TurbineTxConnectionImpl();
     }
-
     @Override
-    public TurbineTxConnectionImpl autoTransactional(boolean autoTransactional) {
-        throw new StompConnectionException("This option cannot be mutated - implicitly set to true");
+    public TurbineTxConnectionImpl hostname(String hostname) {
+        return (TurbineTxConnectionImpl)super.hostname(hostname);
     }
 
     @Override
-    public TurbineTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
-        throw new StompConnectionException("This option cannot be mutated - implicitly set to true");
+    public TurbineTxConnectionImpl port(int port) {
+        return (TurbineTxConnectionImpl)super.port(port);
     }
+
+    @Override
+    public TurbineTxConnectionImpl username(String username) {
+        return (TurbineTxConnectionImpl)super.username(username);
+    }
+
+    @Override
+    public TurbineTxConnectionImpl password(String password) {
+        return (TurbineTxConnectionImpl)super.password(password);
+    }
+
+    @Override
+    public TurbineTxConnectionImpl encoding(String encoding) {
+        return (TurbineTxConnectionImpl)super.encoding(encoding);
+    }
+
+    @Override
+    public TurbineTxConnectionImpl timeout(int timeout) {
+        return (TurbineTxConnectionImpl)super.timeout(timeout);
+    }
+
+//    @Override
+//    public TurbineTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
+//        throw new StompConnectionException("This option cannot be mutated - implicitly set to true");
+//    }
 
     @Override
     public TurbineTxConnectionImpl receptionTransactional(boolean receptionTransactional) {
@@ -118,16 +142,17 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
     // IMPORTANT!!! DO NOT USE TRANSACTIONS WHILE SENDING ACK
     @Override
     public void ack(String messageId, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.ACK);
-        frame.messageId(messageId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
+//        Frame frame = new Frame(CommandType.ACK);
+//        frame.messageId(messageId);
+//        preprocessor.decorate(frame, frameDecorator);
+//        send(frame);
+        throw new StompException("Ack method not supported in transactional reception connection");
     }
 
-    // IMPORTANT!!! DO NOT USE TRANSACTIONS WHILE SENDING ACK
     @Override
     public void ack(String messageId) {
-        ack(messageId, emptyDecorator);
+        // ack(messageId, emptyDecorator);
+        throw new StompException("Ack method not supported in transactional reception connection");
     }
 
 
@@ -171,6 +196,39 @@ public class TurbineTxConnectionImpl extends StompTxConnectionImpl implements Tu
 
     protected void setReceptionTransactional(boolean receptionTransactional) throws StompException {
         this.transactionalReception = receptionTransactional;
+    }
+
+
+    // ----------------------------------------------------------------------------------
+    // Subscribe methods override - in order to set CLIENT ack mode
+    // ----------------------------------------------------------------------------------
+    @Override
+    public String subscribe(String destination, FrameDecorator frameDecorator) {
+        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
+        return super.subscribe(destination, ackDecorator);
+    }
+
+    @Override
+    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
+        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
+        return super.subscribe(id, destination, ackDecorator);
+    }
+
+    static class ClientModeSubscriptionDecorator implements FrameDecorator {
+        public ClientModeSubscriptionDecorator(final FrameDecorator originalDecorator) {
+            this.originalDecorator = originalDecorator;
+        }
+
+        private FrameDecorator originalDecorator;
+
+        @Override
+        public void decorateFrame(Frame frame) {
+            originalDecorator.decorateFrame(frame);
+            if (frame.ack() != null) {
+                throw new StompInvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
+            }
+            frame.ack(AckType.AUTO);
+        }
     }
 
 }

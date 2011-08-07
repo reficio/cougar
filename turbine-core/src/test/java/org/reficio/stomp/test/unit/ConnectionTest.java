@@ -45,7 +45,7 @@ public class ConnectionTest {
 
     @Before
     public void initialize() {
-        connection = new MockConnectionImpl();
+        connection = MockConnectionImpl.create();
         // register handlers
         connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
             @Override
@@ -65,7 +65,8 @@ public class ConnectionTest {
             }
         });
         // initialize the connection
-        connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        connection.hostname("localhost").port(61613).encoding("UTF-8").init();
     }
 
     @After

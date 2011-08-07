@@ -88,7 +88,7 @@ public class StompTemplate extends StompAccessor {
         Assert.notNull(frameDecorator, "FrameDecorator must not be null");
         connection.send(destination, frameDecorator);
         // Check commit - avoid commit call within a JTA transaction.
-        if (connection.isAutoTransactional() && isConnectionLocallyTransacted(connection)) {
+        if (connection.isTransactional() && isConnectionLocallyTransacted(connection)) {
             // Transacted session created by this spring -> commit.
             connection.commit();
         }

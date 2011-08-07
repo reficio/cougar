@@ -32,7 +32,7 @@ public interface StompResource {
 	// void init(String hostname, int port, String username, String password, String encoding) throws StompException;
 	// void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
 
-    StompResource init();
+    void init();
 	void close() throws StompException;
 
     StompResource hostname(String hostname);

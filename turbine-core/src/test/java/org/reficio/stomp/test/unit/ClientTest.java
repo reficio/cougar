@@ -42,21 +42,21 @@ import static org.junit.Assert.*;
  */
 public class ClientTest {
 
-     private MockConnectionImpl connection;
+    private MockConnectionImpl connection;
 
     @Before
     public void initialize() {
-        connection = new MockConnectionImpl();
+        connection = MockConnectionImpl.create();
         // register handlers
         connection.getStub().getServer().registerHandler(CommandType.CONNECT,
                 new IMockMessageHandler() {
-            @Override
-            public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
-                response.session(UUID.randomUUID().toString());
-                return response;
-            }
-        });
+                    @Override
+                    public Frame respond(Frame request) {
+                        Frame response = new Frame(CommandType.CONNECTED);
+                        response.session(UUID.randomUUID().toString());
+                        return response;
+                    }
+                });
 
         connection.getStub().getServer().registerHandler(CommandType.DISCONNECT, new IMockMessageHandler() {
             @Override
@@ -77,7 +77,8 @@ public class ClientTest {
     @Test
     public void connect() {
         // initialize the connection
-        connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        connection.hostname("localhost").port(61613).init();
 
         // test logic
         assertTrue(connection.isInitialized());
@@ -87,7 +88,7 @@ public class ClientTest {
 
     @Test
     public void connectNoSessionIdInResponse() {
-        connection = new MockConnectionImpl();
+        connection = MockConnectionImpl.create();
         // register handlers, no session id in response to connect command
         connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
             @Override
@@ -97,13 +98,14 @@ public class ClientTest {
             }
         });
         // initialize the connection
-        connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        connection.hostname("localhost").port(61613).init();
     }
 
     @Test(expected = StompProtocolException.class)
     public void connectHandshakeError() {
         // create connection object
-        MockConnectionImpl conn = new MockConnectionImpl();
+        MockConnectionImpl conn = MockConnectionImpl.create();
         // register handlers
         conn.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
             @Override
@@ -114,30 +116,34 @@ public class ClientTest {
             }
         });
         // initialize the connection
-        conn.init("localhost", 61613, "user", "pass", "UTF-8");
+        connection.hostname("localhost").port(61613).init();
     }
 
     @Test(expected = StompConnectionException.class)
     public void notInitializedError() {
-        MockConnectionImpl connection = new MockConnectionImpl();
+        MockConnectionImpl connection = MockConnectionImpl.create();
         connection.send(new Frame(CommandType.MESSAGE));
     }
 
     @Test(expected = StompConnectionException.class)
     public void doubleInitError() {
         // initialize the connection
-        connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        connection.hostname("localhost").port(61613).init();
+        connection.init();
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
     }
 
     @Test
     public void errorStateCheck() {
         // initialize the connection
         Exception e = null;
-        connection.init("localhost", 61613, "user", "pass", null);
+        connection.hostname("localhost").port(61613).encoding(null).init();
+        // connection.init("localhost", 61613, "user", "pass", null);
         try {
-            connection.init("localhost", 61613, "user", "pass", null);
-        } catch(Exception ex) {
+            connection.hostname("localhost").port(61613).encoding(null).init();
+            // connection.init("localhost", 61613, "user", "pass", null);
+        } catch (Exception ex) {
             e = ex;
         } finally {
             assertNotNull(e);
@@ -150,22 +156,32 @@ public class ClientTest {
     public void errorStateCheckSecondInit() {
         // initialize the connection
         Exception e = null;
-        connection.init("localhost", 61613, "user", "pass", null);
+        // connection.init("localhost", 61613, "user", "pass", null);
+        connection.hostname("localhost").port(61613).encoding(null).init();
         try {
-            connection.init("localhost", 61613, "user", "pass", null);
-        } catch(Exception ex) {
+            // connection.init("localhost", 61613, "user", "pass", null);
+            connection.hostname("localhost").port(61613).encoding(null).init();
+        } catch (Exception ex) {
             e = ex;
         } finally {
             assertNotNull(e);
         }
-        connection.init("localhost", 61613, "user", "pass", null);
+        // connection.init("localhost", 61613, "user", "pass", null);
+        connection.hostname("localhost").port(61613).encoding(null).init();
     }
 
 
     @Test
     public void checkAttributes() {
         // initialize the connection
-        connection.init("localhost", 61613, "user", "pass", "UTF-8", 100);
+        // connection.init("localhost", 61613, "user", "pass", "UTF-8", 100);
+        connection.hostname("localhost")
+                .port(61613)
+                .username("user")
+                .password("pass")
+                .timeout(100)
+                .encoding(null)
+                .init();
         assertEquals(connection.getHostname(), "localhost");
         assertEquals(connection.getPort(), 61613);
         assertEquals(connection.getUsername(), "user");

@@ -49,6 +49,38 @@ public class ConnectionImpl extends ClientImpl implements Connection {
     public static ConnectionImpl create() {
         return new ConnectionImpl();
     }
+    @Override
+    public ConnectionImpl hostname(String hostname) {
+        return (ConnectionImpl)super.hostname(hostname);
+    }
+
+    @Override
+    public ConnectionImpl port(int port) {
+        return (ConnectionImpl)super.port(port);
+    }
+
+    @Override
+    public ConnectionImpl username(String username) {
+        return (ConnectionImpl)super.username(username);
+    }
+
+    @Override
+    public ConnectionImpl password(String password) {
+        return (ConnectionImpl)super.password(password);
+    }
+
+    @Override
+    public ConnectionImpl encoding(String encoding) {
+        return (ConnectionImpl)super.encoding(encoding);
+    }
+
+    @Override
+    public ConnectionImpl timeout(int timeout) {
+        return (ConnectionImpl)super.timeout(timeout);
+    }
+
+
+
 
     @Override
     public void abort(String transactionId, FrameDecorator frameDecorator) {

@@ -22,12 +22,8 @@ public interface StompTransactionalResource {
 	void commit() throws StompException;
 
 
-    StompResource autoTransactional(boolean autoTransactional);
-    StompResource autoAcknowledge(boolean autoAcknowledge);
-
-
-    boolean isAutoTransactional();
-    boolean isAutoAcknowledge();
-
+//    StompResource autoAcknowledge(boolean autoAcknowledge);
+//
+//    boolean isAutoAcknowledge();
 
 }

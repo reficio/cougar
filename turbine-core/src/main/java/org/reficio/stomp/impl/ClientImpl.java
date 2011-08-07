@@ -126,8 +126,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-	public synchronized Client init() {
-
+	public synchronized void init() {
         // TODO validate parameters
 
 		log.info(String.format("Initializing connection=[%s]", this));
@@ -136,7 +135,6 @@ public class ClientImpl implements Client {
         setState(StompResourceState.COMMUNICATION_INITIALIZED);
 		connect();
         setState(StompResourceState.OPERATIONAL);
-        return this;
 	}
 
 	@Override
@@ -182,7 +180,6 @@ public class ClientImpl implements Client {
 
     @Override
     public ClientImpl password(String password) {
-        assertNew();
         setPassword(password);
         return this;
     }

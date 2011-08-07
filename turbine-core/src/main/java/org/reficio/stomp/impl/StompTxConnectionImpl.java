@@ -17,7 +17,6 @@
 
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
@@ -44,8 +43,8 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
     private static final transient Logger log = LoggerFactory.getLogger(StompTxConnectionImpl.class);
 
     protected String transactionId;
-    protected boolean autoTransactional = true;
-    protected boolean autoAcknowledge = true;
+
+//    protected boolean autoAcknowledge = true;
 
     protected StompTxConnectionImpl() {
         super();
@@ -57,20 +56,42 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
     public static StompTxConnectionImpl create() {
         return new StompTxConnectionImpl();
     }
-
     @Override
-    public StompTxConnectionImpl autoTransactional(boolean autoTransactional) {
-        assertNew();
-        setAutoTransactional(autoTransactional);
-        return this;
+    public StompTxConnectionImpl hostname(String hostname) {
+        return (StompTxConnectionImpl)super.hostname(hostname);
     }
 
     @Override
-    public StompTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
-        assertNew();
-        setAutoAcknowledge(autoAcknowledge);
-        return this;
+    public StompTxConnectionImpl port(int port) {
+        return (StompTxConnectionImpl)super.port(port);
     }
+
+    @Override
+    public StompTxConnectionImpl username(String username) {
+        return (StompTxConnectionImpl)super.username(username);
+    }
+
+    @Override
+    public StompTxConnectionImpl password(String password) {
+        return (StompTxConnectionImpl)super.password(password);
+    }
+
+    @Override
+    public StompTxConnectionImpl encoding(String encoding) {
+        return (StompTxConnectionImpl)super.encoding(encoding);
+    }
+
+    @Override
+    public StompTxConnectionImpl timeout(int timeout) {
+        return (StompTxConnectionImpl)super.timeout(timeout);
+    }
+
+//    @Override
+//    public StompTxConnectionImpl autoAcknowledge(boolean autoAcknowledge) {
+//        assertNew();
+//        setAutoAcknowledge(autoAcknowledge);
+//        return this;
+//    }
 
 
     // ----------------------------------------------------------------------------------
@@ -79,52 +100,52 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
     // TODO be aware that ack acknowledges all previous not-acknowledged messages too
     @Override
     public void ack(String messageId) {
-        beginTransactionIfRequired();
+        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator();
         super.ack(messageId, txDecorator);
     }
 
     @Override
     public void ack(String messageId, FrameDecorator frameDecorator) {
-        beginTransactionIfRequired();
+        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
         super.ack(messageId, txDecorator);
     }
 
     @Override
     public void send(String destination, final FrameDecorator frameDecorator) throws StompException {
-        beginTransactionIfRequired();
+        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
         super.send(destination, txDecorator);
     }
 
 
-    @Override
-    public Frame receive() throws StompException {
-        beginTransactionIfRequired();
-        Frame frame = super.receive();
-        if (isInitialized() && isAutoAcknowledge() && frame.getCommand().equals(CommandType.MESSAGE)) {
-            // ack will contain transactionID due to the method override
-            ack(frame.messageId());
-        }
-        return frame;
-    }
+//    @Override
+//    public Frame receive() throws StompException {
+//        // beginTransactionIfRequired();
+//        Frame frame = super.receive();
+////        if (isInitialized() && isAutoAcknowledge() && frame.getCommand().equals(CommandType.MESSAGE)) {
+////            // ack will contain transactionID due to the method override
+////            ack(frame.messageId());
+////        }
+//        return frame;
+//    }
 
 
-    // ----------------------------------------------------------------------------------
-    // Subscribe methods override - in order to set CLIENT ack mode
-    // ----------------------------------------------------------------------------------
-    @Override
-    public String subscribe(String destination, FrameDecorator frameDecorator) {
-        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
-        return super.subscribe(destination, ackDecorator);
-    }
-
-    @Override
-    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
-        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
-        return super.subscribe(id, destination, ackDecorator);
-    }
+//    // ----------------------------------------------------------------------------------
+//    // Subscribe methods override - in order to set CLIENT ack mode
+//    // ----------------------------------------------------------------------------------
+//    @Override
+//    public String subscribe(String destination, FrameDecorator frameDecorator) {
+//        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
+//        return super.subscribe(destination, ackDecorator);
+//    }
+//
+//    @Override
+//    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
+//        ClientModeSubscriptionDecorator ackDecorator = new ClientModeSubscriptionDecorator(frameDecorator);
+//        return super.subscribe(id, destination, ackDecorator);
+//    }
 
     // ----------------------------------------------------------------------------------
     // StompTransactionalConnection methods - also transaction-aware :)
@@ -172,24 +193,14 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
         commit(transactionId);
     }
 
-    @Override
-    public boolean isAutoTransactional() {
-        return this.autoTransactional;
-    }
-
-    protected void setAutoTransactional(boolean transactional) throws StompException {
-        assertNotInTransaction();
-        this.autoTransactional = transactional;
-    }
-
-    @Override
-    public boolean isAutoAcknowledge() {
-        return this.autoAcknowledge;
-    }
-
-    protected void setAutoAcknowledge(boolean autoAcknowledge) throws StompException {
-        this.autoAcknowledge = autoAcknowledge;
-    }
+//    @Override
+//    public boolean isAutoAcknowledge() {
+//        return this.autoAcknowledge;
+//    }
+//
+//    protected void setAutoAcknowledge(boolean autoAcknowledge) throws StompException {
+//        this.autoAcknowledge = autoAcknowledge;
+//    }
 
     // ----------------------------------------------------------------------------------
     // Helper methods - connection state verification
@@ -213,15 +224,15 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
     // ----------------------------------------------------------------------------------
     // Transaction handling helpers
     // ----------------------------------------------------------------------------------
-    private void beginTransactionIfRequired() {
-        if (isInTransaction() == false && isInitialized() == true) {
-            if (isAutoTransactional() == true) {
-                begin();
-            } else {
-                throw new StompIllegalTransactionStateException("Transaction has not begun");
-            }
-        }
-    }
+//    private void beginTransactionIfRequired() {
+//        if (isInTransaction() == false && isInitialized() == true) {
+//            if (isTransactional() == true) {
+//                begin();
+//            } else {
+//                throw new StompIllegalTransactionStateException("Transaction has not begun");
+//            }
+//        }
+//    }
 
     class TransactionAwareDecorator implements FrameDecorator {
         public TransactionAwareDecorator() {
@@ -246,21 +257,21 @@ public class StompTxConnectionImpl extends ConnectionImpl implements StompTransa
         }
     }
 
-    static class ClientModeSubscriptionDecorator implements FrameDecorator {
-        public ClientModeSubscriptionDecorator(final FrameDecorator originalDecorator) {
-            this.originalDecorator = originalDecorator;
-        }
-
-        private FrameDecorator originalDecorator;
-
-        @Override
-        public void decorateFrame(Frame frame) {
-            originalDecorator.decorateFrame(frame);
-            if (frame.ack() != null) {
-                throw new StompInvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
-            }
-            frame.ack(AckType.CLIENT);
-        }
-    }
+//    static class ClientModeSubscriptionDecorator implements FrameDecorator {
+//        public ClientModeSubscriptionDecorator(final FrameDecorator originalDecorator) {
+//            this.originalDecorator = originalDecorator;
+//        }
+//
+//        private FrameDecorator originalDecorator;
+//
+//        @Override
+//        public void decorateFrame(Frame frame) {
+//            originalDecorator.decorateFrame(frame);
+//            if (frame.ack() != null) {
+//                throw new StompInvalidHeaderException("AckType header can't be set manually in transactional connection - implicitly set to CLIENT");
+//            }
+//            frame.ack(AckType.CLIENT);
+//        }
+//    }
 
 }

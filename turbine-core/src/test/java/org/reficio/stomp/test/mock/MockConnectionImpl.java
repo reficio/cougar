@@ -40,8 +40,12 @@ public class MockConnectionImpl extends ConnectionImpl {
 
     private MockConnectionStub stub;
 
-    public MockConnectionImpl() {
+    private MockConnectionImpl() {
         this.stub = new MockConnectionStub();
+    }
+
+    public static MockConnectionImpl create() {
+        return new MockConnectionImpl();
     }
 
     @Override

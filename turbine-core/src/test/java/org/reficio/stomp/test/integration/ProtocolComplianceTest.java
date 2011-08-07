@@ -3,13 +3,14 @@ package org.reficio.stomp.test.integration;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.*;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.StompConnectionFactory;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.StompTransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
 import org.reficio.stomp.impl.StompTxConnectionImpl;
+import org.reficio.stomp.test.unit.TxConnectionTest;
 
 import java.util.UUID;
 
@@ -53,32 +54,24 @@ public class ProtocolComplianceTest {
         broker.getAdminView().removeQueue(destinationName);
     }
 
-    private StompConnectionFactory<Connection> getConnectionFactory() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(ConnectionImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("system");
-        factory.setPassword("manager");
-        return factory;
+    private Connection createConnection() {
+        Connection conn = ConnectionImpl.create().hostname("localhost").port(61613);
+        conn.init();
+        return conn;
     }
 
-    private StompConnectionFactory<StompTransactionalConnection> getTxConnectionFactory() {
-        StompConnectionFactory<StompTransactionalConnection> factory = new StompConnectionFactory<StompTransactionalConnection>(StompTxConnectionImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("guest");
-        factory.setPassword("guest");
-        return factory;
+    private TransactionalConnection createTransactionalCnnection() {
+        TransactionalConnection conn = StompTxConnectionImpl.create().hostname("localhost").port(61613);
+        conn.init();
+        return conn;
     }
+
 
     @Test
     public void checkSingleReceptionWithSubscribeUnsubscribeNoTx() throws Exception {
 
-        StompConnectionFactory<Connection> factory = getConnectionFactory();
         final String receiptId = UUID.randomUUID().toString();
-        Connection connSender = factory.createConnection();
+        Connection connSender = createConnection();
         String[] payloads = new String[]{"Jason Bourne", "James Bond"};
         for (final String payload : payloads) {
             connSender.send(stompQueuePrefix + destinationName, new FrameDecorator() {
@@ -93,7 +86,7 @@ public class ProtocolComplianceTest {
         }
         connSender.close();
 
-        Connection connReceiver = factory.createConnection();
+        Connection connReceiver = createConnection();
         final String subsId = connReceiver.subscribe(stompQueuePrefix + destinationName, new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
@@ -110,7 +103,7 @@ public class ProtocolComplianceTest {
 
 
         // second message should be redelivered
-        Connection connReceiver2 = factory.createConnection();
+        Connection connReceiver2 = createConnection();
         final String subsId2 = connReceiver2.subscribe(stompQueuePrefix + destinationName);
         Frame frame3 = connReceiver2.receive();
         assertEquals(frame2.payload(), frame3.payload());
@@ -121,7 +114,6 @@ public class ProtocolComplianceTest {
     @Test
     public void checkSingleReceptionWithSubscribeUnsubscribeTx() throws Exception {
 
-        StompConnectionFactory<StompTransactionalConnection> factory = getTxConnectionFactory();
         final String receiptId = UUID.randomUUID().toString();
         StompTransactionalConnection connSender = factory.createConnection();
         connSender.setAutoAcknowledge(false);

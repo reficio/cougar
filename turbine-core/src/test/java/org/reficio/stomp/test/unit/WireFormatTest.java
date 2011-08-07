@@ -26,7 +26,6 @@ import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.HeaderType;
 import org.reficio.stomp.impl.WireFormatImpl;
-import org.reficio.stomp.util.SubscriptionRegister;
 
 import java.io.*;
 
