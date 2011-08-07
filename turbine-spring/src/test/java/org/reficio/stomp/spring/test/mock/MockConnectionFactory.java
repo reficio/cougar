@@ -42,7 +42,13 @@ public class MockConnectionFactory<T extends StompResource> extends StompConnect
         try {
             T connection = (T) clazz.newInstance();
             registerHandlers(connection);
-            connection.init(hostname, port, username, password, encoding);
+            connection.hostname(hostname)
+                    .port(port)
+                    .username(username)
+                    .password(password)
+                    .encoding(encoding)
+                    .init();
+            // connection.init(hostname, port, username, password, encoding);
             return connection;
         } catch (InstantiationException e) {
             throw new StompConnectionException("Error during the creation of a new connection", e);

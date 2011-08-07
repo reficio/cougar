@@ -113,10 +113,10 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 	
 	protected TransactionalConnection createConnection() {
 		TransactionalConnection conn = connectionFactory.createConnection();
+        // TODO double-check
 		// always use transactional connection
-		conn.setAutoTransactional(true);
-        // TODO externalize to getter/setter?
-        conn.setReceptionTransactional(true);
+		// conn.setAutoTransactional(true);
+        // conn.setReceptionTransactional(true);
 		return conn;
 	}
 	
@@ -128,6 +128,7 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 		TransactionalConnection connection = null;
 		try {					
 			connection = createConnection();
+            connection.begin();
 			if (logger.isDebugEnabled()) {
 				logger.debug("Created JMS transaction on Connection [" + connection + "]");
 			}

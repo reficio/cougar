@@ -39,7 +39,6 @@ public class StompTemplate extends StompAccessor {
     private final StompTemplateResourceFactory transactionalResourceFactory = new StompTemplateResourceFactory();
 
     private boolean connectionTransacted = false;
-    private boolean receptionTransacted = false;
 
     public void send(final String destination,
                      final FrameDecorator frameDecorator) {
@@ -88,7 +87,8 @@ public class StompTemplate extends StompAccessor {
         Assert.notNull(frameDecorator, "FrameDecorator must not be null");
         connection.send(destination, frameDecorator);
         // Check commit - avoid commit call within a JTA transaction.
-        if (connection.isTransactional() && isConnectionLocallyTransacted(connection)) {
+        /*connection.isTransactional() && */
+        if (this.isConnectionTransacted() && isConnectionLocallyTransacted(connection)) {
             // Transacted session created by this spring -> commit.
             connection.commit();
         }
@@ -99,7 +99,11 @@ public class StompTemplate extends StompAccessor {
      */
     protected TransactionalConnection createConnection() throws StompException {
         TransactionalConnection conn = getConnectionFactory().createConnection();
-        conn.setAutoTransactional(this.isConnectionTransacted());
+        if(this.isConnectionTransacted()) {
+            conn.begin();
+        }
+        // TODO double-check
+        // conn.setAutoTransactional(this.isConnectionTransacted());
         return conn;
     }
 
@@ -161,8 +165,9 @@ public class StompTemplate extends StompAccessor {
 
         public TransactionalConnection createConnection() throws StompException {
             TransactionalConnection conn = StompTemplate.this.createConnection();
-            conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
-            conn.setReceptionTransactional(isReceptionTransactionAllowed());
+            // TODO double-check
+            // conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
+            // conn.setReceptionTransactional(isReceptionTransactionAllowed());
             return conn;
         }
 
@@ -171,10 +176,6 @@ public class StompTemplate extends StompAccessor {
             return StompTemplate.this.isConnectionTransacted();
         }
 
-        @Override
-        public boolean isReceptionTransactionAllowed() {
-            return StompTemplate.this.isReceptionTransacted();
-        }
     }
 
     public boolean isConnectionTransacted() {
@@ -183,14 +184,6 @@ public class StompTemplate extends StompAccessor {
 
     public void setConnectionTransacted(boolean connectionTransacted) {
         this.connectionTransacted = connectionTransacted;
-    }
-
-    public boolean isReceptionTransacted() {
-        return receptionTransacted;
-    }
-
-    public void setReceptionTransacted(boolean receptionTransacted) {
-        this.receptionTransacted = receptionTransacted;
     }
 
 }

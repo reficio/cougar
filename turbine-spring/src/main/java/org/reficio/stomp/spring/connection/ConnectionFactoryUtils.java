@@ -64,8 +64,9 @@ public class ConnectionFactoryUtils {
 			}
 			public TransactionalConnection createConnection() {
 				TransactionalConnection conn = cf.createConnection();
-				conn.setAutoTransactional(synchedLocalTransactionAllowed);
-                conn.setReceptionTransactional(receptionTransactional);
+                // TODO double-check
+				// conn.setAutoTransactional(synchedLocalTransactionAllowed);
+                // conn.setReceptionTransactional(receptionTransactional);
 				return conn;
 			}
 			public boolean isSynchedLocalTransactionAllowed() {
@@ -174,7 +175,6 @@ public class ConnectionFactoryUtils {
 		 */
 		boolean isSynchedLocalTransactionAllowed();
 
-        boolean isReceptionTransactionAllowed();
 	}
 
 	

@@ -144,8 +144,9 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 			return getCloseSuppressingConnectionProxy(connection);
 		} else {
 			TransactionalConnection conn = getTargetConnectionFactory().createConnection();
-			conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
-            conn.setReceptionTransactional(isReceptionTransactional());
+			// TODO double-check
+			// conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
+            // conn.setReceptionTransactional(isReceptionTransactional());
 			return conn;
 		}
 	}
