@@ -59,16 +59,9 @@ public class WireFormatImpl implements StompWireFormat {
 
     public static final int AVG_PAYLOAD_SIZE = 1024 * 16; // 16KB
 
-    // private SubscriptionRegister register;
-
     public WireFormatImpl() {
 		super();
 	}
-
-//	public WireFormatImpl(SubscriptionRegister register) {
-//		super();
-//        this.register = register;
-//	}
 
     @Override
     public void marshal(Frame frame, Writer output) {
@@ -102,17 +95,8 @@ public class WireFormatImpl implements StompWireFormat {
             CommandType command = parseCommand(reader);
             Map<String, Header> headers = parseHeaders(reader);
             String payload = parsePayload(reader, parseContentLength(headers));
-//            Boolean subscriptionValid = null;
-//            if(register != null) {
-//                Header id = headers.get(HeaderType.SUBSCRIPTION_ID.getName());
-//                if(id != null && StringUtils.isNotBlank(id.getValue())) {
-//                    subscriptionValid = register.isSubscriptionActive(id.getValue());
-//                }
-//            }
             return new Frame(command, headers, payload /*, subscriptionValid*/);
         } catch(StompWireFormatException ex) {
-            // TODO - why it is needed, if error occurs connection can't be reused, why then to bother and receive the rest of the message?
-            flushUntilEndMarker(reader);
             throw ex;
         }
     }
@@ -213,27 +197,6 @@ public class WireFormatImpl implements StompWireFormat {
            return output.toString();
        } catch(IOException ex) {
            throw new StompIOException(errorMessage, ex);
-       }
-    }
-
-    private void flushUntilEndMarker(Reader input) {
-       int currentByte;
-       long received = 0;
-       try {
-           while (true) {
-               currentByte = input.read();
-               if(currentByte < 0) {
-                   throw new StompWireFormatException("End of stream has been reached");
-               } else if((char)currentByte == END_OF_FRAME) {
-                   break;
-               }
-               received+=1;
-               if(received > MAX_COMMAND_LENGTH + MAX_HEADERS * MAX_HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
-                    throw new StompWireFormatException("Max frame length exceeded while flushing error-prone frame");
-               }
-           }
-       } catch(IOException ex) {
-           throw new StompIOException("Error during stream flush", ex);
        }
     }
 

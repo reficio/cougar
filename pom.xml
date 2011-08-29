@@ -110,47 +110,7 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.9.0</version>
-                <configuration>
-                    <strictCheck>false</strictCheck>
-                    <basedir>${basedir}</basedir>
-                    <header>../src/main/resources/license.txt</header>
-                    <quiet>false</quiet>
-                    <failIfMissing>true</failIfMissing>
-                    <aggregate>false</aggregate>
-                    <includes>
-                        <include>src/**</include>
-                        <include>**/test/**</include>
-                    </includes>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                        <exclude>.clover/**</exclude>
-                        <exclude>**/*.xlsx</exclude>
-                    </excludes>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <mapping>
-                        <jwc>XML_STYLE</jwc>
-                        <application>XML_STYLE</application>
-                        <myFileExtension>JAVADOC_STYLE</myFileExtension>
-                    </mapping>
-                    <useDefaultMapping>true</useDefaultMapping>
-                    <properties>
-                        <year>${project.inceptionYear}</year>
-                        <email>tom.bujok@gmail.com</email>
-                    </properties>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -177,7 +137,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 
-                        <Export-Package>{local-packages};version=${project.version};-noimport:=true</Export-Package>
+                        <Export-Package>{local-packages};-version=${project.version};-noimport:=true</Export-Package>
                         <Import-Package>*</Import-Package>
                         <Private-Package>!*</Private-Package>
 
@@ -208,7 +168,7 @@
                     </execution>
                 </executions>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
@@ -312,6 +272,57 @@
     </reporting>
 
     <profiles>
+
+        <profile>
+
+            <id>licence</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mycila.maven-license-plugin</groupId>
+                        <artifactId>maven-license-plugin</artifactId>
+                        <version>1.9.0</version>
+                        <configuration>
+                            <strictCheck>false</strictCheck>
+                            <basedir>${basedir}</basedir>
+                            <header>../src/main/resources/license.txt</header>
+                            <quiet>false</quiet>
+                            <failIfMissing>true</failIfMissing>
+                            <aggregate>false</aggregate>
+                            <includes>
+                                <include>src/**</include>
+                                <include>**/test/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>target/**</exclude>
+                                <exclude>.clover/**</exclude>
+                                <exclude>**/*.xlsx</exclude>
+                            </excludes>
+                            <useDefaultExcludes>true</useDefaultExcludes>
+                            <mapping>
+                                <jwc>XML_STYLE</jwc>
+                                <application>XML_STYLE</application>
+                                <myFileExtension>JAVADOC_STYLE</myFileExtension>
+                            </mapping>
+                            <useDefaultMapping>true</useDefaultMapping>
+                            <properties>
+                                <year>${project.inceptionYear}</year>
+                                <email>tom.bujok@gmail.com</email>
+                            </properties>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>graphviz</id>
             <reporting>
@@ -382,10 +393,10 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <license><![CDATA[pQpNWVNGLIACiRgGggNwBHXpqNObaHdjqWrXDCENiqbtQF
-mi2K8qPlHIEh1yNZX2r<pJcV2KPafI7LpHsld8fHYQ9qCa
-nRmQVUmmoPPPmoPpRrptsRmNRqMMORrRPnVUVvvSsXsUTw
-NnmpmUUnpnmrsrsmmmmmUUnpnmrsrsmmmmmUU1ZXabjfZU
+                            <license><![CDATA[oqOpphXtrKllvneDEkjXgDkvPpmTGLbQjmdnwuFQpLxqVM
+mi2KgUerHAs6tDnETtfFAboZ2Ksvk1nsLRjzW6Zk4oDwzv
+NMoowSqopRqnqnNnRQOwtrPpqnqooOmQoQxtUuttXvxuST
+MnmpmUUnpnqrqmmmmmmmUUnpnqrqmmmmmmmUU1ZXabjfZU
 Un
 ]]></license>
                         </configuration>

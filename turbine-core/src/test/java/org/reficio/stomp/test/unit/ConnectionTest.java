@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
 
@@ -173,6 +175,12 @@ public class ConnectionTest {
         Frame frame = connection.getServer().getLastFrameOfType(CommandType.SEND);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
+    }
+
+    @Test
+    public void factoryMethodTest() {
+        ConnectionImpl conn = ConnectionImpl.create();
+        assertNotNull(conn);
     }
 
 }

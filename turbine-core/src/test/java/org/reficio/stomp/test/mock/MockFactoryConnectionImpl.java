@@ -15,44 +15,24 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.domain;
+package org.reficio.stomp.test.mock;
 
-import org.reficio.stomp.core.FrameBuilder;
-
-import java.util.Map;
+import org.reficio.stomp.impl.ConnectionImpl;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2010-11-22
- * Time: 7:54 PM
+ * Date: 2011-02-11
+ * Time: 09:40 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class Frame extends FrameBuilder {
-
-    public Frame(CommandType command, Map<String, Header> headers, String payload /*, Boolean subscriptionValid*/) {
-        super(command, headers, payload /*, subscriptionValid*/);
+public class MockFactoryConnectionImpl extends ConnectionImpl {
+    public MockFactoryConnectionImpl() {
     }
 
-	public Frame(CommandType command) {
-		super(command);
-	}
-
-	public boolean indicatesError() {
-		return command.equals(CommandType.ERROR.getName());
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("CommandType:\t[%s]\n", command));
-		builder.append("Headers:\n");
-		for(Header header : headers.values()) {
-			builder.append(String.format("  %s\n", header));
-		}
-		builder.append(String.format("Payload:\t[%s]", payload !=null ? payload : ""));
-		return builder.toString();
-	}
+    @Override
+    public void init() {
+    }
 
 }

@@ -114,17 +114,6 @@ public class ClientImpl implements Client {
 	// ----------------------------------------------------------------------------------
 	// StompResource methods
 	// ----------------------------------------------------------------------------------
-    // TODO delete this method
-    @Deprecated
-    protected void doSetAttributes(String hostname, int port, String username, String password, String encoding, int timeout) {
-        setHostname(hostname);
-		setPort(port);
-		setUsername(username);
-		setPassword(password);
-        setEncoding(encoding);
-        setTimeout(timeout);
-    }
-
     @Override
 	public synchronized void init() {
         // TODO validate parameters
@@ -276,8 +265,10 @@ public class ClientImpl implements Client {
         this.state = state;
         if(state.equals(StompResourceState.OPERATIONAL)) {
             setOperational(true);
-        } else {
+        } else if(state.equals(StompResourceState.OPERATIONAL) == false) {
             setOperational(false);
+        } else if(state.equals(StompResourceState.ERROR)) {
+            closeCommunication();
         }
     }
 

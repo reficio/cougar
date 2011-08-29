@@ -18,6 +18,8 @@
 package org.reficio.stomp.test.unit;
 
 import org.junit.Test;
+import org.reficio.stomp.StompInvalidHeaderException;
+import org.reficio.stomp.core.FrameBuilder;
 import org.reficio.stomp.domain.*;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +36,7 @@ import static org.junit.Assert.assertNull;
 public class FrameBuilderTest {
 
     @Test
-    public void ack() {
+    public void connect() {
         Frame frame = new Frame(CommandType.CONNECT);
         frame.disableValidation();
         // frame.contentLength("123");
@@ -65,11 +67,45 @@ public class FrameBuilderTest {
     }
 
     @Test
+    public void contentLength() {
+        Frame frame = new Frame(CommandType.SEND);
+        frame.payload("payload");
+        assertEquals("payload", frame.payload());
+        assertEquals("7", frame.contentLength());
+
+        Frame frame2 = new Frame(CommandType.MESSAGE);
+        frame2.payload("payload");
+        assertEquals("payload", frame2.payload());
+        assertEquals("7", frame2.contentLength());
+
+        Frame frame3 = new Frame(CommandType.ERROR);
+        frame3.payload("payload");
+        assertEquals("payload", frame3.payload());
+        assertEquals("7", frame3.contentLength());
+
+        frame3.payload(null);
+        assertEquals(null, frame3.payload());
+        assertEquals(null, frame3.contentLength());
+
+    }
+
+    @Test
     public void headers() {
         Frame frame = new Frame(CommandType.BEGIN);
         frame.disableValidation();
         frame.payload("payload");
         assertEquals("payload", frame.payload());
+        // begin can not have contentLength
+        assertEquals(frame.contentLength(), null);
+
+        frame.payload(null);
+        assertEquals(null, frame.payload());
+
+        frame.payload("payload", true);
+        assertEquals("payload", frame.payload());
+        assertEquals(frame.contentLength(), null);
+
+        assertNull(frame.ack());
         frame.login("login");
         assertEquals("login", frame.login());
         frame.encoding("encoding");
@@ -102,9 +138,33 @@ public class FrameBuilderTest {
         assertEquals("selector", frame.selector());
         frame.custom("custom_header", "custom_value");
         assertEquals("custom_value", frame.custom("custom_header"));
-
     }
 
+    @Test(expected = StompInvalidHeaderException.class)
+    public void ackCustomValidation() {
+        Frame frame = new Frame(CommandType.ACK);
+        frame.custom("ack", "exception");
+    }
+
+    @Test(expected = StompInvalidHeaderException.class)
+    public void frozenFreeze() {
+        class FrameFreeze extends Frame {
+            public FrameFreeze(CommandType command) {
+                super(command);
+            }
+            public void freezePublic() {
+                freeze();
+            }
+
+        };
+        FrameFreeze frame = new FrameFreeze(CommandType.COMMIT);
+        frame.custom("test", "ok");
+        frame.freezePublic();
+        // double freeze for testing purposes
+        frame.freezePublic();
+        frame.custom("test", "exception");
+
+    }
 
 
 }

@@ -27,6 +27,7 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockTxConnectionImpl;
 
@@ -58,8 +59,6 @@ public class TxConnectionTest {
     @Before
     public void initialize() {
         connection = new MockTxConnectionImpl();
-        // TODO - commented out - maybe necessary to modify test logic
-        // connection.setAutoTransactional(true);
         decorator = new EmptyDecorator();
         // register handlers
         connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
@@ -91,7 +90,7 @@ public class TxConnectionTest {
         });
         // initialize the connection
         connection.hostname("localhost")
-                .port(61613);
+                .port(61613).timeout(1000);
                 connection.init();
     }
 
@@ -331,5 +330,12 @@ public class TxConnectionTest {
         Frame disconnect = frames.get(4);
         assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
     }
+
+    @Test
+    public void factoryMethodTest() {
+        TransactionalConnectionImpl conn = TransactionalConnectionImpl.create();
+        assertNotNull(conn);
+    }
+
 
 }

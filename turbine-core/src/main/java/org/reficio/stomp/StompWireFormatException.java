@@ -49,9 +49,4 @@ public class StompWireFormatException extends StompException {
         return this.errorContent;
     }
 
-    public void setErrorContent(String errorContent) {
-        this.errorContent = errorContent;
-    }
-
-
 }

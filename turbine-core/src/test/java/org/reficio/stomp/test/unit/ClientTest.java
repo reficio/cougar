@@ -23,11 +23,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompProtocolException;
+import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.ClientImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -188,9 +193,59 @@ public class ClientTest {
         assertEquals(connection.getUsername(), "user");
         assertEquals(connection.getPassword(), "pass");
         assertEquals(connection.getEncoding(), "UTF-8");
+        assertEquals(connection.getTimeout(), 100);
         assertNotNull(connection.getSessionId());
+    }
 
+    @Test(expected = StompConnectionException.class)
+    public void notMockedIOExceptionInSocketInit() {
+        Client client = ClientImpl.create();
+        client.hostname("localhost").port(TestUtil.getFreePort());
+        client.init();
+    }
 
+    @Test(expected = StompConnectionException.class)
+    public void notMockedIOExceptionInStreamsInit() {
+        class MockClientImpl extends ClientImpl {
+            protected void initializeCommunication(int timeout) {
+                initializeSocket(timeout);
+                // initializeStreams(timeout);
+            }
+
+            public void initializeStreamsPublic() {
+                closeSocket();
+                initializeStreams(1000);
+            }
+
+            @Override
+            public synchronized void init() {
+                assertNew();
+                initializeCommunication(1000);
+                setState(StompResourceState.COMMUNICATION_INITIALIZED);
+                setState(StompResourceState.OPERATIONAL);
+            }
+        }
+
+        ClientImpl client = new MockClientImpl();
+        ServerSocket localmachine = null;
+        int port = 0;
+        try {
+            localmachine = new ServerSocket(0);
+            port = localmachine.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        client.hostname("localhost").port(port);
+        MockClientImpl clientMock = ((MockClientImpl) client);
+        clientMock.init();
+        try {
+            localmachine.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        clientMock.initializeStreamsPublic();
     }
 
 }

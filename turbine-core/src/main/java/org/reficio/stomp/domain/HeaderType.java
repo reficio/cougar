@@ -125,9 +125,7 @@ public enum HeaderType {
         }
     };
 
-    public boolean isAllowed(Frame frame) {
-        return false;
-    }
+    public abstract boolean isAllowed(Frame frame);
 
 	private final String name;
 	
