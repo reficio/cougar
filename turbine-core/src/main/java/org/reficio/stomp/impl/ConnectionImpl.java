@@ -149,7 +149,7 @@ public class ConnectionImpl extends ClientImpl implements Connection {
         preprocessor.decorate(frame, frameDecorator);
         String subscriptionId = frame.subscriptionId();
         if (subscriptionId == null) {
-            subscriptionId = UUID.randomUUID().toString(); // register.subscribe(null);
+            subscriptionId = UUID.randomUUID().toString();
         }
         frame.subscriptionId(subscriptionId);
         send(frame);

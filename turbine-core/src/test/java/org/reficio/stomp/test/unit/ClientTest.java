@@ -248,4 +248,9 @@ public class ClientTest {
         clientMock.initializeStreamsPublic();
     }
 
+    @Test
+    public void testParametersValidation() {
+        ClientImpl.create().hostname(null);
+    }
+
 }
