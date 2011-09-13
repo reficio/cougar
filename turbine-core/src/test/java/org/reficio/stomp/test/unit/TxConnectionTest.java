@@ -335,7 +335,7 @@ public class TxConnectionTest {
     @Test
     public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
         TransactionalConnection txConn = TransactionalConnectionImpl.create().hostname("localhost");
-        txConn.port(123).password("123").init();
+        txConn.port(123).password("123");
     }
 
 

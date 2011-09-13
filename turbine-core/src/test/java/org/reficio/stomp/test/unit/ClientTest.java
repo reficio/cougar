@@ -250,7 +250,7 @@ public class ClientTest {
     @Test
     public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
         Client client = ClientImpl.create().hostname("localhost");
-        client.port(123).password("123").init();
+        client.port(123).password("123");
     }
 
     @Test

@@ -180,7 +180,7 @@ public class ConnectionTest {
     @Test
     public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
         Connection connection = ConnectionImpl.create().hostname("localhost");
-        connection.port(123).password("123").init();
+        connection.port(123).password("123");
     }
 
 
