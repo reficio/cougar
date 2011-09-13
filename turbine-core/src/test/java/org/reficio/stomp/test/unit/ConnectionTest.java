@@ -20,6 +20,7 @@ package org.reficio.stomp.test.unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
@@ -179,7 +180,8 @@ public class ConnectionTest {
 
     @Test
     public void factoryMethodTest() {
-        ConnectionImpl conn = ConnectionImpl.create();
+        Connection conn = ConnectionImpl.create();
+        conn.hostname("asd").port(123);
         assertNotNull(conn);
     }
 

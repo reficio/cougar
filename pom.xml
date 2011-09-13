@@ -37,6 +37,7 @@
         <org.slf4j.version>1.5.10</org.slf4j.version>
         <mockito.version>1.8.1</mockito.version>
         <clover.version>3.1.0</clover.version>
+        <export-package></export-package>
     </properties>
 
     <licenses>
@@ -137,7 +138,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 
-                        <Export-Package>{local-packages};-version=${project.version};-noimport:=true</Export-Package>
+                        <Export-Package>${export-package}</Export-Package>
                         <Import-Package>*</Import-Package>
                         <Private-Package>!*</Private-Package>
 

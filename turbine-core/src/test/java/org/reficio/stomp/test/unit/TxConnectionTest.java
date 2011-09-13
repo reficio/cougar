@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.AckType;
 import org.reficio.stomp.domain.CommandType;
@@ -333,7 +334,7 @@ public class TxConnectionTest {
 
     @Test
     public void factoryMethodTest() {
-        TransactionalConnectionImpl conn = TransactionalConnectionImpl.create();
+        TransactionalConnection conn = TransactionalConnectionImpl.create();
         assertNotNull(conn);
     }
 

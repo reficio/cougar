@@ -24,6 +24,7 @@ import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.stub.TransactionalConnectionStubImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,176 +38,10 @@ import java.util.UUID;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class TransactionalConnectionImpl extends ConnectionImpl implements TransactionalConnection {
+public class TransactionalConnectionImpl extends TransactionalConnectionStubImpl<TransactionalConnection> implements TransactionalConnection {
 
-    private static final transient Logger log = LoggerFactory.getLogger(TransactionalConnectionImpl.class);
-
-    protected String transactionId;
-
-    protected TransactionalConnectionImpl() {
-        super();
-    }
-
-    // ----------------------------------------------------------------------------------
-	// Factory methods
-	// ----------------------------------------------------------------------------------
-    public static TransactionalConnectionImpl create() {
+    public static TransactionalConnection create() {
         return new TransactionalConnectionImpl();
-    }
-    @Override
-    public TransactionalConnectionImpl hostname(String hostname) {
-        return (TransactionalConnectionImpl)super.hostname(hostname);
-    }
-
-    @Override
-    public TransactionalConnectionImpl port(int port) {
-        return (TransactionalConnectionImpl)super.port(port);
-    }
-
-    @Override
-    public TransactionalConnectionImpl username(String username) {
-        return (TransactionalConnectionImpl)super.username(username);
-    }
-
-    @Override
-    public TransactionalConnectionImpl password(String password) {
-        return (TransactionalConnectionImpl)super.password(password);
-    }
-
-    @Override
-    public TransactionalConnectionImpl encoding(String encoding) {
-        return (TransactionalConnectionImpl)super.encoding(encoding);
-    }
-
-    @Override
-    public TransactionalConnectionImpl timeout(int timeout) {
-        return (TransactionalConnectionImpl)super.timeout(timeout);
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Overridden transaction-aware methods
-    // ----------------------------------------------------------------------------------
-    // TODO Be aware that ack acknowledges all previous not-acknowledged messages too
-    @Override
-    public void ack(String messageId) {
-        // beginTransactionIfRequired();
-        TransactionAwareDecorator txDecorator = new TransactionAwareDecorator();
-        super.ack(messageId, txDecorator);
-    }
-
-    @Override
-    public void ack(String messageId, FrameDecorator frameDecorator) {
-        // beginTransactionIfRequired();
-        TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
-        super.ack(messageId, txDecorator);
-    }
-
-    @Override
-    public void send(String destination, final FrameDecorator frameDecorator) throws StompException {
-        // beginTransactionIfRequired();
-        TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
-        super.send(destination, txDecorator);
-    }
-
-    // ----------------------------------------------------------------------------------
-    // StompTransactionalConnection methods - also transaction-aware :)
-    // ----------------------------------------------------------------------------------
-    @Override
-    public void begin() {
-        assertNotInTransaction();
-        this.transactionId = UUID.randomUUID().toString();
-        log.info(String.format("Beginning transaction id=[%s]", transactionId));
-        try {
-            begin(transactionId);
-        } catch (RuntimeException ex) {
-            this.transactionId = null;
-            throw ex;
-        }
-    }
-
-    @Override
-    public void rollback(FrameDecorator frameDecorator) throws StompException {
-        assertInTransaction();
-        Frame frame = new Frame(CommandType.ABORT);
-        frame.transaction(transactionId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void rollback() throws StompException {
-        abort(transactionId, emptyDecorator);
-    }
-
-    @Override
-    public void commit(FrameDecorator frameDecorator) throws StompException {
-        assertInTransaction();
-        Frame frame = new Frame(CommandType.COMMIT);
-        frame.transaction(transactionId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void commit() throws StompException {
-        assertInTransaction();
-        log.info(String.format("Committing transaction id=[%s]", transactionId));
-        commit(transactionId);
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Helper methods - connection state verification
-    // ----------------------------------------------------------------------------------
-    protected boolean isInTransaction() {
-        return this.transactionId != null;
-    }
-
-    protected void assertInTransaction() {
-        if (isInTransaction() == false) {
-            throw new StompIllegalTransactionStateException("Transaction has not begun");
-        }
-    }
-
-    protected void assertNotInTransaction() {
-        if (isInTransaction() == true) {
-            throw new StompIllegalTransactionStateException("Transaction has begun");
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Transaction handling helpers
-    // ----------------------------------------------------------------------------------
-//    private void beginTransactionIfRequired() {
-//        if (isInTransaction() == false && isInitialized() == true) {
-//            if (isTransactional() == true) {
-//                begin();
-//            } else {
-//                throw new StompIllegalTransactionStateException("Transaction has not begun");
-//            }
-//        }
-//    }
-
-    class TransactionAwareDecorator implements FrameDecorator {
-        public TransactionAwareDecorator() {
-            this.originalDecorator = null;
-        }
-
-        public TransactionAwareDecorator(final FrameDecorator originalDecorator) {
-            this.originalDecorator = originalDecorator;
-        }
-
-        private FrameDecorator originalDecorator;
-
-        @Override
-        public void decorateFrame(Frame frame) {
-            if (originalDecorator != null) {
-                originalDecorator.decorateFrame(frame);
-            }
-            if (frame.transaction() != null) {
-                throw new StompInvalidHeaderException("TransactionId header can't be set manually in transactional connection");
-            }
-            frame.transaction(transactionId);
-        }
     }
 
 }

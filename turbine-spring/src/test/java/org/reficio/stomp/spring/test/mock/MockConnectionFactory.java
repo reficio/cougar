@@ -31,7 +31,7 @@ import java.util.UUID;
 /**
  * @author Tom Bujok (tom.bujok@gmail.com)
  */
-public class MockConnectionFactory<T extends StompResource> extends StompConnectionFactory {
+public class MockConnectionFactory<T extends StompResource<T>> extends StompConnectionFactory {
 
     public MockConnectionFactory(Class clazz) {
         super(clazz);

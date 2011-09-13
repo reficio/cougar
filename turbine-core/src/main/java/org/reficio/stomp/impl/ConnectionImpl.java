@@ -18,10 +18,13 @@
 package org.reficio.stomp.impl;
 
 import org.reficio.stomp.StompException;
+import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.StompResource;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.stub.ConnectionStubImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,164 +38,10 @@ import java.util.UUID;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class ConnectionImpl extends ClientImpl implements Connection {
+public class ConnectionImpl extends ConnectionStubImpl<Connection> implements Connection {
 
-    private static final transient Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
-
-    protected ConnectionImpl() {
-        super();
-    }
-
-    // ----------------------------------------------------------------------------------
-	// Factory methods
-	// ----------------------------------------------------------------------------------
-    public static ConnectionImpl create() {
+    public static Connection create() {
         return new ConnectionImpl();
     }
-    @Override
-    public ConnectionImpl hostname(String hostname) {
-        return (ConnectionImpl)super.hostname(hostname);
-    }
-
-    @Override
-    public ConnectionImpl port(int port) {
-        return (ConnectionImpl)super.port(port);
-    }
-
-    @Override
-    public ConnectionImpl username(String username) {
-        return (ConnectionImpl)super.username(username);
-    }
-
-    @Override
-    public ConnectionImpl password(String password) {
-        return (ConnectionImpl)super.password(password);
-    }
-
-    @Override
-    public ConnectionImpl encoding(String encoding) {
-        return (ConnectionImpl)super.encoding(encoding);
-    }
-
-    @Override
-    public ConnectionImpl timeout(int timeout) {
-        return (ConnectionImpl)super.timeout(timeout);
-    }
-
-
-
-
-    @Override
-    public void abort(String transactionId, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.ABORT);
-        frame.transaction(transactionId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void abort(String transactionId) {
-        abort(transactionId, emptyDecorator);
-    }
-
-    @Override
-    public void ack(String messageId, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.ACK);
-        frame.messageId(messageId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void ack(String messageId) {
-        ack(messageId, emptyDecorator);
-    }
-
-    @Override
-    public void begin(String transactionId, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.BEGIN);
-        frame.transaction(transactionId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void begin(String transactionId) {
-        begin(transactionId, emptyDecorator);
-    }
-
-    @Override
-    public void commit(String transactionId, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.COMMIT);
-        frame.transaction(transactionId);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public void commit(String transactionId) {
-        commit(transactionId, emptyDecorator);
-    }
-
-    @Override
-    public void send(String destination, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.SEND);
-        frame.destination(destination);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    @Override
-    public String subscribe(String destination, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.SUBSCRIBE);
-        frame.destination(destination);
-        preprocessor.decorate(frame, frameDecorator);
-        String subscriptionId = frame.subscriptionId();
-        if (subscriptionId == null) {
-            subscriptionId = UUID.randomUUID().toString();
-        }
-        frame.subscriptionId(subscriptionId);
-        send(frame);
-        return subscriptionId;
-    }
-
-    @Override
-    public String subscribe(String destination) throws StompException {
-        return subscribe(destination, emptyDecorator);
-    }
-
-    @Override
-    public String subscribe(String id, String destination) throws StompException {
-        return subscribe(id, destination, emptyDecorator);
-    }
-
-    @Override
-    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
-        Frame frame = new Frame(CommandType.SUBSCRIBE);
-        frame.destination(destination);
-        frame.subscriptionId(id);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-        return id;
-    }
-
-    @Override
-    public void unsubscribe(String id) {
-        unsubscribe(id, emptyDecorator);
-    }
-
-    @Override
-    public void unsubscribe(String id, FrameDecorator frameDecorator) {
-        Frame frame = new Frame(CommandType.UNSUBSCRIBE);
-        frame.subscriptionId(id);
-        preprocessor.decorate(frame, frameDecorator);
-        send(frame);
-    }
-
-    protected FrameDecorator emptyDecorator = new FrameDecorator() {
-        @Override
-        public void decorateFrame(Frame frame) {
-        }
-    };
 
 }

@@ -29,7 +29,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class StompConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
+public class StompConnectionFactory<T extends StompResource<T>> implements ConnectionFactory<T> {
 
 	protected String hostname;
 	protected int port;	

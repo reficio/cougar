@@ -30,7 +30,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface Connection extends StompResource, StompOperations {
+public interface Connection extends StompResource<Connection>, StompOperations {
 
 	void begin(String transactionId, FrameDecorator frameDecorator) throws StompException;
 	

@@ -27,20 +27,17 @@ import org.reficio.stomp.StompException;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface StompResource {
-
-	// void init(String hostname, int port, String username, String password, String encoding) throws StompException;
-	// void init(String hostname, int port, String username, String password, String encoding, int timeout) throws StompException;
+public interface StompResource<T> {
 
     void init();
 	void close() throws StompException;
 
-    StompResource hostname(String hostname);
-    StompResource port(int port);
-    StompResource username(String username);
-    StompResource password(String password);
-    StompResource encoding(String encoding);
-    StompResource timeout(int timeout);
+    T hostname(String hostname);
+    T port(int port);
+    T username(String username);
+    T password(String password);
+    T encoding(String encoding);
+    T timeout(int timeout);
 
 	String getHostname();
 	String getPassword();

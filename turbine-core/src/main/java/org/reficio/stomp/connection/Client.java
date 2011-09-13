@@ -29,5 +29,5 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface Client extends StompAccessor, StompResource {
+public interface Client extends StompAccessor, StompResource<Client> {
 }

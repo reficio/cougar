@@ -24,7 +24,7 @@ import org.reficio.stomp.StompException;
 import org.reficio.stomp.core.StompResource;
 
 
-public class PrivateConstructorResource implements StompResource {
+public class PrivateConstructorResource implements StompResource<PrivateConstructorResource> {
     private PrivateConstructorResource() {
     }
 
@@ -39,34 +39,35 @@ public class PrivateConstructorResource implements StompResource {
     }
 
     @Override
-    public StompResource hostname(String hostname) {
+    public PrivateConstructorResource hostname(String hostname) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public StompResource port(int port) {
+    public PrivateConstructorResource port(int port) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public StompResource username(String username) {
+    public PrivateConstructorResource username(String username) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public StompResource password(String password) {
+    public PrivateConstructorResource password(String password) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public StompResource encoding(String encoding) {
+    public PrivateConstructorResource encoding(String encoding) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public StompResource timeout(int timeout) {
+    public PrivateConstructorResource timeout(int timeout) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
 
     @Override
     public String getHostname() {
