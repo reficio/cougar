@@ -13,7 +13,7 @@
         Implementation was fully contributed by the Reficio (TM) open source initiative. The main goal of the Turbine
         project
         was to provide the community with a proficient, reliable, performance-oriented and well-documented
-        implementation of the STOMP protocol client written in Java.
+        implementation of the STOMP protocol client written in Java. 
     </description>
     <url>http://reficio.org/</url>
 
