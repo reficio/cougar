@@ -4,13 +4,11 @@ import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompProtocolException;
-import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.*;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
-import org.reficio.stomp.impl.ClientImpl;
 import org.reficio.stomp.impl.WireFormatImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import static org.reficio.stomp.core.StompResourceState.*;
-import static org.reficio.stomp.core.StompResourceState.OPERATIONAL;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,7 +28,7 @@ import static org.reficio.stomp.core.StompResourceState.OPERATIONAL;
  */
 public class ClientStubImpl<T extends StompResource> implements StompAccessor {
 
-private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
+private static final transient Logger log = LoggerFactory.getLogger(ClientStubImpl.class);
 
     // ----------------------------------------------------------------------------------
     // required properties pre-initialized with default values
