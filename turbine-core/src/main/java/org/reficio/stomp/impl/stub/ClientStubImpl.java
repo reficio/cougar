@@ -17,6 +17,8 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.reficio.stomp.core.StompResourceState.*;
 
 /**
@@ -167,7 +169,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     @Override
     public void send(Frame frame) throws StompException {
         assertOperational();
-        marshall(frame);
+        marshall(checkNotNull(frame));
     }
 
     public boolean isInitialized() {
@@ -269,11 +271,9 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         this.operational = value;
     }
 
-
     // ----------------------------------------------------------------------------------
     // Factory methods - only way to instantiate this class - parameters VALIDATED
     // ----------------------------------------------------------------------------------
-
     public T hostname(String hostname) {
         assertNew();
         setHostname(hostname);
@@ -314,16 +314,15 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     // Options getters and setters - parameters NOT validated (setters for internal usage)
     // ----------------------------------------------------------------------------------
     protected void setHostname(String hostname) {
-        this.hostname = hostname;
+        this.hostname = checkNotNull(hostname, "hostname cannot be null");
     }
-
 
     public String getHostname() {
         return hostname;
     }
 
     protected void setPassword(String password) {
-        this.password = password;
+        this.password = checkNotNull(password, "password cannot be null");
     }
 
 
@@ -332,15 +331,16 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void setPort(int port) {
+        checkArgument(port > 0, "port must be positive");
         this.port = port;
     }
-
 
     public int getPort() {
         return port;
     }
 
     protected void setTimeout(int timeout) {
+        checkArgument(timeout >= 0, "timeout must be positive or zero");
         this.timeout = timeout;
     }
 
@@ -350,7 +350,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+        this.sessionId = checkNotNull(sessionId, "sessionId cannot be null");
     }
 
 
@@ -359,7 +359,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void setUsername(String username) {
-        this.username = username;
+        this.username = checkNotNull(username, "username cannot be null");
     }
 
 
@@ -368,13 +368,12 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void setEncoding(String encoding) {
-        this.encoding = encoding;
+        this.encoding = checkNotNull(encoding, "encoding cannot be null");
     }
 
 
     public String getEncoding() {
         return encoding;
     }
-
 
 }

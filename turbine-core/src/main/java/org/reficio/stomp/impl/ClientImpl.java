@@ -34,5 +34,4 @@ public class ClientImpl extends ClientStubImpl<Client> implements Client {
         return new ClientImpl();
     }
 
-
 }

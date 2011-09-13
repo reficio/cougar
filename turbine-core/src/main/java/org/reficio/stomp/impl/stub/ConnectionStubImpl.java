@@ -9,6 +9,8 @@ import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.UUID;
 
 /**
@@ -27,6 +29,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     }
 
     public void abort(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
         Frame frame = new Frame(CommandType.ABORT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
@@ -39,6 +42,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     @Override
     public void ack(String messageId, FrameDecorator frameDecorator) {
+        checkNotNull(messageId, "messageId cannot be null");
         Frame frame = new Frame(CommandType.ACK);
         frame.messageId(messageId);
         preprocessor.decorate(frame, frameDecorator);
@@ -52,6 +56,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
 
     public void begin(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
         Frame frame = new Frame(CommandType.BEGIN);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
@@ -65,6 +70,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
 
     public void commit(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
         Frame frame = new Frame(CommandType.COMMIT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
@@ -78,6 +84,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     @Override
     public void send(String destination, FrameDecorator frameDecorator) {
+        checkNotNull(destination, "destination cannot be null");
         Frame frame = new Frame(CommandType.SEND);
         frame.destination(destination);
         preprocessor.decorate(frame, frameDecorator);
@@ -86,6 +93,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     @Override
     public String subscribe(String destination, FrameDecorator frameDecorator) {
+        checkNotNull(destination, "destination cannot be null");
         Frame frame = new Frame(CommandType.SUBSCRIBE);
         frame.destination(destination);
         preprocessor.decorate(frame, frameDecorator);
@@ -110,6 +118,8 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     @Override
     public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
+        checkNotNull(id, "id cannot be null");
+        checkNotNull(destination, "destination cannot be null");
         Frame frame = new Frame(CommandType.SUBSCRIBE);
         frame.destination(destination);
         frame.subscriptionId(id);
@@ -125,6 +135,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     @Override
     public void unsubscribe(String id, FrameDecorator frameDecorator) {
+        checkNotNull(id, "id cannot be null");
         Frame frame = new Frame(CommandType.UNSUBSCRIBE);
         frame.subscriptionId(id);
         preprocessor.decorate(frame, frameDecorator);

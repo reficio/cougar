@@ -253,10 +253,9 @@ public class ClientTest {
         client.port(123).password("123");
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testParametersValidation() {
-        // TODO
-        ClientImpl.create().hostname(null);
+        ClientImpl.create().password(null);
     }
 
 }

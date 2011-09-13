@@ -21,6 +21,8 @@ import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-11-22
@@ -35,6 +37,7 @@ public class FrameValidator implements FramePreprocessor {
 
     @Override
     public void decorate(Frame frame, FrameDecorator decorator) {
+        checkNotNull(decorator, "decorator cannot be null");
         frame.freeze();
         decorator.decorateFrame(frame);
     }

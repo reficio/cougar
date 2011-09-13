@@ -3,7 +3,6 @@ package org.reficio.stomp.impl.stub;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
@@ -37,21 +36,18 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
     // TODO Be aware that ack acknowledges all previous not-acknowledged messages too
     @Override
     public void ack(String messageId) {
-        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator();
         super.ack(messageId, txDecorator);
     }
 
     @Override
     public void ack(String messageId, FrameDecorator frameDecorator) {
-        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
         super.ack(messageId, txDecorator);
     }
 
     @Override
     public void send(String destination, final FrameDecorator frameDecorator) throws StompException {
-        // beginTransactionIfRequired();
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator(frameDecorator);
         super.send(destination, txDecorator);
     }
@@ -116,19 +112,6 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
         }
     }
 
-    // ----------------------------------------------------------------------------------
-    // Transaction handling helpers
-    // ----------------------------------------------------------------------------------
-//    private void beginTransactionIfRequired() {
-//        if (isInTransaction() == false && isInitialized() == true) {
-//            if (isTransactional() == true) {
-//                begin();
-//            } else {
-//                throw new StompIllegalTransactionStateException("Transaction has not begun");
-//            }
-//        }
-//    }
-
     class TransactionAwareDecorator implements FrameDecorator {
         public TransactionAwareDecorator() {
             this.originalDecorator = null;
@@ -151,6 +134,5 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
             frame.transaction(transactionId);
         }
     }
-
 
 }

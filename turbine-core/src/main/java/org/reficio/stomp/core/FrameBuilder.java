@@ -23,6 +23,8 @@ import org.reficio.stomp.domain.*;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-11-22
@@ -33,88 +35,88 @@ import java.util.*;
  */
 public class FrameBuilder {
 
-	protected String command;
-	protected Map<String, Header> headers;
+    protected String command;
+    protected Map<String, Header> headers;
     protected String payload;
-	private boolean validate;
+    private boolean validate;
     private Set<String> frozenHeaders;
-    // protected Boolean subscriptionValid;
 
-    protected FrameBuilder(CommandType command, Map<String, Header> headers, String payload /*, Boolean subscriptionValid*/) {
-        this.command = command.getName();
-		this.headers = headers;
-        this.payload = payload;
-		this.validate = true;
-        // this.subscriptionValid = subscriptionValid;
+    protected FrameBuilder(CommandType command, Map<String, Header> headers, String payload) {
+        this.command = checkNotNull(command, "command cannot be null").getName();
+        this.headers = checkNotNull(headers, "headers cannot be null");
+        this.payload = checkNotNull(payload, "payload cannot be null");
+        this.validate = true;
     }
 
-	public FrameBuilder(CommandType command) {
-		this(command.getName());
-	}
+    public FrameBuilder(CommandType command) {
+        this(checkNotNull(command, "command cannot be null").getName());
+    }
 
     public FrameBuilder(String commandName) {
-		this.command = commandName;
-		this.headers = new TreeMap<String, Header>();
-		this.validate = true;
-	}
+        this.command = checkNotNull(commandName, "commandName cannot be null");
+        this.headers = new TreeMap<String, Header>();
+        this.validate = true;
+    }
 
     public CommandType getCommand() {
-		return CommandType.getCommand(command);
-	}
+        return CommandType.getCommand(command);
+    }
 
     public String getCommandName() {
-		return command;
-	}
+        return command;
+    }
 
     // ----------------------------------------------------------------------------------
-	// Header mutators
-	// ----------------------------------------------------------------------------------
+    // Header mutators
+    // ----------------------------------------------------------------------------------
     private void validate(HeaderType type) {
-        if(isValidationEnabled()) {
-            if(type.isAllowed((Frame)this) == false) {
+        if (isValidationEnabled()) {
+            if (type.isAllowed((Frame) this) == false) {
                 throw new StompInvalidHeaderException(String.format("Header [%s] is not allowed in frame [%s]", type.name(), command));
             }
         }
     }
 
-	protected void addHeaderByType(HeaderType type, String value) {
+    protected void addHeaderByType(HeaderType type, String value) {
+        checkNotNull(type, "type cannot be null");
         validate(type);
-		addHeaderByName(type.getName(), value);
-	}
+        addHeaderByName(type.getName(), value);
+    }
 
-	protected void addHeaderByName(String name, String value) {
-        if(value == null) {
-		    this.headers.remove(name);
+    protected void addHeaderByName(String name, String value) {
+        checkNotNull(name, "name cannot be null");
+        if (value == null) {
+            this.headers.remove(name);
         } else {
-            if(isFrozen()) {
-                if(frozenHeaders.contains(name)) {
+            if (isFrozen()) {
+                if (frozenHeaders.contains(name)) {
                     throw new StompInvalidHeaderException(String.format("Header [%s] can't be used in the decorator, it is set by the API", name));
                 }
             }
             this.headers.put(name, Header.createHeader(name, value));
         }
-	}
+    }
 
     // ----------------------------------------------------------------------------------
-	// Validation handlers
-	// ----------------------------------------------------------------------------------
-	public void disableValidation() {
-		this.validate = false;
-	}
+    // Validation handlers
+    // ----------------------------------------------------------------------------------
+    public void disableValidation() {
+        this.validate = false;
+    }
 
     private boolean isValidationEnabled() {
         return this.validate;
     }
 
     // ----------------------------------------------------------------------------------
-	// Freeze handlers
-	// ----------------------------------------------------------------------------------
+    // Freeze handlers
+    // ----------------------------------------------------------------------------------
     private Set<String> getSetHeaders() {
         return new HashSet(this.headers.keySet());
     }
 
     protected void freeze() {
-        if(isFrozen() == false) {
+        if (isFrozen() == false) {
             this.frozenHeaders = this.getSetHeaders();
         }
     }
@@ -124,60 +126,64 @@ public class FrameBuilder {
     }
 
     // ----------------------------------------------------------------------------------
-	// Generic header accessors
-	// ----------------------------------------------------------------------------------
+    // Generic header accessors
+    // ----------------------------------------------------------------------------------
     public Header getHeader(HeaderType type) {
-		return getHeader(type.getName());
-	}
+        checkNotNull(type, "type cannot be null");
+        return getHeader(type.getName());
+    }
 
     public Header getHeader(String name) {
-		return this.headers.get(name);
-	}
+        checkNotNull(name, "name cannot be null");
+        return this.headers.get(name);
+    }
 
     public String getHeaderValue(HeaderType type) {
-		Header header = getHeader(type.getName());
+        checkNotNull(type, "type cannot be null");
+        Header header = getHeader(type.getName());
         return (header != null) ? header.getValue() : null;
-	}
+    }
 
     public String getHeaderValue(String name) {
-		Header header = getHeader(name);
+        checkNotNull(name, "name cannot be null");
+        Header header = getHeader(name);
         return (header != null) ? header.getValue() : null;
-	}
+    }
 
     public List<Header> getHeaders() {
-		return new ArrayList<Header>(headers.values());
-	}
+        return new ArrayList<Header>(headers.values());
+    }
 
     // ----------------------------------------------------------------------------------
-	// Tweaked builder setters and getters
-	// ----------------------------------------------------------------------------------
+    // Tweaked builder setters and getters
+    // ----------------------------------------------------------------------------------
     public FrameBuilder payload(String payload) {
-		return payload(payload, false);
-	}
+        return payload(payload, false);
+    }
 
     public FrameBuilder payload(String payload, boolean disableContentLenghtHeader) {
-		this.payload=payload;
-        if(disableContentLenghtHeader == false) {
+        this.payload = payload;
+        if (disableContentLenghtHeader == false) {
             CommandType comm = getCommand();
-            if(comm.equals(CommandType.SEND) || comm.equals(CommandType.MESSAGE) || comm.equals(CommandType.ERROR)) {
-                if(payload != null) {
+            if (comm.equals(CommandType.SEND) || comm.equals(CommandType.MESSAGE) || comm.equals(CommandType.ERROR)) {
+                if (payload != null) {
                     contentLength(Integer.valueOf(payload.length()).toString());
                 } else {
                     contentLength(null);
                 }
             }
         }
-		return this;
-	}
+        return this;
+    }
 
     public String payload() {
-		return this.payload;
-	}
-	
-	public FrameBuilder login(String value) {
-		addHeaderByType(HeaderType.LOGIN, value);
-		return this;
-	}
+        return this.payload;
+    }
+
+    public FrameBuilder login(String value) {
+        addHeaderByType(HeaderType.LOGIN, value);
+        return this;
+    }
 
     public String login() {
         return getHeaderValue(HeaderType.LOGIN);
@@ -202,42 +208,41 @@ public class FrameBuilder {
     }
 
 
-
     public FrameBuilder passcode(String value) {
-		addHeaderByType(HeaderType.PASS_CODE, value);
-		return this;
-	}
+        addHeaderByType(HeaderType.PASS_CODE, value);
+        return this;
+    }
 
     public String passcode() {
         return getHeaderValue(HeaderType.PASS_CODE);
     }
 
-	public FrameBuilder session(String value) {
-		addHeaderByType(HeaderType.SESSION, value);
-		return this;
-	}
+    public FrameBuilder session(String value) {
+        addHeaderByType(HeaderType.SESSION, value);
+        return this;
+    }
 
     public String session() {
         return getHeaderValue(HeaderType.SESSION);
     }
 
-	public FrameBuilder destination(String value) {
-		addHeaderByType(HeaderType.DESTINATION, value);
-		return this;
-	}
+    public FrameBuilder destination(String value) {
+        addHeaderByType(HeaderType.DESTINATION, value);
+        return this;
+    }
 
     public String destination() {
         return getHeaderValue(HeaderType.DESTINATION);
     }
 
-	public FrameBuilder ack(AckType ack) {
-		addHeaderByType(HeaderType.ACK, ack.name().toLowerCase());
-		return this;
-	}
+    public FrameBuilder ack(AckType ack) {
+        addHeaderByType(HeaderType.ACK, ack.name().toLowerCase());
+        return this;
+    }
 
     public AckType ack() {
         String value = getHeaderValue(HeaderType.ACK);
-        if(StringUtils.isNotBlank(value)) {
+        if (StringUtils.isNotBlank(value)) {
             validateEnumValue(AckType.class, value.toUpperCase());
             return Enum.valueOf(AckType.class, value.toUpperCase());
         } else {
@@ -245,73 +250,73 @@ public class FrameBuilder {
         }
     }
 
-	public FrameBuilder transaction(String value) {
-		addHeaderByType(HeaderType.TRANSACTION, value);
-		return this;
-	}
+    public FrameBuilder transaction(String value) {
+        addHeaderByType(HeaderType.TRANSACTION, value);
+        return this;
+    }
 
     public String transaction() {
         return getHeaderValue(HeaderType.TRANSACTION);
     }
 
-	public FrameBuilder receipt(String value) {
-		addHeaderByType(HeaderType.RECEIPT, value);
-		return this;
-	}
+    public FrameBuilder receipt(String value) {
+        addHeaderByType(HeaderType.RECEIPT, value);
+        return this;
+    }
 
     public String receipt() {
         return getHeaderValue(HeaderType.RECEIPT);
     }
 
-	public FrameBuilder errorMessageContent(String value) {
-		addHeaderByType(HeaderType.ERROR_MESSAGE_CONTENT, value);
-		return this;
-	}
+    public FrameBuilder errorMessageContent(String value) {
+        addHeaderByType(HeaderType.ERROR_MESSAGE_CONTENT, value);
+        return this;
+    }
 
     public String errorMessageContent() {
         return getHeaderValue(HeaderType.ERROR_MESSAGE_CONTENT);
     }
 
-	private FrameBuilder contentLength(String value) {
-		addHeaderByType(HeaderType.CONTENT_LENGTH, value);
-		return this;
-	}
+    private FrameBuilder contentLength(String value) {
+        addHeaderByType(HeaderType.CONTENT_LENGTH, value);
+        return this;
+    }
 
     public String contentLength() {
         return getHeaderValue(HeaderType.CONTENT_LENGTH);
     }
 
-	public FrameBuilder subscriptionId(String value) {
-		addHeaderByType(HeaderType.SUBSCRIPTION_ID, value);
-		return this;
-	}
+    public FrameBuilder subscriptionId(String value) {
+        addHeaderByType(HeaderType.SUBSCRIPTION_ID, value);
+        return this;
+    }
 
     public String receiptId() {
         return getHeaderValue(HeaderType.RECEIPT_ID);
     }
 
     public FrameBuilder receiptId(String value) {
-		addHeaderByType(HeaderType.RECEIPT_ID, value);
-		return this;
-	}
+        addHeaderByType(HeaderType.RECEIPT_ID, value);
+        return this;
+    }
 
     public String messageId() {
         return getHeaderValue(HeaderType.MESSAGE_ID);
     }
 
     public FrameBuilder messageId(String value) {
-		addHeaderByType(HeaderType.MESSAGE_ID, value);
-		return this;
-	}
+        addHeaderByType(HeaderType.MESSAGE_ID, value);
+        return this;
+    }
 
     public String subscriptionId() {
         return getHeaderValue(HeaderType.SUBSCRIPTION_ID);
     }
 
-	public FrameBuilder selector(String value) {
-		addHeaderByType(HeaderType.SELECTOR, value);
-		return this;
-	}
+    public FrameBuilder selector(String value) {
+        addHeaderByType(HeaderType.SELECTOR, value);
+        return this;
+    }
 
     public String selector() {
         return getHeaderValue(HeaderType.SELECTOR);
@@ -319,9 +324,9 @@ public class FrameBuilder {
 
     public FrameBuilder custom(String name, String value) {
         HeaderType type = HeaderType.getInstance(name);
-        if(type != null) {
+        if (type != null) {
             // validate enum value
-            if(type.equals(HeaderType.ACK)) {
+            if (type.equals(HeaderType.ACK)) {
                 validateEnumValue(AckType.class, value);
             }
             validate(type);
@@ -329,8 +334,8 @@ public class FrameBuilder {
         } else {
             addHeaderByName(name, value);
         }
-		return this;
-	}
+        return this;
+    }
 
     public String custom(String name) {
         return getHeaderValue(name);
@@ -339,8 +344,9 @@ public class FrameBuilder {
     private void validateEnumValue(Class enumClass, String value) throws StompInvalidHeaderException {
         try {
             Enum.valueOf(enumClass, value);
-        } catch(IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new StompInvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
         }
     }
+
 }

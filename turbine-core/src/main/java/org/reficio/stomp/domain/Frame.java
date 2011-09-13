@@ -31,8 +31,8 @@ import java.util.Map;
  */
 public class Frame extends FrameBuilder {
 
-    public Frame(CommandType command, Map<String, Header> headers, String payload /*, Boolean subscriptionValid*/) {
-        super(command, headers, payload /*, subscriptionValid*/);
+    public Frame(CommandType command, Map<String, Header> headers, String payload) {
+        super(command, headers, payload);
     }
 
 	public Frame(CommandType command) {
