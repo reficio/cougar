@@ -25,7 +25,6 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
-import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
 
@@ -179,11 +178,11 @@ public class ConnectionTest {
     }
 
     @Test
-    public void factoryMethodTest() {
-        Connection conn = ConnectionImpl.create();
-        conn.hostname("asd").port(123);
-        assertNotNull(conn);
+    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
+        Connection connection = ConnectionImpl.create().hostname("localhost");
+        connection.port(123).password("123").init();
     }
+
 
 }
 

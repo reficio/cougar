@@ -333,9 +333,9 @@ public class TxConnectionTest {
     }
 
     @Test
-    public void factoryMethodTest() {
-        TransactionalConnection conn = TransactionalConnectionImpl.create();
-        assertNotNull(conn);
+    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
+        TransactionalConnection txConn = TransactionalConnectionImpl.create().hostname("localhost");
+        txConn.port(123).password("123").init();
     }
 
 

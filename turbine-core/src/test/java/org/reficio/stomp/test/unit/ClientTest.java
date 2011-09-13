@@ -17,7 +17,6 @@
 
 package org.reficio.stomp.test.unit;
 
-import org.apache.activemq.transport.stomp.StompConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -249,7 +248,14 @@ public class ClientTest {
     }
 
     @Test
+    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
+        Client client = ClientImpl.create().hostname("localhost");
+        client.port(123).password("123").init();
+    }
+
+    @Test
     public void testParametersValidation() {
+        // TODO
         ClientImpl.create().hostname(null);
     }
 
