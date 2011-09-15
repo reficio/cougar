@@ -33,7 +33,7 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
     // ----------------------------------------------------------------------------------
     // Overridden transaction-aware methods
     // ----------------------------------------------------------------------------------
-    // TODO Be aware that ack acknowledges all previous not-acknowledged messages too
+    // Be aware that ack acknowledges all previous not-acknowledged messages too
     @Override
     public void ack(String messageId) {
         TransactionAwareDecorator txDecorator = new TransactionAwareDecorator();

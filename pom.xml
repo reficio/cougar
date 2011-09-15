@@ -13,7 +13,7 @@
         Implementation was fully contributed by the Reficio (TM) open source initiative. The main goal of the Turbine
         project
         was to provide the community with a proficient, reliable, performance-oriented and well-documented
-        implementation of the STOMP protocol client written in Java. 
+        implementation of the STOMP protocol client written in Java.
     </description>
     <url>http://reficio.org/</url>
 
@@ -437,9 +437,8 @@ Un
 ]]></license>
                             <statementContexts>
                                 <log>^.*log\..*</log>
-                                <iflog>if.*\(log\.is.*\).*</iflog>
+                                <iflog>^.*if \(log\.is.*</iflog>
                             </statementContexts>
-                            <contextFilters>log,iflog</contextFilters>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -450,6 +449,9 @@ Un
                         <groupId>com.atlassian.maven.plugins</groupId>
                         <artifactId>maven-clover2-plugin</artifactId>
                         <version>${clover.version}</version>
+                        <configuration>
+                            <contextFilters>log,iflog</contextFilters>
+                        </configuration>
                     </plugin>
                 </plugins>
             </reporting>

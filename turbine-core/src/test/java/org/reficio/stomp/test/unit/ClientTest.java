@@ -24,13 +24,19 @@ import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.StompResourceState;
+import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
+import org.reficio.stomp.impl.WireFormatImpl;
+import org.reficio.stomp.impl.stub.ClientStubImpl;
+import org.reficio.stomp.test.mock.ClientStubImplMock;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.util.UUID;
 
@@ -108,14 +114,13 @@ public class ClientTest {
 
     @Test(expected = StompProtocolException.class)
     public void connectHandshakeError() {
-        // TODO - connectio vs. conn???
         // create connection object
         MockConnectionImpl conn = MockConnectionImpl.create();
         // register handlers
         conn.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.MESSAGE);
+                Frame response = new Frame(CommandType.MESSAGE.getName(), false);
                 response.session(UUID.randomUUID().toString());
                 return response;
             }
@@ -127,7 +132,7 @@ public class ClientTest {
     @Test(expected = StompConnectionException.class)
     public void notInitializedError() {
         MockConnectionImpl connection = MockConnectionImpl.create();
-        connection.send(new Frame(CommandType.MESSAGE));
+        connection.send(new Frame(CommandType.MESSAGE.getName()));
     }
 
     @Test(expected = StompConnectionException.class)
@@ -256,6 +261,20 @@ public class ClientTest {
     @Test(expected = NullPointerException.class)
     public void testParametersValidation() {
         ClientImpl.create().password(null);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testMarshallException() {
+        ClientStubImplMock conn = new ClientStubImplMock();
+        conn.init();
+        conn.marshallPublic(new Frame(CommandType.SEND));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testUnMarshallException() {
+        ClientStubImplMock conn = new ClientStubImplMock();
+        conn.init();
+        conn.unmarshallPublic();
     }
 
 }
