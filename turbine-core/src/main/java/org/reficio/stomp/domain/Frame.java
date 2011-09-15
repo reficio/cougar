@@ -29,30 +29,46 @@ import java.util.Map;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class Frame extends FrameBuilder {
+public class Frame extends FrameBuilder implements Cloneable {
 
     public Frame(CommandType command, Map<String, Header> headers, String payload) {
         super(command, headers, payload);
     }
 
-	public Frame(CommandType command) {
-		super(command);
-	}
+    public Frame(CommandType command) {
+        super(command);
+    }
 
-	public boolean indicatesError() {
-		return command.equals(CommandType.ERROR.getName());
-	}
+    public Frame(CommandType command, boolean validationEnabled) {
+        super(command, validationEnabled);
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("CommandType:\t[%s]\n", command));
-		builder.append("Headers:\n");
-		for(Header header : headers.values()) {
-			builder.append(String.format("  %s\n", header));
-		}
-		builder.append(String.format("Payload:\t[%s]", payload !=null ? payload : ""));
-		return builder.toString();
-	}
+    public Frame(String commandName) {
+        super(commandName);
+    }
+
+    public Frame(String commandName, boolean validationEnabled) {
+        super(commandName, validationEnabled);
+    }
+
+    public boolean indicatesError() {
+        return command.equals(CommandType.ERROR.getName());
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("CommandType:\t[%s]\n", command));
+        builder.append("Headers:\n");
+        for (Header header : headers.values()) {
+            builder.append(String.format("  %s\n", header));
+        }
+        builder.append(String.format("Payload:\t[%s]", payload != null ? payload : ""));
+        return builder.toString();
+    }
 
 }

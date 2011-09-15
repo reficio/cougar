@@ -1,5 +1,6 @@
 package org.reficio.stomp.impl.stub;
 
+import org.apache.commons.lang.StringUtils;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.StompException;
@@ -86,7 +87,6 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         Frame frame = new Frame(CommandType.CONNECT);
         frame.login(username);
         frame.passcode(password);
-        // TODO verify
         frame.encoding(encoding);
         marshall(frame);
 
@@ -94,6 +94,11 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         if (handshake.getCommand().equals(CommandType.CONNECTED) == false) {
             closeCommunicationOnError();
             throw new StompProtocolException("Expected CONNECTED command, instead received "
+                    + handshake.getCommand().name());
+        }
+        if(StringUtils.isNotBlank(handshake.encoding()) && handshake.encoding().equals(frame.encoding()) == false) {
+            closeCommunicationOnError();
+            throw new StompEncodingException("Server cannot handle requested encoding and switched to [" + handshake.encoding() + "] aborting!"
                     + handshake.getCommand().name());
         }
         Header session = handshake.getHeader(HeaderType.SESSION);

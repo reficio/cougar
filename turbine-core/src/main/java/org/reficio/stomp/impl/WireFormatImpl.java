@@ -87,6 +87,7 @@ public class WireFormatImpl implements StompWireFormat {
         } catch (IOException e) {
             throw new StompIOException("Error during data send", e);
         }
+        frame.freeze();
     }
 
     @Override
@@ -95,7 +96,9 @@ public class WireFormatImpl implements StompWireFormat {
             CommandType command = parseCommand(reader);
             Map<String, Header> headers = parseHeaders(reader);
             String payload = parsePayload(reader, parseContentLength(headers));
-            return new Frame(command, headers, payload /*, subscriptionValid*/);
+            Frame result = new Frame(command, headers, payload);
+            result.freeze();
+            return result;
         } catch(StompWireFormatException ex) {
             throw ex;
         }

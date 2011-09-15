@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class FrameBuilder {
+public class FrameBuilder implements Cloneable {
 
     protected String command;
     protected Map<String, Header> headers;
@@ -49,13 +49,21 @@ public class FrameBuilder {
     }
 
     public FrameBuilder(CommandType command) {
-        this(checkNotNull(command, "command cannot be null").getName());
+        this(command, true);
+    }
+
+    public FrameBuilder(CommandType command, boolean validationEnabled) {
+        this(checkNotNull(command, "command cannot be null").getName(), validationEnabled);
     }
 
     public FrameBuilder(String commandName) {
+        this(commandName, true);
+    }
+
+    public FrameBuilder(String commandName, boolean validationEnabled) {
         this.command = checkNotNull(commandName, "commandName cannot be null");
         this.headers = new TreeMap<String, Header>();
-        this.validate = true;
+        this.validate = validationEnabled;
     }
 
     public CommandType getCommand() {
@@ -100,10 +108,6 @@ public class FrameBuilder {
     // ----------------------------------------------------------------------------------
     // Validation handlers
     // ----------------------------------------------------------------------------------
-    public void disableValidation() {
-        this.validate = false;
-    }
-
     private boolean isValidationEnabled() {
         return this.validate;
     }
@@ -115,13 +119,13 @@ public class FrameBuilder {
         return new HashSet(this.headers.keySet());
     }
 
-    protected void freeze() {
+    public void freeze() {
         if (isFrozen() == false) {
             this.frozenHeaders = this.getSetHeaders();
         }
     }
 
-    private boolean isFrozen() {
+    public boolean isFrozen() {
         return this.frozenHeaders != null;
     }
 
@@ -151,6 +155,7 @@ public class FrameBuilder {
     }
 
     public List<Header> getHeaders() {
+        // headers are immutable, so no problem
         return new ArrayList<Header>(headers.values());
     }
 
@@ -347,6 +352,13 @@ public class FrameBuilder {
         } catch (IllegalArgumentException ex) {
             throw new StompInvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
         }
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        FrameBuilder clone = (FrameBuilder) super.clone();
+        clone.frozenHeaders = null;
+        clone.headers = new TreeMap<String, Header>(headers);
+        return clone;
     }
 
 }

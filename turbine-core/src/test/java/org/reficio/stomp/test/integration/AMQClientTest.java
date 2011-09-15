@@ -85,6 +85,16 @@ public class AMQClientTest {
     }
 
     @Test
+    public void connectNotUTF() {
+        Client client = ClientImpl.create();
+        client.hostname("localhost").port(61613).encoding("cp1252").init();
+
+        assertTrue(client.isInitialized());
+        client.close();
+        assertFalse(client.isInitialized());
+    }
+
+    @Test
     public void send() throws Exception {
         StompConnectionFactory<Client> factory = getConnectionFactory();
         Client client = factory.createConnection();

@@ -20,6 +20,7 @@ package org.reficio.stomp.test.unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.CommandType;
@@ -175,6 +176,23 @@ public class ConnectionTest {
         Frame frame = connection.getServer().getLastFrameOfType(CommandType.SEND);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
+    }
+
+    @Test(expected = StompEncodingException.class)
+    public void testServerRejectsEncoding() {
+        MockConnectionImpl conn = MockConnectionImpl.create();
+        // register handlers
+        conn.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+            @Override
+            public Frame respond(Frame request) {
+                Frame response = new Frame(CommandType.CONNECTED);
+                response.session(UUID.randomUUID().toString());
+                response.encoding("cp1252");
+                return response;
+            }
+        });
+
+        conn.hostname("localhost").port(61613).encoding("UTF-8").init();
     }
 
     @Test

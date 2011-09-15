@@ -22,8 +22,7 @@ import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.FrameBuilder;
 import org.reficio.stomp.domain.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -37,8 +36,8 @@ public class FrameBuilderTest {
 
     @Test
     public void connect() {
-        Frame frame = new Frame(CommandType.CONNECT);
-        frame.disableValidation();
+        Frame frame = new Frame(CommandType.CONNECT, false);
+        // frame.disableValidation();
         // frame.contentLength("123");
 
         Header header1 = frame.getHeader(HeaderType.CONTENT_LENGTH);
@@ -91,8 +90,8 @@ public class FrameBuilderTest {
 
     @Test
     public void headers() {
-        Frame frame = new Frame(CommandType.BEGIN);
-        frame.disableValidation();
+        Frame frame = new Frame(CommandType.BEGIN, false);
+        // frame.disableValidation();
         frame.payload("payload");
         assertEquals("payload", frame.payload());
         // begin can not have contentLength
@@ -152,17 +151,38 @@ public class FrameBuilderTest {
             public FrameFreeze(CommandType command) {
                 super(command);
             }
+
             public void freezePublic() {
                 freeze();
             }
 
         };
+
         FrameFreeze frame = new FrameFreeze(CommandType.COMMIT);
         frame.custom("test", "ok");
         frame.freezePublic();
         // double freeze for testing purposes
         frame.freezePublic();
         frame.custom("test", "exception");
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Frame frame = new Frame(CommandType.SEND);
+        frame.payload("payload");
+        frame.session("007");
+        frame.transaction("tx-mi6");
+
+        Frame clone = (Frame)frame.clone();
+        assertEquals(frame.toString(), clone.toString());
+        assertEquals(frame.getCommand(), clone.getCommand());
+        assertEquals(frame.indicatesError(), clone.indicatesError());
+        assertTrue(frame.getHeaders().size() == clone.getHeaders().size());
+
+        clone.transaction(null);
+        assertNotNull(frame.transaction());
+        assertNull(clone.transaction());
+        assertTrue(frame.getHeaders().size() != clone.getHeaders().size());
 
     }
 
