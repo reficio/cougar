@@ -1,8 +1,8 @@
 package org.reficio.stomp.perf.sender;
 
 import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
 
@@ -31,7 +31,7 @@ public class TurbineSender implements ISender {
 
     @Override
     public void send(String queue, String payload) {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.destination(queue);
         frame.payload(payload);
         frame.custom("persistent", "false");
@@ -40,7 +40,7 @@ public class TurbineSender implements ISender {
 
     @Override
     public void send(String queue, String receiptId, String payload) throws Exception {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.destination(queue);
         frame.receipt(receiptId);
         frame.custom("persistent", "false");

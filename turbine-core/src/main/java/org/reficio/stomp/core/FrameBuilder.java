@@ -41,18 +41,18 @@ public class FrameBuilder implements Cloneable {
     private boolean validate;
     private Set<String> frozenHeaders;
 
-    protected FrameBuilder(CommandType command, Map<String, Header> headers, String payload) {
+    protected FrameBuilder(Command command, Map<String, Header> headers, String payload) {
         this.command = checkNotNull(command, "command cannot be null").getName();
         this.headers = checkNotNull(headers, "headers cannot be null");
         this.payload = checkNotNull(payload, "payload cannot be null");
         this.validate = true;
     }
 
-    public FrameBuilder(CommandType command) {
+    public FrameBuilder(Command command) {
         this(command, true);
     }
 
-    public FrameBuilder(CommandType command, boolean validationEnabled) {
+    public FrameBuilder(Command command, boolean validationEnabled) {
         this(checkNotNull(command, "command cannot be null").getName(), validationEnabled);
     }
 
@@ -66,8 +66,8 @@ public class FrameBuilder implements Cloneable {
         this.validate = validationEnabled;
     }
 
-    public CommandType getCommand() {
-        return CommandType.getCommand(command);
+    public Command getCommand() {
+        return Command.getCommand(command);
     }
 
     public String getCommandName() {
@@ -115,13 +115,9 @@ public class FrameBuilder implements Cloneable {
     // ----------------------------------------------------------------------------------
     // Freeze handlers
     // ----------------------------------------------------------------------------------
-    private Set<String> getSetHeaders() {
-        return new HashSet(this.headers.keySet());
-    }
-
     public void freeze() {
         if (isFrozen() == false) {
-            this.frozenHeaders = this.getSetHeaders();
+            this.frozenHeaders = new HashSet(this.headers.keySet());
         }
     }
 
@@ -169,8 +165,8 @@ public class FrameBuilder implements Cloneable {
     public FrameBuilder payload(String payload, boolean disableContentLenghtHeader) {
         this.payload = payload;
         if (disableContentLenghtHeader == false) {
-            CommandType comm = getCommand();
-            if (comm.equals(CommandType.SEND) || comm.equals(CommandType.MESSAGE) || comm.equals(CommandType.ERROR)) {
+            Command comm = getCommand();
+            if (comm.equals(Command.SEND) || comm.equals(Command.MESSAGE) || comm.equals(Command.ERROR)) {
                 if (payload != null) {
                     contentLength(Integer.valueOf(payload.length()).toString());
                 } else {
@@ -240,16 +236,16 @@ public class FrameBuilder implements Cloneable {
         return getHeaderValue(HeaderType.DESTINATION);
     }
 
-    public FrameBuilder ack(AckType ack) {
+    public FrameBuilder ack(Ack ack) {
         addHeaderByType(HeaderType.ACK, ack.name().toLowerCase());
         return this;
     }
 
-    public AckType ack() {
+    public Ack ack() {
         String value = getHeaderValue(HeaderType.ACK);
         if (StringUtils.isNotBlank(value)) {
-            validateEnumValue(AckType.class, value.toUpperCase());
-            return Enum.valueOf(AckType.class, value.toUpperCase());
+            validateEnumValue(Ack.class, value.toUpperCase());
+            return Enum.valueOf(Ack.class, value.toUpperCase());
         } else {
             return null;
         }
@@ -332,7 +328,7 @@ public class FrameBuilder implements Cloneable {
         if (type != null) {
             // validate enum value
             if (type.equals(HeaderType.ACK)) {
-                validateEnumValue(AckType.class, value);
+                validateEnumValue(Ack.class, value);
             }
             validate(type);
             addHeaderByType(type, value);

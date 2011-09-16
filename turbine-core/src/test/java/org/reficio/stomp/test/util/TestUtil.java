@@ -1,4 +1,4 @@
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.test.util;
 
 import java.io.IOException;
 import java.net.ServerSocket;

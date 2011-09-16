@@ -436,8 +436,9 @@ MnmpmUUnpnqrqmmmmmmmUUnpnqrqmmmmmmmUU1ZXabjfZU
 Un
 ]]></license>
                             <statementContexts>
-                                <log>^.*log\..*</log>
-                                <iflog>^.*if \(log\.is.*</iflog>
+                                <log>^log\..*;</log>
+                                <iflog>^if \(log\.is.*\(\)\).*\{.*\}</iflog>
+                                <iflogNoBrackets>^if \(log\.is.*\).*;</iflogNoBrackets>
                             </statementContexts>
                         </configuration>
                     </plugin>
@@ -450,7 +451,7 @@ Un
                         <artifactId>maven-clover2-plugin</artifactId>
                         <version>${clover.version}</version>
                         <configuration>
-                            <contextFilters>log,iflog</contextFilters>
+                            <contextFilters>log,iflog,iflogNoBrackets</contextFilters>
                         </configuration>
                     </plugin>
                 </plugins>

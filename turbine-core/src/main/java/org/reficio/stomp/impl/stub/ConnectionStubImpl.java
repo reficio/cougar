@@ -4,7 +4,7 @@ import org.reficio.stomp.StompException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     public void abort(String transactionId, FrameDecorator frameDecorator) {
         checkNotNull(transactionId, "transactionId cannot be null");
-        Frame frame = new Frame(CommandType.ABORT);
+        Frame frame = new Frame(Command.ABORT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -43,7 +43,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     @Override
     public void ack(String messageId, FrameDecorator frameDecorator) {
         checkNotNull(messageId, "messageId cannot be null");
-        Frame frame = new Frame(CommandType.ACK);
+        Frame frame = new Frame(Command.ACK);
         frame.messageId(messageId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -57,7 +57,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     public void begin(String transactionId, FrameDecorator frameDecorator) {
         checkNotNull(transactionId, "transactionId cannot be null");
-        Frame frame = new Frame(CommandType.BEGIN);
+        Frame frame = new Frame(Command.BEGIN);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -71,7 +71,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
 
     public void commit(String transactionId, FrameDecorator frameDecorator) {
         checkNotNull(transactionId, "transactionId cannot be null");
-        Frame frame = new Frame(CommandType.COMMIT);
+        Frame frame = new Frame(Command.COMMIT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -85,7 +85,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     @Override
     public void send(String destination, FrameDecorator frameDecorator) {
         checkNotNull(destination, "destination cannot be null");
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.destination(destination);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -94,7 +94,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     @Override
     public String subscribe(String destination, FrameDecorator frameDecorator) {
         checkNotNull(destination, "destination cannot be null");
-        Frame frame = new Frame(CommandType.SUBSCRIBE);
+        Frame frame = new Frame(Command.SUBSCRIBE);
         frame.destination(destination);
         preprocessor.decorate(frame, frameDecorator);
         String subscriptionId = frame.subscriptionId();
@@ -120,7 +120,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
         checkNotNull(id, "id cannot be null");
         checkNotNull(destination, "destination cannot be null");
-        Frame frame = new Frame(CommandType.SUBSCRIBE);
+        Frame frame = new Frame(Command.SUBSCRIBE);
         frame.destination(destination);
         frame.subscriptionId(id);
         preprocessor.decorate(frame, frameDecorator);
@@ -136,7 +136,7 @@ public class ConnectionStubImpl<T extends StompResource> extends ClientStubImpl<
     @Override
     public void unsubscribe(String id, FrameDecorator frameDecorator) {
         checkNotNull(id, "id cannot be null");
-        Frame frame = new Frame(CommandType.UNSUBSCRIBE);
+        Frame frame = new Frame(Command.UNSUBSCRIBE);
         frame.subscriptionId(id);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);

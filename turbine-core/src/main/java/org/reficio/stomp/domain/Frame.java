@@ -31,15 +31,15 @@ import java.util.Map;
  */
 public class Frame extends FrameBuilder implements Cloneable {
 
-    public Frame(CommandType command, Map<String, Header> headers, String payload) {
+    public Frame(Command command, Map<String, Header> headers, String payload) {
         super(command, headers, payload);
     }
 
-    public Frame(CommandType command) {
+    public Frame(Command command) {
         super(command);
     }
 
-    public Frame(CommandType command, boolean validationEnabled) {
+    public Frame(Command command, boolean validationEnabled) {
         super(command, validationEnabled);
     }
 
@@ -52,17 +52,19 @@ public class Frame extends FrameBuilder implements Cloneable {
     }
 
     public boolean indicatesError() {
-        return command.equals(CommandType.ERROR.getName());
+        return command.equals(Command.ERROR.getName());
     }
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
+
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("CommandType:\t[%s]\n", command));
+        builder.append(String.format("Command:\t[%s]\n", command));
         builder.append("Headers:\n");
         for (Header header : headers.values()) {
             builder.append(String.format("  %s\n", header));

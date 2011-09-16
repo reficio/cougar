@@ -19,8 +19,8 @@ package org.reficio.stomp.test.unit;
 
 import org.junit.Test;
 import org.reficio.stomp.*;
-import org.reficio.stomp.domain.AckType;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Ack;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 
 /**
@@ -35,7 +35,7 @@ public class HeaderTypeTest {
 
     @Test
     public void connect() {
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.login("007");
         frame.passcode("007");
         frame.encoding("007");
@@ -43,13 +43,13 @@ public class HeaderTypeTest {
 
     @Test(expected = StompInvalidHeaderException.class)
     public void disconnect() {
-        Frame frame = new Frame(CommandType.DISCONNECT);
+        Frame frame = new Frame(Command.DISCONNECT);
         frame.login("007");
     }
 
     @Test
     public void send() {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.destination("007");
         frame.receipt("007");
         frame.transaction("007");
@@ -58,9 +58,9 @@ public class HeaderTypeTest {
 
     @Test
     public void subscribe() {
-        Frame frame = new Frame(CommandType.SUBSCRIBE);
+        Frame frame = new Frame(Command.SUBSCRIBE);
         frame.destination("007");
-        frame.ack(AckType.AUTO);
+        frame.ack(Ack.AUTO);
         frame.selector("007");
         frame.subscriptionId("007");
         frame.receipt("007");
@@ -68,7 +68,7 @@ public class HeaderTypeTest {
 
     @Test(expected = StompInvalidHeaderException.class)
     public void unsubscribeFails() {
-        Frame frame = new Frame(CommandType.UNSUBSCRIBE);
+        Frame frame = new Frame(Command.UNSUBSCRIBE);
         frame.destination("007");
         frame.subscriptionId("007");
         frame.receipt("007");
@@ -76,42 +76,42 @@ public class HeaderTypeTest {
 
     @Test
     public void unsubscribeSucceeds1() {
-        Frame frame = new Frame(CommandType.UNSUBSCRIBE);
+        Frame frame = new Frame(Command.UNSUBSCRIBE);
         frame.destination("007");
         frame.receipt("007");
     }
 
     @Test
     public void unsubscribeSucceeds2() {
-        Frame frame = new Frame(CommandType.UNSUBSCRIBE);
+        Frame frame = new Frame(Command.UNSUBSCRIBE);
         frame.subscriptionId("007");
         frame.receipt("007");
     }
 
     @Test
     public void begin() {
-        Frame frame = new Frame(CommandType.BEGIN);
+        Frame frame = new Frame(Command.BEGIN);
         frame.transaction("007");
         frame.receipt("007");
     }
 
     @Test
     public void commit() {
-        Frame frame = new Frame(CommandType.COMMIT);
+        Frame frame = new Frame(Command.COMMIT);
         frame.transaction("007");
         frame.receipt("007");
     }
 
     @Test
     public void abort() {
-        Frame frame = new Frame(CommandType.ABORT);
+        Frame frame = new Frame(Command.ABORT);
         frame.transaction("007");
         frame.receipt("007");
     }
 
     @Test
     public void ack() {
-        Frame frame = new Frame(CommandType.ACK);
+        Frame frame = new Frame(Command.ACK);
         frame.transaction("007");
         frame.receipt("007");
         // frame.messageId("007");
@@ -119,14 +119,14 @@ public class HeaderTypeTest {
 
     @Test
     public void connected() {
-        Frame frame = new Frame(CommandType.CONNECTED);
+        Frame frame = new Frame(Command.CONNECTED);
         frame.session("007");
         frame.encoding("007");
     }
 
     @Test
     public void message() {
-        Frame frame = new Frame(CommandType.MESSAGE);
+        Frame frame = new Frame(Command.MESSAGE);
         frame.destination("007");
         frame.messageId("007");
         frame.subscription("007");
@@ -135,20 +135,20 @@ public class HeaderTypeTest {
 
     @Test
     public void receipt() {
-        Frame frame = new Frame(CommandType.RECEIPT);
+        Frame frame = new Frame(Command.RECEIPT);
         frame.receiptId("007");
     }
 
     @Test
     public void error() {
-        Frame frame = new Frame(CommandType.ERROR);
+        Frame frame = new Frame(Command.ERROR);
         frame.errorMessageContent("007");
         // frame.contentLength("007");
     }
 
     @Test()
     public void isAllowed() {
-        Frame frame = new Frame(CommandType.ERROR);
+        Frame frame = new Frame(Command.ERROR);
         frame.errorMessageContent("007");
         // frame.contentLength("007");
     }

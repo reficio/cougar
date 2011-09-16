@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.WireFormatImpl;
 
@@ -51,14 +51,14 @@ public class MockServer implements Runnable {
     private StompWireFormat wireFormat;
     private List<Frame> receivedFrames;
 
-    private Map<CommandType, IMockMessageHandler> typeHandlers;
+    private Map<Command, IMockMessageHandler> typeHandlers;
     private Map<String, IMockMessageHandler> idHandlers;
 
     public MockServer() {
         this.wireFormat = new WireFormatImpl();
         this.receivedFrames = new CopyOnWriteArrayList<Frame>();
 
-        this.typeHandlers = new HashMap<CommandType, IMockMessageHandler>();
+        this.typeHandlers = new HashMap<Command, IMockMessageHandler>();
         this.idHandlers = new HashMap<String, IMockMessageHandler>();
     }
 
@@ -87,7 +87,7 @@ public class MockServer implements Runnable {
         }
     }
 
-    public Frame getLastFrameOfType(CommandType type) {
+    public Frame getLastFrameOfType(Command type) {
         Frame frame = null;
         for(int i = this.receivedFrames.size() - 1 ; i >= 0 ; i--) {
             if(this.receivedFrames.get(i).getCommand().equals(type)) {
@@ -130,11 +130,11 @@ public class MockServer implements Runnable {
         }
     }
 
-    public void registerHandler(CommandType commandToHandle, IMockMessageHandler handler) {
+    public void registerHandler(Command commandToHandle, IMockMessageHandler handler) {
         this.typeHandlers.put(commandToHandle, handler);
     }
 
-    public void unregisterHandler(CommandType commandToHandle) {
+    public void unregisterHandler(Command commandToHandle) {
         this.typeHandlers.remove(commandToHandle);
     }
 

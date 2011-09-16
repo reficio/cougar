@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public enum CommandType {
+public enum Command {
 
     CONNECT(true),
     DISCONNECT(true),
@@ -49,16 +49,16 @@ public enum CommandType {
 
     private final boolean clientCommand;
 
-    private CommandType(boolean clientCommand) {
+    private Command(boolean clientCommand) {
         this.clientCommand = clientCommand;
     }
 
-    public static CommandType getCommand(String value) {
+    public static Command getCommand(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
         }
         try {
-            return Enum.valueOf(CommandType.class, value);
+            return Enum.valueOf(Command.class, value);
         } catch (IllegalArgumentException ex) {
             return null;
         }

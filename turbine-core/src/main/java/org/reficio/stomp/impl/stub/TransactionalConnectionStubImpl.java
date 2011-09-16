@@ -6,7 +6,7 @@ import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
 
     public void rollback(FrameDecorator frameDecorator) throws StompException {
         assertInTransaction();
-        Frame frame = new Frame(CommandType.ABORT);
+        Frame frame = new Frame(Command.ABORT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
@@ -81,7 +81,7 @@ public class TransactionalConnectionStubImpl<T extends StompResource> extends Co
 
     public void commit(FrameDecorator frameDecorator) throws StompException {
         assertInTransaction();
-        Frame frame = new Frame(CommandType.COMMIT);
+        Frame frame = new Frame(Command.COMMIT);
         frame.transaction(transactionId);
         preprocessor.decorate(frame, frameDecorator);
         send(frame);

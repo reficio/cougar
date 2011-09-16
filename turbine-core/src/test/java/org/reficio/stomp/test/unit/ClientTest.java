@@ -24,19 +24,15 @@ import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.StompResourceState;
-import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
-import org.reficio.stomp.impl.WireFormatImpl;
-import org.reficio.stomp.impl.stub.ClientStubImpl;
 import org.reficio.stomp.test.mock.ClientStubImplMock;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
+import org.reficio.stomp.test.util.TestUtil;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.util.UUID;
 
@@ -58,20 +54,20 @@ public class ClientTest {
     public void initialize() {
         connection = MockConnectionImpl.create();
         // register handlers
-        connection.getStub().getServer().registerHandler(CommandType.CONNECT,
+        connection.getStub().getServer().registerHandler(Command.CONNECT,
                 new IMockMessageHandler() {
                     @Override
                     public Frame respond(Frame request) {
-                        Frame response = new Frame(CommandType.CONNECTED);
+                        Frame response = new Frame(Command.CONNECTED);
                         response.session(UUID.randomUUID().toString());
                         return response;
                     }
                 });
 
-        connection.getStub().getServer().registerHandler(CommandType.DISCONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.RECEIPT);
+                Frame response = new Frame(Command.RECEIPT);
                 response.receiptId(request.messageId());
                 return response;
             }
@@ -100,10 +96,10 @@ public class ClientTest {
     public void connectNoSessionIdInResponse() {
         connection = MockConnectionImpl.create();
         // register handlers, no session id in response to connect command
-        connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
+                Frame response = new Frame(Command.CONNECTED);
                 return response;
             }
         });
@@ -117,10 +113,10 @@ public class ClientTest {
         // create connection object
         MockConnectionImpl conn = MockConnectionImpl.create();
         // register handlers
-        conn.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        conn.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.MESSAGE.getName(), false);
+                Frame response = new Frame(Command.MESSAGE.getName(), false);
                 response.session(UUID.randomUUID().toString());
                 return response;
             }
@@ -132,7 +128,7 @@ public class ClientTest {
     @Test(expected = StompConnectionException.class)
     public void notInitializedError() {
         MockConnectionImpl connection = MockConnectionImpl.create();
-        connection.send(new Frame(CommandType.MESSAGE.getName()));
+        connection.send(new Frame(Command.MESSAGE.getName()));
     }
 
     @Test(expected = StompConnectionException.class)
@@ -159,7 +155,7 @@ public class ClientTest {
             assertNotNull(e);
             assertEquals(e.getClass(), StompConnectionException.class);
         }
-        connection.send(new Frame(CommandType.ACK));
+        connection.send(new Frame(Command.ACK));
     }
 
     @Test(expected = StompConnectionException.class)
@@ -267,7 +263,7 @@ public class ClientTest {
     public void testMarshallException() {
         ClientStubImplMock conn = new ClientStubImplMock();
         conn.init();
-        conn.marshallPublic(new Frame(CommandType.SEND));
+        conn.marshallPublic(new Frame(Command.SEND));
     }
 
     @Test(expected = RuntimeException.class)

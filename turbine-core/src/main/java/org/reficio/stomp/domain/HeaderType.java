@@ -17,7 +17,7 @@
 
 package org.reficio.stomp.domain;
 
-import static org.reficio.stomp.domain.CommandType.*;
+import static org.reficio.stomp.domain.Command.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -30,19 +30,19 @@ import static org.reficio.stomp.domain.CommandType.*;
 public enum HeaderType {
     ENCODING("encoding") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == CONNECT || command == CONNECTED;
         }
     },
 	LOGIN("login") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == CONNECT;
         }
     },
 	PASS_CODE("passcode") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == CONNECT;
         }
     },
@@ -54,74 +54,74 @@ public enum HeaderType {
     },
 	DESTINATION("destination") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SEND || command == SUBSCRIBE ||
-                   command == CommandType.MESSAGE ||
+                   command == Command.MESSAGE ||
                    (command == UNSUBSCRIBE && frame.subscriptionId() == null);
         }
     },
 	ACK("ack") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SUBSCRIBE;
         }
     },
 	TRANSACTION("transaction") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SEND || command == BEGIN ||
-                   command == COMMIT || command == ABORT || command == CommandType.ACK;
+                   command == COMMIT || command == ABORT || command == Command.ACK;
         }
     },
 	RECEIPT("receipt") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SEND || command == SUBSCRIBE ||
-                   command == UNSUBSCRIBE || command == CommandType.MESSAGE || command == BEGIN ||
-                   command == COMMIT || command == ABORT || command == CommandType.ACK;
+                   command == UNSUBSCRIBE || command == Command.MESSAGE || command == BEGIN ||
+                   command == COMMIT || command == ABORT || command == Command.ACK;
         }
     },
     RECEIPT_ID("receipt-id") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
-            return command == CommandType.RECEIPT;
+            Command command = frame.getCommand();
+            return command == Command.RECEIPT;
         }
     },
 	ERROR_MESSAGE_CONTENT("message") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == ERROR;
         }
     },
     MESSAGE_ID("message-id") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
-            return command == CommandType.MESSAGE || command == CommandType.ACK;
+            Command command = frame.getCommand();
+            return command == Command.MESSAGE || command == Command.ACK;
         }
     },
 	CONTENT_LENGTH("content-length") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
-            return command == CommandType.MESSAGE || command == SEND || command == ERROR;
+            Command command = frame.getCommand();
+            return command == Command.MESSAGE || command == SEND || command == ERROR;
         }
     },
 	SUBSCRIPTION_ID("id") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SUBSCRIBE ||
                   (command == UNSUBSCRIBE && frame.destination() == null);
         }
     },
     SELECTOR("selector") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
+            Command command = frame.getCommand();
             return command == SUBSCRIBE;
         }
     },
     SUBSCRIPTION("subscription") {
         public boolean isAllowed(Frame frame) {
-            CommandType command = frame.getCommand();
-            return command == CommandType.MESSAGE;
+            Command command = frame.getCommand();
+            return command == Command.MESSAGE;
         }
     };
 

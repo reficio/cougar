@@ -20,8 +20,8 @@ package org.reficio.stomp.test.integration;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.*;
 import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.domain.CommandType;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
 
@@ -100,7 +100,7 @@ public class AMQClientTest {
         Client client = factory.createConnection();
 
         final String receiptSubscribe = UUID.randomUUID().toString();
-        Frame frameSubscribe = new Frame(CommandType.SUBSCRIBE);
+        Frame frameSubscribe = new Frame(Command.SUBSCRIBE);
         frameSubscribe.destination(stompQueuePrefix + destinationName);
         frameSubscribe.receipt(receiptSubscribe);
         client.send(frameSubscribe);
@@ -109,13 +109,13 @@ public class AMQClientTest {
 
         final String payload = "TEST MESSAGE";
         final String receiptId = UUID.randomUUID().toString();
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.destination(stompQueuePrefix + destinationName);
         frame.payload(payload);
         frame.receipt(receiptId);
         client.send(frame);
         Frame receipt = client.receive();
-        assertTrue(receipt.getCommand().equals(CommandType.RECEIPT));
+        assertTrue(receipt.getCommand().equals(Command.RECEIPT));
 
         Frame receivedFrame = client.receive();
         assertNotNull(receivedFrame);

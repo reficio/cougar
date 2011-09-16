@@ -18,7 +18,7 @@
 package org.reficio.stomp.test.unit;
 
 import org.junit.Test;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 
 import static org.junit.Assert.assertFalse;
@@ -37,13 +37,13 @@ public class FrameTest {
 
     @Test
     public void checkError() {
-        Frame frame = new Frame(CommandType.ERROR);
+        Frame frame = new Frame(Command.ERROR);
         assertTrue(frame.indicatesError());
     }
 
     @Test
     public void checkNotError() {
-        Frame frame = new Frame(CommandType.COMMIT);
+        Frame frame = new Frame(Command.COMMIT);
         assertFalse(frame.indicatesError());
     }
 

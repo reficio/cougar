@@ -17,18 +17,8 @@
 
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.StompException;
-import org.reficio.stomp.StompIllegalTransactionStateException;
-import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.connection.TransactionalConnection;
-import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.domain.CommandType;
-import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.stub.TransactionalConnectionStubImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.UUID;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)

@@ -19,7 +19,6 @@ package org.reficio.stomp.test.unit;
 
 import org.junit.Test;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.core.FrameBuilder;
 import org.reficio.stomp.domain.*;
 
 import static org.junit.Assert.*;
@@ -36,7 +35,7 @@ public class FrameBuilderTest {
 
     @Test
     public void connect() {
-        Frame frame = new Frame(CommandType.CONNECT, false);
+        Frame frame = new Frame(Command.CONNECT, false);
         // frame.disableValidation();
         // frame.contentLength("123");
 
@@ -52,7 +51,7 @@ public class FrameBuilderTest {
 
     @Test
     public void custom() {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.custom(HeaderType.CONTENT_LENGTH.getName(), "123");
         assertEquals("123", frame.contentLength());
         assertEquals("123", frame.custom(HeaderType.CONTENT_LENGTH.getName()));
@@ -60,24 +59,24 @@ public class FrameBuilderTest {
 
     @Test
     public void customNotDefined() {
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.custom("bam_correlation_id", "bus_proc_123");
         assertEquals("bus_proc_123", frame.custom("bam_correlation_id"));
     }
 
     @Test
     public void contentLength() {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.payload("payload");
         assertEquals("payload", frame.payload());
         assertEquals("7", frame.contentLength());
 
-        Frame frame2 = new Frame(CommandType.MESSAGE);
+        Frame frame2 = new Frame(Command.MESSAGE);
         frame2.payload("payload");
         assertEquals("payload", frame2.payload());
         assertEquals("7", frame2.contentLength());
 
-        Frame frame3 = new Frame(CommandType.ERROR);
+        Frame frame3 = new Frame(Command.ERROR);
         frame3.payload("payload");
         assertEquals("payload", frame3.payload());
         assertEquals("7", frame3.contentLength());
@@ -90,7 +89,7 @@ public class FrameBuilderTest {
 
     @Test
     public void headers() {
-        Frame frame = new Frame(CommandType.BEGIN, false);
+        Frame frame = new Frame(Command.BEGIN, false);
         // frame.disableValidation();
         frame.payload("payload");
         assertEquals("payload", frame.payload());
@@ -117,8 +116,8 @@ public class FrameBuilderTest {
         assertEquals("passcode", frame.passcode());
         frame.destination("destination");
         assertEquals("destination", frame.destination());
-        frame.ack(AckType.AUTO);
-        assertEquals(AckType.AUTO, frame.ack());
+        frame.ack(Ack.AUTO);
+        assertEquals(Ack.AUTO, frame.ack());
         frame.transaction("transaction");
         assertEquals("transaction", frame.transaction());
         frame.receipt("receipt");
@@ -141,14 +140,14 @@ public class FrameBuilderTest {
 
     @Test(expected = StompInvalidHeaderException.class)
     public void ackCustomValidation() {
-        Frame frame = new Frame(CommandType.ACK);
+        Frame frame = new Frame(Command.ACK);
         frame.custom("ack", "exception");
     }
 
     @Test(expected = StompInvalidHeaderException.class)
     public void frozenFreeze() {
         class FrameFreeze extends Frame {
-            public FrameFreeze(CommandType command) {
+            public FrameFreeze(Command command) {
                 super(command);
             }
 
@@ -158,7 +157,7 @@ public class FrameBuilderTest {
 
         };
 
-        FrameFreeze frame = new FrameFreeze(CommandType.COMMIT);
+        FrameFreeze frame = new FrameFreeze(Command.COMMIT);
         frame.custom("test", "ok");
         frame.freezePublic();
         // double freeze for testing purposes
@@ -168,7 +167,7 @@ public class FrameBuilderTest {
 
     @Test
     public void cloneTest() throws CloneNotSupportedException {
-        Frame frame = new Frame(CommandType.SEND);
+        Frame frame = new Frame(Command.SEND);
         frame.payload("payload");
         frame.session("007");
         frame.transaction("tx-mi6");

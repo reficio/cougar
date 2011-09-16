@@ -25,7 +25,7 @@ package org.reficio.stomp.domain;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public enum AckType {
+public enum Ack {
     AUTO,
     CLIENT
 }

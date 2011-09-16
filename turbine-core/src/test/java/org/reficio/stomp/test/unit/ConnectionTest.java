@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
@@ -50,19 +50,19 @@ public class ConnectionTest {
     public void initialize() {
         connection = MockConnectionImpl.create();
         // register handlers
-        connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
+                Frame response = new Frame(Command.CONNECTED);
                 response.session(UUID.randomUUID().toString());
                 return response;
             }
         });
 
-        connection.getStub().getServer().registerHandler(CommandType.DISCONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.RECEIPT);
+                Frame response = new Frame(Command.RECEIPT);
                 response.receiptId(request.messageId());
                 return response;
             }
@@ -81,7 +81,7 @@ public class ConnectionTest {
     public void begin() {
         connection.begin("tx1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.BEGIN);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.BEGIN);
         assertNotNull(frame);
         assertEquals(frame.transaction(), "tx1");
     }
@@ -90,7 +90,7 @@ public class ConnectionTest {
     public void commit() {
         connection.commit("tx1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.COMMIT);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.COMMIT);
         assertNotNull(frame);
         assertEquals(frame.transaction(), "tx1");
     }
@@ -99,7 +99,7 @@ public class ConnectionTest {
     public void abort() {
         connection.abort("tx1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.ABORT);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.ABORT);
         assertNotNull(frame);
         assertEquals(frame.transaction(), "tx1");
     }
@@ -108,7 +108,7 @@ public class ConnectionTest {
     public void ack() {
         connection.ack("msg1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.ACK);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.ACK);
         assertNotNull(frame);
         assertEquals(frame.messageId(), "msg1");
     }
@@ -117,7 +117,7 @@ public class ConnectionTest {
     public void subscribe() {
         connection.subscribe("queue1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.SUBSCRIBE);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.SUBSCRIBE);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
     }
@@ -131,7 +131,7 @@ public class ConnectionTest {
             }
         });
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.SUBSCRIBE);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.SUBSCRIBE);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
         assertEquals(frame.subscriptionId(), "sub1");
@@ -141,7 +141,7 @@ public class ConnectionTest {
     public void subscribeWithId() {
         connection.subscribe("sub1", "queue1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.SUBSCRIBE);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.SUBSCRIBE);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
         assertEquals(frame.subscriptionId(), "sub1");
@@ -151,7 +151,7 @@ public class ConnectionTest {
     public void unsubscribe() {
         connection.unsubscribe("queue1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.UNSUBSCRIBE);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.UNSUBSCRIBE);
         assertNotNull(frame);
         assertEquals(frame.subscriptionId(), "queue1");
     }
@@ -160,7 +160,7 @@ public class ConnectionTest {
     public void unsubscribeWithId() {
         connection.unsubscribe("sub1");
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.UNSUBSCRIBE);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.UNSUBSCRIBE);
         assertNotNull(frame);
         assertEquals(frame.subscriptionId(), "sub1");
     }
@@ -173,7 +173,7 @@ public class ConnectionTest {
             }
         });
         connection.close();
-        Frame frame = connection.getServer().getLastFrameOfType(CommandType.SEND);
+        Frame frame = connection.getServer().getLastFrameOfType(Command.SEND);
         assertNotNull(frame);
         assertEquals(frame.destination(), "queue1");
     }
@@ -182,10 +182,10 @@ public class ConnectionTest {
     public void testServerRejectsEncoding() {
         MockConnectionImpl conn = MockConnectionImpl.create();
         // register handlers
-        conn.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        conn.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
+                Frame response = new Frame(Command.CONNECTED);
                 response.session(UUID.randomUUID().toString());
                 response.encoding("cp1252");
                 return response;

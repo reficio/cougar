@@ -22,7 +22,7 @@ import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.core.FrameValidator;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 
 /**
@@ -37,7 +37,7 @@ public class PreprocessorTest {
 
     @Test(expected = StompInvalidHeaderException.class)
     public void validationFails() {
-        Frame frame = new Frame(CommandType.BEGIN);
+        Frame frame = new Frame(Command.BEGIN);
         frame.transaction("tx-1");
 
         FrameDecorator decorator = new FrameDecorator() {
@@ -53,7 +53,7 @@ public class PreprocessorTest {
 
     @Test
     public void validationSucceeds() {
-        Frame frame = new Frame(CommandType.BEGIN);
+        Frame frame = new Frame(Command.BEGIN);
 
         FrameDecorator decorator = new FrameDecorator() {
             @Override

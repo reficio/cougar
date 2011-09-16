@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.HeaderType;
 import org.reficio.stomp.impl.WireFormatImpl;
@@ -49,7 +49,7 @@ public class WireFormatTest {
         String hEncoding = "UTF-8";
         String payload = "test_payload";
 
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.login(hLogin);
         frame.passcode(hPassCode);
         frame.encoding(hEncoding);
@@ -60,7 +60,7 @@ public class WireFormatTest {
         wireFormat.marshal(frame, writer);
 
         String expectedResult =
-                CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
+                Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
                 HeaderType.ENCODING.getName() + WireFormatImpl.HEADER_DELIMITER + hEncoding + WireFormatImpl.END_OF_LINE +
                 HeaderType.LOGIN.getName() + WireFormatImpl.HEADER_DELIMITER + hLogin + WireFormatImpl.END_OF_LINE +
                 HeaderType.PASS_CODE.getName() + WireFormatImpl.HEADER_DELIMITER + hPassCode + WireFormatImpl.END_OF_LINE +
@@ -77,7 +77,7 @@ public class WireFormatTest {
         String hEncoding = "UTF-8";
         String payload = "test_payload";
 
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.login(hLogin);
         frame.passcode(hPassCode);
         frame.encoding(hEncoding);
@@ -90,7 +90,7 @@ public class WireFormatTest {
         wireFormat.marshal(frame, writer);
 
         String expectedResult =
-                CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
+                Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
                 HeaderType.ENCODING.getName() + WireFormatImpl.HEADER_DELIMITER + hEncoding + WireFormatImpl.END_OF_LINE +
                 HeaderType.LOGIN.getName() + WireFormatImpl.HEADER_DELIMITER + hLogin + WireFormatImpl.END_OF_LINE +
                 HeaderType.PASS_CODE.getName() + WireFormatImpl.HEADER_DELIMITER + hPassCode + WireFormatImpl.END_OF_LINE +
@@ -108,7 +108,7 @@ public class WireFormatTest {
         String payload = "test_payload";
 
         String marshalledFrame =
-                CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
+                Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
                 HeaderType.ENCODING.getName() + WireFormatImpl.HEADER_DELIMITER + hEncoding + WireFormatImpl.END_OF_LINE +
                 HeaderType.LOGIN.getName() + WireFormatImpl.HEADER_DELIMITER + hLogin + WireFormatImpl.END_OF_LINE +
                 HeaderType.PASS_CODE.getName() + WireFormatImpl.HEADER_DELIMITER + hPassCode + WireFormatImpl.END_OF_LINE +
@@ -153,7 +153,7 @@ public class WireFormatTest {
         String payload = "test_payload";
 
         String marshalledFrame =
-                CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
+                Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE +
                 HeaderType.ENCODING.getName() + WireFormatImpl.HEADER_DELIMITER + hEncoding + WireFormatImpl.END_OF_LINE +
                 HeaderType.LOGIN.getName() + WireFormatImpl.HEADER_DELIMITER + hLogin + WireFormatImpl.END_OF_LINE +
                 HeaderType.PASS_CODE.getName() + WireFormatImpl.HEADER_DELIMITER + hPassCode + WireFormatImpl.END_OF_LINE +
@@ -169,7 +169,7 @@ public class WireFormatTest {
     @Test(expected = StompWireFormatException.class)
     public void headersCountExceeded() {
         String payload = "test_payload";
-        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+        String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
         for(int i = 0 ; i < WireFormatImpl.MAX_HEADERS + 1 ; i++) {
             marshalledFrame += "header"+i + WireFormatImpl.HEADER_DELIMITER + "header_value" + WireFormatImpl.END_OF_LINE;
         }
@@ -182,7 +182,7 @@ public class WireFormatTest {
     @Test(expected = StompWireFormatException.class)
     public void headerSplitCondition1() {
         String payload = "test_payload";
-        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+        String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
         marshalledFrame += "header" + "header_value" + WireFormatImpl.END_OF_LINE;
         marshalledFrame += WireFormatImpl.END_OF_LINE+payload+WireFormatImpl.END_OF_FRAME;
         StringReader reader = new StringReader(marshalledFrame);
@@ -193,7 +193,7 @@ public class WireFormatTest {
     @Test(expected = StompWireFormatException.class)
     public void headerSplitCondition2() {
         String payload = "test_payload";
-        String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+        String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
         marshalledFrame += WireFormatImpl.HEADER_DELIMITER+WireFormatImpl.END_OF_LINE;
         marshalledFrame += WireFormatImpl.END_OF_LINE+payload+WireFormatImpl.END_OF_FRAME;
         StringReader reader = new StringReader(marshalledFrame);
@@ -204,7 +204,7 @@ public class WireFormatTest {
     @Test
     public void headerContentLengthHeaderNumericException() {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + "ThisHeaderWillBeIgnoredDueToNumericException:)" +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -230,7 +230,7 @@ public class WireFormatTest {
        String payload = "test_payload";
        String headerPrefix = "header" + WireFormatImpl.HEADER_DELIMITER;
        String headerValue = RandomStringUtils.random(WireFormatImpl.MAX_HEADER_LENGTH - headerPrefix.length() + 1);
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += headerPrefix + headerValue + WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -243,7 +243,7 @@ public class WireFormatTest {
        String payload = "test_payload";
        String headerPrefix = "header" + WireFormatImpl.HEADER_DELIMITER;
        String headerValue = "value";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += headerPrefix + headerValue;
        // marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -262,7 +262,7 @@ public class WireFormatTest {
     @Test
     public void parsePayloadWithContentLength() throws IOException {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + (payload.length()) +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -273,7 +273,7 @@ public class WireFormatTest {
     @Test(expected = StompWireFormatException.class)
     public void parsePayloadWithContentLengthTooSmall() throws IOException {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + (payload.length()-1) +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -284,7 +284,7 @@ public class WireFormatTest {
     @Test(expected = StompIOException.class)
     public void parsePayloadWithContentLengthTooBigSpecialCase() throws IOException {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + (payload.length()+1) +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -295,7 +295,7 @@ public class WireFormatTest {
     @Test(expected = StompWireFormatException.class)
     public void parsePayloadWithContentLengthTooBig() throws IOException {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + (payload.length()+2) +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        StringReader reader = new StringReader(marshalledFrame);
@@ -306,7 +306,7 @@ public class WireFormatTest {
     @Test(expected = StompIOException.class)
     public void ioExceptionInparsePayload() throws IOException {
        String payload = "test_payload";
-       String marshalledFrame = CommandType.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
+       String marshalledFrame = Command.CONNECT.getName() + WireFormatImpl.END_OF_LINE;
        marshalledFrame += HeaderType.CONTENT_LENGTH.getName() + WireFormatImpl.HEADER_DELIMITER + (payload.length()) +WireFormatImpl.END_OF_LINE;
        marshalledFrame += WireFormatImpl.END_OF_LINE + payload + WireFormatImpl.END_OF_FRAME;
        Reader reader = new BufferedReader(new StringReader(marshalledFrame));
@@ -341,7 +341,7 @@ public class WireFormatTest {
                 WireFormatImpl.END_OF_LINE+
                 payload+WireFormatImpl.END_OF_FRAME;
 
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.login(hLogin);
         frame.passcode(hPassCode);
         frame.encoding(hEncoding);

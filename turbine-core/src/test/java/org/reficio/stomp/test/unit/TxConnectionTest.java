@@ -25,8 +25,8 @@ import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.domain.AckType;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Ack;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
@@ -62,29 +62,29 @@ public class TxConnectionTest {
         connection = new MockTxConnectionImpl();
         decorator = new EmptyDecorator();
         // register handlers
-        connection.getStub().getServer().registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
+                Frame response = new Frame(Command.CONNECTED);
                 response.session(UUID.randomUUID().toString());
                 return response;
             }
         });
 
-        connection.getStub().getServer().registerHandler(CommandType.SUBSCRIBE, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.SUBSCRIBE, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.MESSAGE);
+                Frame response = new Frame(Command.MESSAGE);
                 response.messageId(UUID.randomUUID().toString());
                 response.payload("Adelboden is cool :)");
                 return response;
             }
         });
 
-        connection.getStub().getServer().registerHandler(CommandType.DISCONNECT, new IMockMessageHandler() {
+        connection.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.RECEIPT);
+                Frame response = new Frame(Command.RECEIPT);
                 response.receiptId(request.messageId());
                 return response;
             }
@@ -112,23 +112,23 @@ public class TxConnectionTest {
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // ack
         Frame ack = frames.get(2);
-        assertEquals(CommandType.ACK, ack.getCommand());
+        assertEquals(Command.ACK, ack.getCommand());
         assertEquals(transactionId, ack.transaction());
         // commit
         Frame commit = frames.get(3);
-        assertEquals(CommandType.COMMIT, commit.getCommand());
+        assertEquals(Command.COMMIT, commit.getCommand());
         assertEquals(transactionId, commit.transaction());
         // disconnect
         Frame disconnect = frames.get(4);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
     @Test
@@ -147,24 +147,24 @@ public class TxConnectionTest {
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // ack
         Frame message = frames.get(2);
-        assertEquals(CommandType.SEND, message.getCommand());
+        assertEquals(Command.SEND, message.getCommand());
         assertEquals(transactionId, message.transaction());
         assertEquals(payload, message.payload());
         // commit
         Frame commit = frames.get(3);
-        assertEquals(CommandType.COMMIT, commit.getCommand());
+        assertEquals(Command.COMMIT, commit.getCommand());
         assertEquals(transactionId, commit.transaction());
         // disconnect
         Frame disconnect = frames.get(4);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
     @Test(expected = StompInvalidHeaderException.class)
@@ -189,19 +189,19 @@ public class TxConnectionTest {
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // commit
         Frame commit = frames.get(2);
-        assertEquals(CommandType.COMMIT, commit.getCommand());
+        assertEquals(Command.COMMIT, commit.getCommand());
         assertEquals(transactionId, commit.transaction());
         // disconnect
         Frame disconnect = frames.get(3);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
     @Test
@@ -214,19 +214,19 @@ public class TxConnectionTest {
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // commit
         Frame commit = frames.get(2);
-        assertEquals(CommandType.COMMIT, commit.getCommand());
+        assertEquals(Command.COMMIT, commit.getCommand());
         assertEquals(transactionId, commit.transaction());
         // disconnect
         Frame disconnect = frames.get(3);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
 
@@ -240,19 +240,19 @@ public class TxConnectionTest {
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // abort
         Frame abort = frames.get(2);
-        assertEquals(CommandType.ABORT, abort.getCommand());
+        assertEquals(Command.ABORT, abort.getCommand());
         assertEquals(transactionId, abort.transaction());
         // disconnect
         Frame disconnect = frames.get(3);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
     @Test
@@ -265,19 +265,19 @@ public class TxConnectionTest {
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // begin
         Frame begin = frames.get(1);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // abort
         Frame abort = frames.get(2);
-        assertEquals(CommandType.ABORT, abort.getCommand());
+        assertEquals(Command.ABORT, abort.getCommand());
         assertEquals(transactionId, abort.transaction());
         // disconnect
         Frame disconnect = frames.get(3);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
 
@@ -303,7 +303,7 @@ public class TxConnectionTest {
         connection.subscribe("r/queue/1", new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
-                frame.ack(AckType.CLIENT);
+                frame.ack(Ack.CLIENT);
             }
         });
         connection.begin();
@@ -314,22 +314,22 @@ public class TxConnectionTest {
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);
-        assertEquals(CommandType.CONNECT, connect.getCommand());
+        assertEquals(Command.CONNECT, connect.getCommand());
         // subscribe
         Frame subscribe = frames.get(1);
-        assertEquals(CommandType.SUBSCRIBE, subscribe.getCommand());
+        assertEquals(Command.SUBSCRIBE, subscribe.getCommand());
         // begin
         Frame begin = frames.get(2);
-        assertEquals(CommandType.BEGIN, begin.getCommand());
+        assertEquals(Command.BEGIN, begin.getCommand());
         assertNotNull(begin.transaction());
         String transactionId = begin.transaction();
         // abort
         Frame ack = frames.get(3);
-        assertEquals(CommandType.ACK, ack.getCommand());
+        assertEquals(Command.ACK, ack.getCommand());
         assertEquals(transactionId, ack.transaction());
         // disconnect
         Frame disconnect = frames.get(4);
-        assertEquals(CommandType.DISCONNECT, disconnect.getCommand());
+        assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
 
     @Test

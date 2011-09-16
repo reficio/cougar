@@ -6,7 +6,7 @@ import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.core.*;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
@@ -84,14 +84,14 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     // Helper connection state modifiers
     // ----------------------------------------------------------------------------------
     protected void connect() {
-        Frame frame = new Frame(CommandType.CONNECT);
+        Frame frame = new Frame(Command.CONNECT);
         frame.login(username);
         frame.passcode(password);
         frame.encoding(encoding);
         marshall(frame);
 
         Frame handshake = unmarshall();
-        if (handshake.getCommand().equals(CommandType.CONNECTED) == false) {
+        if (handshake.getCommand().equals(Command.CONNECTED) == false) {
             closeCommunicationOnError();
             throw new StompProtocolException("Expected CONNECTED command, instead received "
                     + handshake.getCommand().name());
@@ -110,7 +110,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void disconnect() {
-        Frame frame = new Frame(CommandType.DISCONNECT);
+        Frame frame = new Frame(Command.DISCONNECT);
         frame.session(sessionId);
         marshall(frame);
     }
@@ -141,12 +141,14 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     // StompAccessor methods
     // ----------------------------------------------------------------------------------
     protected Frame unmarshall() throws StompException {
-        if (log.isInfoEnabled())
+        if (log.isInfoEnabled()) {
             log.info("Receiving frame: ");
+        }
         try {
             Frame frame = wireFormat.unmarshal(reader);
-            if (log.isInfoEnabled())
+            if (log.isInfoEnabled()) {
                 log.info(frame.toString());
+            }
             return frame;
         } catch (RuntimeException ex) {
             closeCommunicationOnError();
@@ -155,8 +157,9 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void marshall(Frame frame) throws StompException {
-        if (log.isInfoEnabled())
+        if (log.isInfoEnabled()) {
             log.info("Sending frame: \n" + frame);
+        }
         try {
             wireFormat.marshal(frame, writer);
         } catch (RuntimeException ex) {

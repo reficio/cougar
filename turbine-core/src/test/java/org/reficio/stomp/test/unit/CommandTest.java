@@ -18,7 +18,7 @@
 package org.reficio.stomp.test.unit;
 
 import org.junit.Test;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 
 import static org.junit.Assert.*;
 
@@ -35,32 +35,32 @@ public class CommandTest {
 
     @Test
     public void getCommand() {
-        CommandType command = CommandType.getCommand("CONNECTED");
+        Command command = Command.getCommand("CONNECTED");
         assertNotNull(command);
     }
 
     @Test
     public void getNonExistingCommand() {
-        CommandType command = CommandType.getCommand("JAMES_BOND_007");
+        Command command = Command.getCommand("JAMES_BOND_007");
         assertNull(command);
     }
 
     @Test
     public void getNullCommand() {
-        CommandType command = CommandType.getCommand(null);
+        Command command = Command.getCommand(null);
         assertNull(command);
     }
 
     @Test
     public void getClientCommand() {
-        CommandType command = CommandType.getCommand("CONNECT");
+        Command command = Command.getCommand("CONNECT");
         assertNotNull(command);
         assertTrue(command.isClientCommand());
     }
 
     @Test
     public void getServerCommand() {
-        CommandType command = CommandType.getCommand("CONNECTED");
+        Command command = Command.getCommand("CONNECTED");
         assertNotNull(command);
         assertTrue(command.isServerCommand());
     }

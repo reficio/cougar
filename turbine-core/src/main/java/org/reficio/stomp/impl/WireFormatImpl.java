@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.reficio.stomp.StompIOException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.domain.Header;
 import org.reficio.stomp.domain.HeaderType;
@@ -93,7 +93,7 @@ public class WireFormatImpl implements StompWireFormat {
     @Override
     public Frame unmarshal(Reader reader) {
         try {
-            CommandType command = parseCommand(reader);
+            Command command = parseCommand(reader);
             Map<String, Header> headers = parseHeaders(reader);
             String payload = parsePayload(reader, parseContentLength(headers));
             Frame result = new Frame(command, headers, payload);
@@ -108,11 +108,11 @@ public class WireFormatImpl implements StompWireFormat {
         return readUntilEndMarker(input, maxLength, END_OF_LINE, errorMessage, skipLeadingEndMarkers);
     }
 
-    private CommandType parseCommand(Reader input) {
+    private Command parseCommand(Reader input) {
         String commandString = readLine(input, MAX_COMMAND_LENGTH, "Error during command parsing", true);
-        CommandType command = CommandType.getCommand(commandString.trim());
+        Command command = Command.getCommand(commandString.trim());
         if(command == null) {
-            throw new StompWireFormatException(commandString, String.format("CommandType [%s] not recognized", commandString));
+            throw new StompWireFormatException(commandString, String.format("Command [%s] not recognized", commandString));
         }
         return command;
     }

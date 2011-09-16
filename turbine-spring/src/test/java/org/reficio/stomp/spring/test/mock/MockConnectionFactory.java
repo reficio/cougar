@@ -19,7 +19,7 @@ package org.reficio.stomp.spring.test.mock;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.core.StompResource;
-import org.reficio.stomp.domain.CommandType;
+import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 import org.reficio.stomp.test.mock.MockConnectionImpl;
@@ -67,19 +67,19 @@ public class MockConnectionFactory<T extends StompResource<T>> extends StompConn
         if (server == null) {
             return;
         }
-        server.registerHandler(CommandType.CONNECT, new IMockMessageHandler() {
+        server.registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.CONNECTED);
+                Frame response = new Frame(Command.CONNECTED);
                 response.session(UUID.randomUUID().toString());
                 return response;
             }
         });
 
-        server.registerHandler(CommandType.DISCONNECT, new IMockMessageHandler() {
+        server.registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
-                Frame response = new Frame(CommandType.RECEIPT);
+                Frame response = new Frame(Command.RECEIPT);
                 response.receiptId(request.messageId());
                 return response;
             }
