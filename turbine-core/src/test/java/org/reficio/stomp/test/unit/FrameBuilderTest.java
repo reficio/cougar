@@ -49,12 +49,19 @@ public class FrameBuilderTest {
         assertNull(frame.getHeaderValue("adelboden_daenk"));
     }
 
-    @Test
-    public void custom() {
+    @Test(expected = StompInvalidHeaderException.class)
+    public void customLength() {
         Frame frame = new Frame(Command.SEND);
         frame.custom(HeaderType.CONTENT_LENGTH.getName(), "123");
         assertEquals("123", frame.contentLength());
         assertEquals("123", frame.custom(HeaderType.CONTENT_LENGTH.getName()));
+    }
+
+    @Test
+    public void custom() {
+        Frame frame = new Frame(Command.SEND);
+        frame.custom(HeaderType.TRANSACTION.getName(), "tx123");
+        assertEquals("tx123", frame.custom(HeaderType.TRANSACTION.getName()));
     }
 
     @Test

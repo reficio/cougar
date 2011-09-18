@@ -54,6 +54,7 @@ public class StompConnectionFactory<T extends StompResource<T>> implements Conne
             if (timeout != null) conn.timeout(timeout);
             if (username != null) conn.username(username);
             if (password != null) conn.password(password);
+            conn.init();
             return conn;
         } catch (InstantiationException e) {
             throw new StompConnectionException("Error during the creation of a new connection", e);
