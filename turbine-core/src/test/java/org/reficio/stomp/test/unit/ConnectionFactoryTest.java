@@ -48,6 +48,7 @@ public class ConnectionFactoryTest {
         factory.setPort(61613);
         factory.setUsername("system");
         factory.setPassword("manager");
+        factory.setTimeout(1000);
         Connection conn = factory.createConnection();
 
         assertEquals(factory.getEncoding(), conn.getEncoding());
@@ -55,6 +56,13 @@ public class ConnectionFactoryTest {
         assertEquals(factory.getPort(), conn.getPort());
         assertEquals(factory.getUsername(), conn.getUsername());
         assertEquals(factory.getPassword(), conn.getPassword());
+        assertEquals(factory.getTimeout(), conn.getTimeout());
+    }
+
+    @Test
+    public void createConnectionDefault() {
+        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(MockFactoryConnectionImpl.class);
+        Connection conn = factory.createConnection();
     }
 
     @Test(expected = StompException.class)
