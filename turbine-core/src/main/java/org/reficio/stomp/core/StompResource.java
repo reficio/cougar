@@ -31,6 +31,7 @@ public interface StompResource<T> {
 
     void init();
 	void close() throws StompException;
+    boolean isInitialized();
 
     T hostname(String hostname);
     T port(int port);
@@ -46,6 +47,6 @@ public interface StompResource<T> {
 	String getSessionId();
     String getEncoding();
     int getTimeout();
-    boolean isInitialized();
+
 
 }

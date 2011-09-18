@@ -23,7 +23,9 @@ import org.reficio.stomp.domain.*;
 
 import java.util.*;
 
+import static org.reficio.stomp.domain.HeaderType.*;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -38,32 +40,32 @@ public class FrameBuilder implements Cloneable {
     protected String command;
     protected Map<String, Header> headers;
     protected String payload;
-    private boolean validate;
+    private boolean headersValidationEnabled;
     private Set<String> frozenHeaders;
 
     protected FrameBuilder(Command command, Map<String, Header> headers, String payload) {
         this.command = checkNotNull(command, "command cannot be null").getName();
         this.headers = checkNotNull(headers, "headers cannot be null");
         this.payload = checkNotNull(payload, "payload cannot be null");
-        this.validate = true;
+        this.headersValidationEnabled = true;
     }
 
     public FrameBuilder(Command command) {
         this(command, true);
     }
 
-    public FrameBuilder(Command command, boolean validationEnabled) {
-        this(checkNotNull(command, "command cannot be null").getName(), validationEnabled);
+    public FrameBuilder(Command command, boolean headersValidationEnabled) {
+        this(checkNotNull(command, "command cannot be null").getName(), headersValidationEnabled);
     }
 
     public FrameBuilder(String commandName) {
         this(commandName, true);
     }
 
-    public FrameBuilder(String commandName, boolean validationEnabled) {
+    public FrameBuilder(String commandName, boolean headersValidationEnabled) {
         this.command = checkNotNull(commandName, "commandName cannot be null");
         this.headers = new TreeMap<String, Header>();
-        this.validate = validationEnabled;
+        this.headersValidationEnabled = headersValidationEnabled;
     }
 
     public Command getCommand() {
@@ -77,21 +79,13 @@ public class FrameBuilder implements Cloneable {
     // ----------------------------------------------------------------------------------
     // Header mutators
     // ----------------------------------------------------------------------------------
-    private void validate(HeaderType type) {
-        if (isValidationEnabled()) {
-            if (type.isAllowed((Frame) this) == false) {
-                throw new StompInvalidHeaderException(String.format("Header [%s] is not allowed in frame [%s]", type.name(), command));
-            }
-        }
-    }
-
-    protected void addHeaderByType(HeaderType type, String value) {
+    private void addHeaderByType(HeaderType type, String value) {
         checkNotNull(type, "type cannot be null");
-        validate(type);
+        isHeaderAllowed(type);
         addHeaderByName(type.getName(), value);
     }
 
-    protected void addHeaderByName(String name, String value) {
+    private void addHeaderByName(String name, String value) {
         checkNotNull(name, "name cannot be null");
         if (value == null) {
             this.headers.remove(name);
@@ -108,12 +102,28 @@ public class FrameBuilder implements Cloneable {
     // ----------------------------------------------------------------------------------
     // Validation handlers
     // ----------------------------------------------------------------------------------
-    private boolean isValidationEnabled() {
-        return this.validate;
+    private boolean isHeadersValidationEnabled() {
+        return this.headersValidationEnabled;
+    }
+
+    private void isHeaderAllowed(HeaderType type) {
+        if (isHeadersValidationEnabled()) {
+            if (type.isAllowed((Frame) this) == false) {
+                throw new StompInvalidHeaderException(String.format("Header [%s] is not allowed in frame [%s]", type.name(), command));
+            }
+        }
+    }
+
+    private void validateEnumValue(Class enumClass, String value) throws StompInvalidHeaderException {
+        try {
+            Enum.valueOf(enumClass, value);
+        } catch (IllegalArgumentException ex) {
+            throw new StompInvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
+        }
     }
 
     // ----------------------------------------------------------------------------------
-    // Freeze handlers
+    // Freeze handlers - if the header is frozen there is no possibility to change any properties
     // ----------------------------------------------------------------------------------
     public void freeze() {
         if (isFrozen() == false) {
@@ -123,6 +133,17 @@ public class FrameBuilder implements Cloneable {
 
     public boolean isFrozen() {
         return this.frozenHeaders != null;
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Clone handlers
+    // ----------------------------------------------------------------------------------
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        FrameBuilder clone = (FrameBuilder) super.clone();
+        clone.frozenHeaders = null;
+        clone.headers = new TreeMap<String, Header>(headers);
+        return clone;
     }
 
     // ----------------------------------------------------------------------------------
@@ -156,7 +177,7 @@ public class FrameBuilder implements Cloneable {
     }
 
     // ----------------------------------------------------------------------------------
-    // Tweaked builder setters and getters
+    // Tweaked builder setters and getters; builder pattern -> invocations can be chained
     // ----------------------------------------------------------------------------------
     public FrameBuilder payload(String payload) {
         return payload(payload, false);
@@ -165,8 +186,7 @@ public class FrameBuilder implements Cloneable {
     public FrameBuilder payload(String payload, boolean disableContentLenghtHeader) {
         this.payload = payload;
         if (disableContentLenghtHeader == false) {
-            Command comm = getCommand();
-            if (comm.equals(Command.SEND) || comm.equals(Command.MESSAGE) || comm.equals(Command.ERROR)) {
+            if (CONTENT_LENGTH.isAllowed((Frame) this)) {
                 if (payload != null) {
                     contentLength(Integer.valueOf(payload.length()).toString());
                 } else {
@@ -182,67 +202,67 @@ public class FrameBuilder implements Cloneable {
     }
 
     public FrameBuilder login(String value) {
-        addHeaderByType(HeaderType.LOGIN, value);
+        addHeaderByType(LOGIN, value);
         return this;
     }
 
     public String login() {
-        return getHeaderValue(HeaderType.LOGIN);
+        return getHeaderValue(LOGIN);
     }
 
     public FrameBuilder encoding(String value) {
-        addHeaderByType(HeaderType.ENCODING, value);
+        addHeaderByType(ENCODING, value);
         return this;
     }
 
     public String encoding() {
-        return getHeaderValue(HeaderType.ENCODING);
+        return getHeaderValue(ENCODING);
     }
 
     public FrameBuilder subscription(String value) {
-        addHeaderByType(HeaderType.SUBSCRIPTION, value);
+        addHeaderByType(SUBSCRIPTION, value);
         return this;
     }
 
     public String subscription() {
-        return getHeaderValue(HeaderType.SUBSCRIPTION);
+        return getHeaderValue(SUBSCRIPTION);
     }
 
 
     public FrameBuilder passcode(String value) {
-        addHeaderByType(HeaderType.PASS_CODE, value);
+        addHeaderByType(PASS_CODE, value);
         return this;
     }
 
     public String passcode() {
-        return getHeaderValue(HeaderType.PASS_CODE);
+        return getHeaderValue(PASS_CODE);
     }
 
     public FrameBuilder session(String value) {
-        addHeaderByType(HeaderType.SESSION, value);
+        addHeaderByType(SESSION, value);
         return this;
     }
 
     public String session() {
-        return getHeaderValue(HeaderType.SESSION);
+        return getHeaderValue(SESSION);
     }
 
     public FrameBuilder destination(String value) {
-        addHeaderByType(HeaderType.DESTINATION, value);
+        addHeaderByType(DESTINATION, value);
         return this;
     }
 
     public String destination() {
-        return getHeaderValue(HeaderType.DESTINATION);
+        return getHeaderValue(DESTINATION);
     }
 
     public FrameBuilder ack(Ack ack) {
-        addHeaderByType(HeaderType.ACK, ack.name().toLowerCase());
+        addHeaderByType(ACK, ack.name().toLowerCase());
         return this;
     }
 
     public Ack ack() {
-        String value = getHeaderValue(HeaderType.ACK);
+        String value = getHeaderValue(ACK);
         if (StringUtils.isNotBlank(value)) {
             validateEnumValue(Ack.class, value.toUpperCase());
             return Enum.valueOf(Ack.class, value.toUpperCase());
@@ -252,85 +272,87 @@ public class FrameBuilder implements Cloneable {
     }
 
     public FrameBuilder transaction(String value) {
-        addHeaderByType(HeaderType.TRANSACTION, value);
+        addHeaderByType(TRANSACTION, value);
         return this;
     }
 
     public String transaction() {
-        return getHeaderValue(HeaderType.TRANSACTION);
+        return getHeaderValue(TRANSACTION);
     }
 
     public FrameBuilder receipt(String value) {
-        addHeaderByType(HeaderType.RECEIPT, value);
+        addHeaderByType(RECEIPT, value);
         return this;
     }
 
     public String receipt() {
-        return getHeaderValue(HeaderType.RECEIPT);
+        return getHeaderValue(RECEIPT);
     }
 
     public FrameBuilder errorMessageContent(String value) {
-        addHeaderByType(HeaderType.ERROR_MESSAGE_CONTENT, value);
+        addHeaderByType(ERROR_MESSAGE_CONTENT, value);
         return this;
     }
 
     public String errorMessageContent() {
-        return getHeaderValue(HeaderType.ERROR_MESSAGE_CONTENT);
+        return getHeaderValue(ERROR_MESSAGE_CONTENT);
     }
 
     private FrameBuilder contentLength(String value) {
-        addHeaderByType(HeaderType.CONTENT_LENGTH, value);
+        addHeaderByType(CONTENT_LENGTH, value);
         return this;
     }
 
     public String contentLength() {
-        return getHeaderValue(HeaderType.CONTENT_LENGTH);
+        return getHeaderValue(CONTENT_LENGTH);
     }
 
     public FrameBuilder subscriptionId(String value) {
-        addHeaderByType(HeaderType.SUBSCRIPTION_ID, value);
+        addHeaderByType(SUBSCRIPTION_ID, value);
         return this;
     }
 
     public String receiptId() {
-        return getHeaderValue(HeaderType.RECEIPT_ID);
+        return getHeaderValue(RECEIPT_ID);
     }
 
     public FrameBuilder receiptId(String value) {
-        addHeaderByType(HeaderType.RECEIPT_ID, value);
+        addHeaderByType(RECEIPT_ID, value);
         return this;
     }
 
     public String messageId() {
-        return getHeaderValue(HeaderType.MESSAGE_ID);
+        return getHeaderValue(MESSAGE_ID);
     }
 
     public FrameBuilder messageId(String value) {
-        addHeaderByType(HeaderType.MESSAGE_ID, value);
+        addHeaderByType(MESSAGE_ID, value);
         return this;
     }
 
     public String subscriptionId() {
-        return getHeaderValue(HeaderType.SUBSCRIPTION_ID);
+        return getHeaderValue(SUBSCRIPTION_ID);
     }
 
     public FrameBuilder selector(String value) {
-        addHeaderByType(HeaderType.SELECTOR, value);
+        addHeaderByType(SELECTOR, value);
         return this;
     }
 
     public String selector() {
-        return getHeaderValue(HeaderType.SELECTOR);
+        return getHeaderValue(SELECTOR);
     }
 
     public FrameBuilder custom(String name, String value) {
-        HeaderType type = HeaderType.getInstance(name);
+        HeaderType type = getInstance(name);
         if (type != null) {
-            // validate enum value
-            if (type.equals(HeaderType.ACK)) {
+            // isHeaderAllowed enum value
+            if (type.equals(ACK)) {
                 validateEnumValue(Ack.class, value);
+            } else if (type.equals(CONTENT_LENGTH)) {
+                throw new StompInvalidHeaderException(String.format("Header [%s] must not be set manually. It is set automatically while setting the payload.", CONTENT_LENGTH.name()));
             }
-            validate(type);
+            isHeaderAllowed(type);
             addHeaderByType(type, value);
         } else {
             addHeaderByName(name, value);
@@ -340,21 +362,6 @@ public class FrameBuilder implements Cloneable {
 
     public String custom(String name) {
         return getHeaderValue(name);
-    }
-
-    private void validateEnumValue(Class enumClass, String value) throws StompInvalidHeaderException {
-        try {
-            Enum.valueOf(enumClass, value);
-        } catch (IllegalArgumentException ex) {
-            throw new StompInvalidHeaderException(String.format("Value [%s] invalid for enum type [%s]", value, enumClass));
-        }
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        FrameBuilder clone = (FrameBuilder) super.clone();
-        clone.frozenHeaders = null;
-        clone.headers = new TreeMap<String, Header>(headers);
-        return clone;
     }
 
 }

@@ -55,11 +55,10 @@ public class Frame extends FrameBuilder implements Cloneable {
         return command.equals(Command.ERROR.getName());
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-
-
 
     @Override
     public String toString() {

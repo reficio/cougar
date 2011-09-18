@@ -63,6 +63,10 @@ public class WireFormatImpl implements StompWireFormat {
 		super();
 	}
 
+    private String toWireFormat(Header header) {
+		return String.format("%s:%s", header.getName(), header.getValue());
+	}
+
     @Override
     public void marshal(Frame frame, Writer output) {
         StringBuilder builder = new StringBuilder();
@@ -71,7 +75,7 @@ public class WireFormatImpl implements StompWireFormat {
         builder.append(END_OF_LINE);
 		// headers - each followed by new line
         for(Header header : frame.getHeaders()) {
-			builder.append(header.toWireFormat());
+			builder.append(toWireFormat(header));
             builder.append(END_OF_LINE);
 		}
         // end of headers marker

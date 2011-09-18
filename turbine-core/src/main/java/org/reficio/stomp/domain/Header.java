@@ -56,8 +56,4 @@ public class Header {
 		return String.format("[%s]=[%s]", name, value);
 	}
 
-    public String toWireFormat() {
-		return String.format("%s:%s", name, value);
-	}
-
 }

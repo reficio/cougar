@@ -1,3 +1,19 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.reficio.stomp.impl.stub;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,15 +39,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.reficio.stomp.core.StompResourceState.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dipesh
- * Date: 13/09/11
- * Time: 1:18 PM
- * To change this template use File | Settings | File Templates.
+ * User: Tom Bujok (tom.bujok@reficio.org)
+ * Date: 2010-11-22
+ * Time: 7:54 PM
+ * <p/>
+ * Reficio (TM) - Reestablish your software!
+ * http://www.reficio.org
  */
 public class ClientStubImpl<T extends StompResource> implements StompAccessor {
 
-private static final transient Logger log = LoggerFactory.getLogger(ClientStubImpl.class);
+    private static final transient Logger log = LoggerFactory.getLogger(ClientStubImpl.class);
 
     // ----------------------------------------------------------------------------------
     // required properties pre-initialized with default values
@@ -61,7 +78,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
 
 
     // ----------------------------------------------------------------------------------
-    // StompResource methods
+    // Constructor - only for internal usage
     // ----------------------------------------------------------------------------------
     protected ClientStubImpl() {
         setState(NEW);
@@ -70,7 +87,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     // ----------------------------------------------------------------------------------
-    // Factory methods - dependencies injection - may be overridden by subclasses
+    // Factory methods - dependencies injection - may be overridden
     // ----------------------------------------------------------------------------------
     protected StompWireFormat createWireFormat() {
         return new WireFormatImpl();
@@ -81,7 +98,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     // ----------------------------------------------------------------------------------
-    // Helper connection state modifiers
+    // Helper methods -> connection state modifiers
     // ----------------------------------------------------------------------------------
     protected void connect() {
         Frame frame = new Frame(Command.CONNECT);
@@ -96,7 +113,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
             throw new StompProtocolException("Expected CONNECTED command, instead received "
                     + handshake.getCommand().name());
         }
-        if(StringUtils.isNotBlank(handshake.encoding()) && handshake.encoding().equals(frame.encoding()) == false) {
+        if (StringUtils.isNotBlank(handshake.encoding()) && handshake.encoding().equals(frame.encoding()) == false) {
             closeCommunicationOnError();
             throw new StompEncodingException("Server cannot handle requested encoding and switched to [" + handshake.encoding() + "] aborting!"
                     + handshake.getCommand().name());
@@ -105,7 +122,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         if (session != null) {
             setSessionId(session.getValue());
         } else {
-            log.warn("Server has not returned session id");
+            log.warn("Server has not returned a session id");
         }
     }
 
@@ -119,9 +136,8 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     // StompResource methods
     // ----------------------------------------------------------------------------------
     public void init() {
-        // due to default values validation of parameters is not required
-        log.info(String.format("Initializing connection=[%s]", this));
         assertNew();
+        log.info(String.format("Initializing connection=[%s]", this));
         initializeCommunication(timeout);
         setState(COMMUNICATION_INITIALIZED);
         connect();
@@ -137,8 +153,27 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         setState(CLOSED);
     }
 
+    public boolean isInitialized() {
+        return this.operational;
+    }
+
     // ----------------------------------------------------------------------------------
     // StompAccessor methods
+    // ----------------------------------------------------------------------------------
+    @Override
+    public Frame receive() throws StompException {
+        assertOperational();
+        return unmarshall();
+    }
+
+    @Override
+    public void send(Frame frame) throws StompException {
+        assertOperational();
+        marshall(checkNotNull(frame));
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Helper methods -> frame transmission
     // ----------------------------------------------------------------------------------
     protected Frame unmarshall() throws StompException {
         if (log.isInfoEnabled()) {
@@ -168,24 +203,8 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
         }
     }
 
-    @Override
-    public Frame receive() throws StompException {
-        assertOperational();
-        return unmarshall();
-    }
-
-    @Override
-    public void send(Frame frame) throws StompException {
-        assertOperational();
-        marshall(checkNotNull(frame));
-    }
-
-    public boolean isInitialized() {
-        return this.operational;
-    }
-
     // ----------------------------------------------------------------------------------
-    // Helper methods - connection state verification
+    // Helper methods -> connection state verification
     // ----------------------------------------------------------------------------------
     protected void assertOperational() {
         if (isInitialized() == false) {
@@ -203,8 +222,14 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     // Communication and socket handlers
     // ----------------------------------------------------------------------------------
     protected void initializeCommunication(int timeout) {
-        initializeSocket(timeout);
-        initializeStreams(timeout);
+        try {
+            initializeSocket(timeout);
+            initializeStreams(timeout);
+        } catch (RuntimeException ex) {
+            // higher level error handler
+            closeCommunicationOnError();
+            throw ex;
+        }
     }
 
     protected void initializeSocket(int timeout) {
@@ -271,6 +296,7 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     protected void setState(StompResourceState state) {
+        log.info(String.format("Setting connection state to [%s]", state.name()));
         this.state = state;
         setOperational(state.equals(OPERATIONAL));
     }
@@ -280,46 +306,46 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     }
 
     // ----------------------------------------------------------------------------------
-    // Factory methods - only way to instantiate this class - parameters VALIDATED
+    // Builder methods - parameters VALIDATED
     // ----------------------------------------------------------------------------------
     public T hostname(String hostname) {
         assertNew();
         setHostname(hostname);
-        return (T)this;
+        return (T) this;
     }
 
     public T port(int port) {
         assertNew();
         setPort(port);
-        return (T)this;
+        return (T) this;
     }
 
     public T username(String username) {
         assertNew();
         setUsername(username);
-        return (T)this;
+        return (T) this;
     }
 
     public T password(String password) {
         assertNew();
         setPassword(password);
-        return (T)this;
+        return (T) this;
     }
 
     public T encoding(String encoding) {
         assertNew();
         setEncoding(encoding);
-        return (T)this;
+        return (T) this;
     }
 
     public T timeout(int timeout) {
         assertNew();
         setTimeout(timeout);
-        return (T)this;
+        return (T) this;
     }
 
     // ----------------------------------------------------------------------------------
-    // Options getters and setters - parameters NOT validated (setters for internal usage)
+    // Getters and setters - setters are only for internal usage - parameters VALIDATED
     // ----------------------------------------------------------------------------------
     protected void setHostname(String hostname) {
         this.hostname = checkNotNull(hostname, "hostname cannot be null");
@@ -360,7 +386,6 @@ private static final transient Logger log = LoggerFactory.getLogger(ClientStubIm
     protected void setSessionId(String sessionId) {
         this.sessionId = checkNotNull(sessionId, "sessionId cannot be null");
     }
-
 
     public String getSessionId() {
         return sessionId;

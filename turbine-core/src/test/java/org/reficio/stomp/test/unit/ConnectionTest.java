@@ -122,6 +122,20 @@ public class ConnectionTest {
         assertEquals(frame.destination(), "queue1");
     }
 
+     @Test
+    public void subscribeWithoutIdDecorator() {
+        connection.subscribe("queue1", new FrameDecorator() {
+            @Override
+            public void decorateFrame(Frame frame) {
+
+            }
+        });
+        connection.close();
+        Frame frame = connection.getServer().getLastFrameOfType(Command.SUBSCRIBE);
+        assertNotNull(frame);
+        assertEquals(frame.destination(), "queue1");
+    }
+
     @Test
     public void subscribeWithIdInDecorator() {
         connection.subscribe("queue1", new FrameDecorator() {

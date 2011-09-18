@@ -311,7 +311,7 @@
         </profile>
 
         <profile>
-            <id>licence</id>
+            <id>license</id>
             <build>
                 <plugins>
                     <plugin>

@@ -31,76 +31,85 @@ import org.reficio.stomp.core.StompResource;
  */
 public class StompConnectionFactory<T extends StompResource<T>> implements ConnectionFactory<T> {
 
-	protected String hostname;
-	protected int port;	
-	protected String username;
-	protected String password;
-	protected String encoding;
+    protected String hostname;
+    protected Integer port;
+    protected String encoding;
+    protected Integer timeout;
+    protected String username;
+    protected String password;
 
-	protected final Class clazz;
-	
-	public StompConnectionFactory(Class<? extends T> clazz) {
-		this.clazz = clazz;
-	}
+    protected final Class clazz;
 
-	@Override
-	public T createConnection() {
+    public StompConnectionFactory(Class<? extends T> clazz) {
+        this.clazz = clazz;
+    }
+
+    @Override
+    public T createConnection() {
         try {
-            T connection = (T)clazz.newInstance();
-            connection.hostname(hostname)
-                    .port(port)
-                    .username(username)
-                    .password(password)
-                    .encoding(encoding)
-                    .init();
-            return connection;
+            T conn = (T) clazz.newInstance();
+            if (hostname != null) conn.hostname(hostname);
+            if (port != null) conn.port(port);
+            if (encoding != null) conn.encoding(encoding);
+            if (timeout != null) conn.timeout(timeout);
+            if (username != null) conn.username(username);
+            if (password != null) conn.password(password);
+            return conn;
         } catch (InstantiationException e) {
             throw new StompConnectionException("Error during the creation of a new connection", e);
         } catch (IllegalAccessException e) {
             throw new StompConnectionException("Error during the creation of a new connection", e);
         }
-	}
+    }
 
-	public String getEncoding() {
-		return encoding;
-	}
+    public String getEncoding() {
+        return encoding;
+    }
 
-	public String getHostname() {
-		return hostname;
-	}
+    public String getHostname() {
+        return hostname;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public int getPort() {
-		return port;
-	}
-	
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-	}
-	
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public int getTimeout() {
+        return timeout;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
-	public void setPort(int port) {
-		this.port = port;
-	}
-	
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
 }
 
 

@@ -28,57 +28,58 @@ import static org.reficio.stomp.domain.Command.*;
  * http://www.reficio.org
  */
 public enum HeaderType {
+
     ENCODING("encoding") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == CONNECT || command == CONNECTED;
         }
     },
-	LOGIN("login") {
+    LOGIN("login") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == CONNECT;
         }
     },
-	PASS_CODE("passcode") {
+    PASS_CODE("passcode") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == CONNECT;
         }
     },
-	SESSION("session") {
+    SESSION("session") {
         public boolean isAllowed(Frame frame) {
             // documentation says that it is not used yet...
             return true;
         }
     },
-	DESTINATION("destination") {
+    DESTINATION("destination") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == SEND || command == SUBSCRIBE ||
-                   command == Command.MESSAGE ||
-                   (command == UNSUBSCRIBE && frame.subscriptionId() == null);
+                    command == Command.MESSAGE ||
+                    (command == UNSUBSCRIBE && frame.subscriptionId() == null);
         }
     },
-	ACK("ack") {
+    ACK("ack") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == SUBSCRIBE;
         }
     },
-	TRANSACTION("transaction") {
+    TRANSACTION("transaction") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == SEND || command == BEGIN ||
-                   command == COMMIT || command == ABORT || command == Command.ACK;
+                    command == COMMIT || command == ABORT || command == Command.ACK;
         }
     },
-	RECEIPT("receipt") {
+    RECEIPT("receipt") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == SEND || command == SUBSCRIBE ||
-                   command == UNSUBSCRIBE || command == Command.MESSAGE || command == BEGIN ||
-                   command == COMMIT || command == ABORT || command == Command.ACK;
+                    command == UNSUBSCRIBE || command == Command.MESSAGE || command == BEGIN ||
+                    command == COMMIT || command == ABORT || command == Command.ACK;
         }
     },
     RECEIPT_ID("receipt-id") {
@@ -87,7 +88,7 @@ public enum HeaderType {
             return command == Command.RECEIPT;
         }
     },
-	ERROR_MESSAGE_CONTENT("message") {
+    ERROR_MESSAGE_CONTENT("message") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == ERROR;
@@ -99,17 +100,17 @@ public enum HeaderType {
             return command == Command.MESSAGE || command == Command.ACK;
         }
     },
-	CONTENT_LENGTH("content-length") {
+    CONTENT_LENGTH("content-length") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == Command.MESSAGE || command == SEND || command == ERROR;
         }
     },
-	SUBSCRIPTION_ID("id") {
+    SUBSCRIPTION_ID("id") {
         public boolean isAllowed(Frame frame) {
             Command command = frame.getCommand();
             return command == SUBSCRIBE ||
-                  (command == UNSUBSCRIBE && frame.destination() == null);
+                    (command == UNSUBSCRIBE && frame.destination() == null);
         }
     },
     SELECTOR("selector") {
@@ -127,23 +128,23 @@ public enum HeaderType {
 
     public abstract boolean isAllowed(Frame frame);
 
-	private final String name;
-	
-	private HeaderType(String name) {
-		this.name = name;
-	}
+    private final String name;
 
-	public String getName() {
-		return name;
-	}
+    private HeaderType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public static HeaderType getInstance(String headerName) {
-        for(HeaderType type : HeaderType.values()) {
-            if(type.getName().equals(headerName)) {
+        for (HeaderType type : HeaderType.values()) {
+            if (type.getName().equals(headerName)) {
                 return type;
             }
         }
         return null;
     }
-	
+
 }
