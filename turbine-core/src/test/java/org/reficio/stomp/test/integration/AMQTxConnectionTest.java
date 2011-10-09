@@ -18,13 +18,20 @@
 package org.reficio.stomp.test.integration;
 
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.*;
+import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.ConnectionImpl;
 import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.impl.TransactionalConnectionImpl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -63,19 +70,44 @@ public class AMQTxConnectionTest {
         broker.getAdminView().removeQueue(destinationName);
     }
 
-    @Test
-    public void connect() {
+    private StompConnectionFactory<TransactionalConnection> getConnectionFactory() {
         StompConnectionFactory<TransactionalConnection> factory = new StompConnectionFactory<TransactionalConnection>(TransactionalConnectionImpl.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
         factory.setUsername("system");
         factory.setPassword("manager");
+        return factory;
+    }
 
-        TransactionalConnection conn = factory.createConnection();
+    @Test
+    public void connect() {
+        TransactionalConnection conn = getConnectionFactory().createConnection();
         assertTrue(conn.isInitialized());
         conn.close();
         assertFalse(conn.isInitialized());
+    }
+
+    @Test
+    public void sendRollback() throws Exception {
+        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+
+        final int NUMBER_OF_MSGS = 100;
+        TransactionalConnection connSender = getConnectionFactory().createConnection();
+        connSender.begin();
+        for (int i = 0; i < NUMBER_OF_MSGS; i++)
+            connSender.send(stompQueuePrefix + destinationName, new FrameDecorator() {
+                @Override
+                public void decorateFrame(Frame frame) {
+                    frame.payload(System.currentTimeMillis() + "");
+                }
+            });
+        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+
+        connSender.rollback();
+        connSender.close();
+
+        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
     }
 
 }

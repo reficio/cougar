@@ -19,6 +19,7 @@ package org.reficio.stomp.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.reficio.stomp.StompIOException;
+import org.reficio.stomp.StompSocketTimeoutException;
 import org.reficio.stomp.StompWireFormatException;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -202,6 +204,8 @@ public class WireFormatImpl implements StompWireFormat {
                }
            }
            return output.toString();
+       } catch(SocketTimeoutException ex) {
+           throw new StompSocketTimeoutException(ex);
        } catch(IOException ex) {
            throw new StompIOException(errorMessage, ex);
        }

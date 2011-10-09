@@ -18,6 +18,7 @@
 package org.reficio.stomp.impl;
 
 import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.core.StompResource;
 import org.reficio.stomp.impl.stub.ClientStubImpl;
 
 /**

@@ -257,7 +257,7 @@ public class FrameBuilder implements Cloneable {
     }
 
     public FrameBuilder ack(Ack ack) {
-        addHeaderByType(ACK, ack.name().toLowerCase());
+        addHeaderByType(ACK, ack.name().toLowerCase().replace("_","-"));
         return this;
     }
 

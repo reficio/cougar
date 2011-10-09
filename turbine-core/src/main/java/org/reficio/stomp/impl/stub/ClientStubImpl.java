@@ -17,10 +17,7 @@
 package org.reficio.stomp.impl.stub;
 
 import org.apache.commons.lang.StringUtils;
-import org.reficio.stomp.StompConnectionException;
-import org.reficio.stomp.StompEncodingException;
-import org.reficio.stomp.StompException;
-import org.reficio.stomp.StompProtocolException;
+import org.reficio.stomp.*;
 import org.reficio.stomp.core.*;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
@@ -33,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -76,6 +74,8 @@ public class ClientStubImpl<T extends StompResource> implements StompAccessor {
     public static final int DEFAULT_PORT = 61613;
     public static final int DEFAULT_TIMEOUT_IN_MILLIS = 1000;
 
+    public static final int INDEFINITE_RECEPTION_TIMEOUT = 0;
+    public static final int NOWAIT_RECEPTION_TIMEOUT = 10;
 
     // ----------------------------------------------------------------------------------
     // Constructor - only for internal usage
@@ -157,13 +157,41 @@ public class ClientStubImpl<T extends StompResource> implements StompAccessor {
         return this.operational;
     }
 
+
+
+    private void setReceptionTimeout(int timeout) {
+        try {
+            this.socket.setSoTimeout(timeout);
+        } catch (SocketException ex) {
+            closeCommunicationOnError();
+            throw new StompIOException("Error error in the underlying IO protocol", ex);
+        }
+    }
+
     // ----------------------------------------------------------------------------------
     // StompAccessor methods
     // ----------------------------------------------------------------------------------
     @Override
     public Frame receive() throws StompException {
+        setReceptionTimeout(INDEFINITE_RECEPTION_TIMEOUT);
         assertOperational();
         return unmarshall();
+    }
+
+    @Override
+    public Frame receive(int timeout) throws StompException {
+        setReceptionTimeout(timeout);
+        assertOperational();
+        try {
+            return unmarshall();
+        } catch(StompSocketTimeoutException ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public Frame receiveNoWait() throws StompException {
+        return receive(NOWAIT_RECEPTION_TIMEOUT);
     }
 
     @Override
@@ -185,6 +213,8 @@ public class ClientStubImpl<T extends StompResource> implements StompAccessor {
                 log.info(frame.toString());
             }
             return frame;
+        } catch (StompSocketTimeoutException ex) {
+            throw ex;
         } catch (RuntimeException ex) {
             closeCommunicationOnError();
             throw ex;

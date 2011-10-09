@@ -33,5 +33,9 @@ public interface StompAccessor {
 	void send(Frame frame) throws StompException;
 	
 	Frame receive() throws StompException;
+
+    Frame receive(int timeout) throws StompException;
+
+    Frame receiveNoWait() throws StompException;
 	
 }

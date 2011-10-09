@@ -27,5 +27,6 @@ package org.reficio.stomp.domain;
  */
 public enum Ack {
     AUTO,
-    CLIENT
+    CLIENT,
+    CLIENT_INDIVIDUAL
 }

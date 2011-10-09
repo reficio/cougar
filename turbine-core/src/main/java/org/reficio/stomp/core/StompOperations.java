@@ -46,6 +46,10 @@ public interface StompOperations {
 
     Frame receive() throws StompException;
 
+    Frame receive(int timeout) throws StompException;
+
+    Frame receiveNoWait() throws StompException;
+
     void ack(String messageId, FrameDecorator frameDecorator) throws StompException;
 
     void ack(String messageId) throws StompException;
