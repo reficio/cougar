@@ -29,7 +29,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface TransactionalConnection extends StompResource<TransactionalConnection>, StompOperations {
+public interface TransactionalConnection extends StompResource, StompOperations {
 
     void begin() throws StompException;
 

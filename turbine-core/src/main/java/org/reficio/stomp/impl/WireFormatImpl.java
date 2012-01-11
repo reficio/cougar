@@ -44,7 +44,7 @@ import java.util.Map;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class WireFormatImpl implements StompWireFormat {
+class WireFormatImpl implements StompWireFormat {
 
     private static final transient Logger log = LoggerFactory.getLogger(WireFormatImpl.class);
 

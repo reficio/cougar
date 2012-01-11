@@ -29,7 +29,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class StompConnectionFactory<T extends StompResource<T>> implements ConnectionFactory<T> {
+public class StompConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
 
     protected String hostname;
     protected Integer port;
@@ -46,21 +46,22 @@ public class StompConnectionFactory<T extends StompResource<T>> implements Conne
 
     @Override
     public T createConnection() {
-        try {
-            T conn = (T) clazz.newInstance();
-            if (hostname != null) conn.hostname(hostname);
-            if (port != null) conn.port(port);
-            if (encoding != null) conn.encoding(encoding);
-            if (timeout != null) conn.timeout(timeout);
-            if (username != null) conn.username(username);
-            if (password != null) conn.password(password);
-            conn.init();
-            return conn;
-        } catch (InstantiationException e) {
-            throw new StompConnectionException("Error during the creation of a new connection", e);
-        } catch (IllegalAccessException e) {
-            throw new StompConnectionException("Error during the creation of a new connection", e);
-        }
+//        try {
+//            T conn = (T) clazz.newInstance();
+//            if (hostname != null) conn.hostname(hostname);
+//            if (port != null) conn.port(port);
+//            if (encoding != null) conn.encoding(encoding);
+//            if (timeout != null) conn.timeout(timeout);
+//            if (username != null) conn.username(username);
+//            if (password != null) conn.password(password);
+//            conn.init();
+//            return conn;
+//        } catch (InstantiationException e) {
+//            throw new StompConnectionException("Error during the creation of a new connection", e);
+//        } catch (IllegalAccessException e) {
+//            throw new StompConnectionException("Error during the creation of a new connection", e);
+//        }
+        return null;
     }
 
     public String getEncoding() {

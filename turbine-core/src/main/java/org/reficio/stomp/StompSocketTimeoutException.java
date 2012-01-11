@@ -8,6 +8,7 @@ package org.reficio.stomp;
  * To change this template use File | Settings | File Templates.
  */
 public class StompSocketTimeoutException extends RuntimeException {
+
     public StompSocketTimeoutException(Throwable cause) {
         super(cause);
     }
@@ -15,4 +16,5 @@ public class StompSocketTimeoutException extends RuntimeException {
     public StompSocketTimeoutException(String message, Throwable cause) {
         super(message, cause);
     }
+
 }

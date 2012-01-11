@@ -29,22 +29,25 @@ import org.apache.commons.lang.StringUtils;
  */
 public enum Command {
 
+    // handshake
     CONNECT(true),
+    CONNECTED(false),
     DISCONNECT(true),
 
+    // subscriptions
     SUBSCRIBE(true),
     UNSUBSCRIBE(true),
+    RECEIPT(false),
 
+    // transactions
     BEGIN(true),
     COMMIT(true),
     ABORT(true),
     ACK(true),
 
+    // message tramsmission
     SEND(true),
-
-    CONNECTED(false),
     MESSAGE(false),
-    RECEIPT(false),
     ERROR(false);
 
     private final boolean clientCommand;

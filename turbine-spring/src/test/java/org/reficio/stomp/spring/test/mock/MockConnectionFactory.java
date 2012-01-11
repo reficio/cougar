@@ -17,14 +17,14 @@
 package org.reficio.stomp.spring.test.mock;
 
 import org.reficio.stomp.StompConnectionException;
+import org.reficio.stomp.impl.MockConnectionImpl;
+import org.reficio.stomp.impl.MockTxConnectionImpl;
 import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.core.StompResource;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
-import org.reficio.stomp.test.mock.MockConnectionImpl;
 import org.reficio.stomp.test.mock.MockServer;
-import org.reficio.stomp.test.mock.MockTxConnectionImpl;
 
 import java.util.UUID;
 

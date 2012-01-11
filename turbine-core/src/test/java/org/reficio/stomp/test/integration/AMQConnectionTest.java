@@ -17,25 +17,18 @@
 
 package org.reficio.stomp.test.integration;
 
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.region.policy.PolicyMap;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.stomp.Stomp;
 import org.apache.activemq.transport.stomp.StompConnection;
 import org.apache.activemq.transport.stomp.StompFrame;
-import org.junit.*;
+import org.junit.Test;
 import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Ack;
 import org.reficio.stomp.domain.Command;
-import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.Turbine;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,49 +42,15 @@ import static org.junit.Assert.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class AMQConnectionTest {
+public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
-    private static BrokerService broker;
-    private String stompQueuePrefix = "/queue/";
-    private String destinationName = "request";
-
-    @BeforeClass
-    public static void initialize() throws Exception {
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.addConnector("stomp://localhost:61613?activemq.prefetchSize=500");
-        broker.start();
-    }
-
-    @AfterClass
-    public static void shutdown() throws Exception {
-        broker.stop();
-    }
-
-    @Before
-    public void setup() throws Exception {
-        broker.getAdminView().addQueue(destinationName);
-    }
-
-    @After
-    public void cleanup() throws Exception {
-        broker.getAdminView().removeQueue(destinationName);
-    }
-
-    private StompConnectionFactory<Connection> getConnectionFactory() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(ConnectionImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("system");
-        factory.setPassword("manager");
-        return factory;
+    public Connection createConnection() {
+        return Turbine.connection().hostname(HOSTNAME).port(PORT).buildAndInit();
     }
 
     @Test
     public void connect() {
-        StompConnectionFactory<Connection> factory = getConnectionFactory();
-        Connection conn = factory.createConnection();
+        Connection conn = createConnection();
         assertTrue(conn.isInitialized());
         conn.close();
         assertFalse(conn.isInitialized());
@@ -99,12 +58,11 @@ public class AMQConnectionTest {
 
     @Test
     public void singleSendReceive() throws Exception {
-        StompConnectionFactory<Connection> factory = getConnectionFactory();
 
         final String receiptId = UUID.randomUUID().toString();
         final String payload = "James Bond 007!";
-        Connection connSender = factory.createConnection();
-        connSender.send(stompQueuePrefix + destinationName, new FrameDecorator() {
+        Connection connSender = createConnection();
+        connSender.send(getQueueName(), new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
                 frame.payload(payload);
@@ -114,14 +72,14 @@ public class AMQConnectionTest {
         Frame receipt = connSender.receive();
         assertEquals(receiptId, receipt.receiptId());
 
-        assertEquals(1, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(1, getQueueLength());
 
-        Connection connReceiver = factory.createConnection();
-        connReceiver.subscribe(stompQueuePrefix + destinationName);
+        Connection connReceiver = createConnection();
+        connReceiver.subscribe(getQueueName());
         Frame frame = connReceiver.receive();
         assertNotNull(frame);
         assertEquals(payload, frame.payload());
-        assertEquals(stompQueuePrefix + destinationName, frame.destination());
+        assertEquals(getQueueName(), frame.destination());
         connReceiver.close();
         connSender.close();
     }
@@ -129,10 +87,9 @@ public class AMQConnectionTest {
     @Test
     public void consecutiveSendReceive() throws Exception {
         final int NUMBER_OF_MSGS = 100;
-        StompConnectionFactory<Connection> factory = getConnectionFactory();
-        Connection connSender = factory.createConnection();
+        Connection connSender = createConnection();
         for (int i = 0; i < NUMBER_OF_MSGS; i++) {
-            connSender.send(stompQueuePrefix + destinationName, new FrameDecorator() {
+            connSender.send(getQueueName(), new FrameDecorator() {
                 @Override
                 public void decorateFrame(Frame frame) {
                     frame.payload(System.currentTimeMillis() + "");
@@ -141,8 +98,8 @@ public class AMQConnectionTest {
         }
         connSender.close();
 
-        Connection connReceiver = factory.createConnection();
-        String subId = connReceiver.subscribe(stompQueuePrefix + destinationName);
+        Connection connReceiver = createConnection();
+        String subId = connReceiver.subscribe(getQueueName());
         for (int i = 0; i < NUMBER_OF_MSGS; i++) {
             assertNotNull(connReceiver.receive());
         }
@@ -163,7 +120,7 @@ public class AMQConnectionTest {
 
         @Override
         public void run() {
-            Connection connSender = getConnectionFactory().createConnection();
+            Connection connSender = createConnection();
             for (int i = 0; i < toSendCount; i++) {
                 connSender.send(queueName, new FrameDecorator() {
                     @Override
@@ -194,8 +151,8 @@ public class AMQConnectionTest {
 
         @Override
         public void run() {
-            Connection connReceiver = getConnectionFactory().createConnection();
-            String subId = connReceiver.subscribe(stompQueuePrefix + destinationName, new FrameDecorator() {
+            Connection connReceiver = createConnection();
+            String subId = connReceiver.subscribe(getQueueName(), new FrameDecorator() {
                 @Override
                 public void decorateFrame(Frame frame) {
                     frame.custom("activemq.prefetchSize", "1");
@@ -245,8 +202,8 @@ public class AMQConnectionTest {
                 if (counter.get() >= toReceiveCount) {
                     break;
                 }
-                Connection connReceiver = getConnectionFactory().createConnection();
-                String subId = connReceiver.subscribe(stompQueuePrefix + destinationName, new FrameDecorator() {
+                Connection connReceiver = createConnection();
+                String subId = connReceiver.subscribe(getQueueName(), new FrameDecorator() {
                     @Override
                     public void decorateFrame(Frame frame) {
                         frame.custom("activemq.prefetchSize", "1");
@@ -291,7 +248,7 @@ public class AMQConnectionTest {
 
     @Test
     public void parallelSendReceive() throws Exception {
-        String queue = stompQueuePrefix + destinationName;
+        String queue = getQueueName();
         AtomicInteger counter = new AtomicInteger(0);
 
 
@@ -326,7 +283,7 @@ public class AMQConnectionTest {
     public void prefetchSize() throws Exception {
 
         StompConnection connection;
-        String queue = stompQueuePrefix + destinationName + System.currentTimeMillis();
+        String queue = getQueueName() + System.currentTimeMillis();
 
 
 
@@ -376,10 +333,10 @@ public class AMQConnectionTest {
 
     @Test
     public void parallelSendReceiveDisconnectingAutoAck() throws Exception {
-        String queue = stompQueuePrefix + destinationName;
+        String queue = getQueueName();
         AtomicInteger counter = new AtomicInteger(0);
 
-        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(0, getQueueLength());
 
 
         Sender sender1 = new Sender(4, queue);
@@ -406,7 +363,7 @@ public class AMQConnectionTest {
 
 
         int enqueued = sender1.getSent() + sender2.getSent();
-        int inQueue = broker.getDestination(new ActiveMQQueue(destinationName)).browse().length;
+        int inQueue = getQueueLength();
         int dequeued = receiver1.getReceived() + receiver2.getReceived();
 
 
@@ -420,10 +377,10 @@ public class AMQConnectionTest {
 
     @Test
     public void parallelSendReceiveDisconnectingManualAck() throws Exception {
-        String queue = stompQueuePrefix + destinationName;
+        String queue = getQueueName();
         AtomicInteger counter = new AtomicInteger(0);
 
-        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(0, getQueueLength());
 
 
         Sender sender1 = new Sender(4, queue);
@@ -449,7 +406,7 @@ public class AMQConnectionTest {
         t2.join();
 
         int enqueued = sender1.getSent() + sender2.getSent();
-        int inQueue = broker.getDestination(new ActiveMQQueue(destinationName)).browse().length;
+        int inQueue = getQueueLength();
         int dequeued = receiver1.getReceived() + receiver2.getReceived();
 
         assertEquals(enqueued, inQueue + dequeued);

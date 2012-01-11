@@ -17,9 +17,24 @@
 
 package org.reficio.stomp.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.reficio.stomp.*;
 import org.reficio.stomp.connection.Client;
-import org.reficio.stomp.core.StompResource;
-import org.reficio.stomp.impl.stub.ClientStubImpl;
+import org.reficio.stomp.core.*;
+import org.reficio.stomp.domain.Command;
+import org.reficio.stomp.domain.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.reficio.stomp.core.StompResourceState.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -29,10 +44,204 @@ import org.reficio.stomp.impl.stub.ClientStubImpl;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class ClientImpl extends ClientStubImpl<Client> implements Client {
+class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
 
-    public static Client create() {
-        return new ClientImpl();
+    private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
+
+    private TransmissionHandler transmissionHandler;
+    private StompResourceState state;
+
+    public static final int INDEFINITE_RECEPTION_TIMEOUT = 0;
+    public static final int NOWAIT_RECEPTION_TIMEOUT = 100;
+
+    // ----------------------------------------------------------------------------------
+    // Constructor - only for internal usage
+    // ----------------------------------------------------------------------------------
+    protected ClientImpl(StompWireFormat wireFormat) {
+        setState(NEW);
+        this.transmissionHandler = CloseTransmissionOnErrorInvocationHandler.getHandler(
+                new TransmissionHandlerImpl(wireFormat, hostname, port, encoding));
+    }
+
+    // ----------------------------------------------------------------------------------
+    // StompResource methods
+    // ----------------------------------------------------------------------------------
+    @Override
+    public void init() {
+        assertNew();
+        log.info(String.format("Initializing connection=[%s]", this));
+        transmissionHandler.initializeCommunication(timeout);
+        setState(COMMUNICATION_INITIALIZED);
+        connect();
+        setState(OPERATIONAL);
+    }
+
+    @Override
+    public void close() {
+        assertOperational();
+        log.info(String.format("Closing connection=[%s]", this));
+        setState(CLOSING);
+        disconnect();
+        transmissionHandler.closeCommunication();
+        setState(CLOSED);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return state.equals(OPERATIONAL);
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Helper methods -> connection state modifiers
+    // ----------------------------------------------------------------------------------
+    protected void connect() {
+        Frame frame = new Frame(Command.CONNECT);
+        frame.login(username);
+        frame.passcode(password);
+        frame.encoding(encoding);
+        transmissionHandler.marshall(frame);
+
+        try {
+            Frame serverHandshake = transmissionHandler.unmarshall();
+            validateServerHandshake(serverHandshake);
+            validateTransmissionEncoding(serverHandshake);
+            setSessionIdFromHandshakeIfNotNull(serverHandshake);
+
+        } catch (StompSocketTimeoutException exception) {
+            closeCommunicationOnError();
+            throw new StompProtocolException("Server handshake frame reception timeout -> aborting!");
+        }
+    }
+
+    private void setSessionIdFromHandshakeIfNotNull(Frame serverHandshake) {
+        String sessionId = serverHandshake.session();
+        if (sessionId != null) {
+            setSessionId(sessionId);
+        } else {
+            log.warn("Server has not returned a session id");
+        }
+    }
+
+    private void validateServerHandshake(Frame serverHandshake) {
+        if (isProperServerHandshake(serverHandshake) == false) {
+            closeCommunicationOnError();
+            throw new StompProtocolException("Expected CONNECTED command, instead received "
+                    + serverHandshake.getCommand().name());
+        }
+    }
+
+    private void validateTransmissionEncoding(Frame serverHandshake) {
+        if (isEncodingAccepted(serverHandshake.encoding()) == false) {
+            closeCommunicationOnError();
+            throw new StompEncodingException("Server cannot handle requested encoding and switched to [" +
+                    serverHandshake.encoding() + "] -> aborting!");
+        }
+    }
+
+    private boolean isProperServerHandshake(Frame serverHandshake) {
+        return serverHandshake.getCommand().equals(Command.CONNECTED);
+    }
+
+    private boolean isEncodingAccepted(String returnedEncoding) {
+        return StringUtils.isBlank(returnedEncoding) || encoding.equals(returnedEncoding);
+    }
+
+    protected void closeCommunicationOnError() {
+        setState(ERROR);
+        transmissionHandler.closeCommunication();
+    }
+
+    protected void disconnect() {
+        Frame frame = new Frame(Command.DISCONNECT);
+        frame.session(sessionId);
+        transmissionHandler.marshall(frame);
+    }
+
+
+    // ----------------------------------------------------------------------------------
+    // StompAccessor methods
+    // ----------------------------------------------------------------------------------
+    @Override
+    public Frame receive() throws StompException {
+        transmissionHandler.setReceptionTimeoutInMillis(INDEFINITE_RECEPTION_TIMEOUT);
+        assertOperational();
+        return transmissionHandler.unmarshall();
+    }
+
+    @Override
+    public Frame receive(int timeout) throws StompException {
+        transmissionHandler.setReceptionTimeoutInMillis(timeout);
+        assertOperational();
+        return transmissionHandler.unmarshall();
+    }
+
+    @Override
+    public Frame receiveNoWait() throws StompException {
+        return receive(NOWAIT_RECEPTION_TIMEOUT);
+    }
+
+    @Override
+    public void send(Frame frame) throws StompException {
+        assertOperational();
+        transmissionHandler.marshall(checkNotNull(frame));
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Helper methods -> connection state verification
+    // ----------------------------------------------------------------------------------
+    protected void assertOperational() {
+        if (isInitialized() == false) {
+            throw new StompConnectionException(
+                    String.format("Connection is not operational. Connection state is [%s]", getState()));
+        }
+    }
+
+    protected void assertNew() {
+        if (getState().equals(NEW) == false) {
+            throw new StompConnectionException("Connection is not in NEW state");
+        }
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Connection state mutators
+    // ----------------------------------------------------------------------------------
+    protected StompResourceState getState() {
+        return this.state;
+    }
+
+    protected void setState(StompResourceState state) {
+        log.info(String.format("Setting connection state to [%s]", state.name()));
+        this.state = state;
+    }
+
+    private static class CloseTransmissionOnErrorInvocationHandler implements InvocationHandler {
+
+        private final TransmissionHandler target;
+
+        public CloseTransmissionOnErrorInvocationHandler(TransmissionHandler target) {
+            this.target = target;
+        }
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            try {
+                return method.invoke(this.target, args);
+            } catch (InvocationTargetException ex) {
+                Throwable targetException = ex.getTargetException();
+                if ((targetException instanceof StompSocketTimeoutException) == false) {
+                    target.closeCommunication();
+                }
+                throw targetException;
+            }
+        }
+
+        public static TransmissionHandler getHandler(TransmissionHandler target) {
+            List<Class> classes = new ArrayList<Class>();
+            classes.add(TransmissionHandler.class);
+            return (TransmissionHandler) Proxy.newProxyInstance(
+                    TransmissionHandler.class.getClassLoader(),
+                    classes.toArray(new Class[classes.size()]),
+                    new CloseTransmissionOnErrorInvocationHandler(target));
+        }
     }
 
 }

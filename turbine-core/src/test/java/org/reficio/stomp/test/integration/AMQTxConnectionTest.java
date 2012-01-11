@@ -17,21 +17,13 @@
 
 package org.reficio.stomp.test.integration;
 
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.*;
-import org.reficio.stomp.connection.Connection;
+import org.junit.Test;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.ConnectionImpl;
-import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.connection.TransactionalConnection;
-import org.reficio.stomp.impl.TransactionalConnectionImpl;
-
-import java.util.UUID;
+import org.reficio.stomp.impl.Turbine;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -41,48 +33,15 @@ import static org.junit.Assert.assertEquals;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class AMQTxConnectionTest {
+public class AMQTxConnectionTest extends AbstractAMQIntegrationTest<TransactionalConnection> {
 
-    private static BrokerService broker;
-    private String stompQueuePrefix = "/queue/";
-    private String destinationName = "request";
-
-    @BeforeClass
-    public static void initialize() throws Exception {
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.addConnector("stomp://localhost:61613");
-        broker.start();
-    }
-
-    @AfterClass
-    public static void stop() throws Exception {
-        broker.stop();
-    }
-
-    @Before
-    public void setup() throws Exception {
-        broker.getAdminView().addQueue(destinationName);
-    }
-
-    @After
-    public void cleanup() throws Exception {
-        broker.getAdminView().removeQueue(destinationName);
-    }
-
-    private StompConnectionFactory<TransactionalConnection> getConnectionFactory() {
-        StompConnectionFactory<TransactionalConnection> factory = new StompConnectionFactory<TransactionalConnection>(TransactionalConnectionImpl.class);
-        factory.setEncoding("UTF-8");
-        factory.setHostname("localhost");
-        factory.setPort(61613);
-        factory.setUsername("system");
-        factory.setPassword("manager");
-        return factory;
+    public TransactionalConnection createConnection() {
+        return Turbine.transactionalConnection().hostname(HOSTNAME).port(PORT).buildAndInit();
     }
 
     @Test
     public void connect() {
-        TransactionalConnection conn = getConnectionFactory().createConnection();
+        TransactionalConnection conn = createConnection();
         assertTrue(conn.isInitialized());
         conn.close();
         assertFalse(conn.isInitialized());
@@ -90,24 +49,24 @@ public class AMQTxConnectionTest {
 
     @Test
     public void sendRollback() throws Exception {
-        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(0, getQueueLength());
 
         final int NUMBER_OF_MSGS = 100;
-        TransactionalConnection connSender = getConnectionFactory().createConnection();
+        TransactionalConnection connSender = createConnection();
         connSender.begin();
         for (int i = 0; i < NUMBER_OF_MSGS; i++)
-            connSender.send(stompQueuePrefix + destinationName, new FrameDecorator() {
+            connSender.send(getQueueName(), new FrameDecorator() {
                 @Override
                 public void decorateFrame(Frame frame) {
                     frame.payload(System.currentTimeMillis() + "");
                 }
             });
-        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(0, getQueueLength());
 
         connSender.rollback();
         connSender.close();
 
-        assertEquals(0, broker.getDestination(new ActiveMQQueue(destinationName)).browse().length);
+        assertEquals(0, getQueueLength());
     }
 
 }

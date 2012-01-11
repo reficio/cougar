@@ -26,8 +26,8 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.MockConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
-import org.reficio.stomp.test.mock.MockConnectionImpl;
 
 import java.util.UUID;
 

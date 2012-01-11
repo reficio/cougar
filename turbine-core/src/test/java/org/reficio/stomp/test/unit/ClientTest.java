@@ -27,9 +27,9 @@ import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ClientImpl;
-import org.reficio.stomp.test.mock.ClientStubImplMock;
+import org.reficio.stomp.impl.ClientStubImplMock;
+import org.reficio.stomp.impl.MockConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
-import org.reficio.stomp.test.mock.MockConnectionImpl;
 import org.reficio.stomp.test.util.TestUtil;
 
 import java.io.IOException;

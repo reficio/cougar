@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.MockFactoryConnectionImpl;
 import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.test.mock.MockFactoryConnectionImpl;
 import org.reficio.stomp.test.mock.PrivateConstructorResource;
 
 import static org.junit.Assert.assertEquals;
