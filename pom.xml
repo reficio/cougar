@@ -477,9 +477,11 @@ Un
             <name>Tom Bujok</name>
             <email>tom.bujok@reficio.org</email>
             <roles>
-                <role>Project Lead</role>
+                <role>project lead</role>
+                <role>developer</role>
             </roles>
             <organization>Reficio</organization>
+            <organizationUrl>http://www.reficio.org</organizationUrl>
             <timezone>+1</timezone>
         </developer>
     </developers>
@@ -546,6 +548,17 @@ Un
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <id>servicemix</id>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
     </repositories>
 
 </project>
