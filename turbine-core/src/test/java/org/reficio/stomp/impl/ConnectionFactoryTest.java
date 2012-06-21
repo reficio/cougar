@@ -23,9 +23,6 @@ import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.MockFactoryConnectionImpl;
-import org.reficio.stomp.impl.TurbineConnectionFactory;
-import sun.misc.IOUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,7 +33,6 @@ import java.net.Socket;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -105,7 +101,9 @@ public class ConnectionFactoryTest {
 
     @Test(expected = StompException.class)
     public void createConnectionEx() {
-        TurbineConnectionFactory<MockFactoryConnectionImpl> factory = new TurbineConnectionFactory<MockFactoryConnectionImpl>(MockFactoryConnectionImpl.class);
+        class NotSupportedClientImpl extends MockClientImpl {
+        }
+        TurbineConnectionFactory<NotSupportedClientImpl> factory = new TurbineConnectionFactory<NotSupportedClientImpl>(NotSupportedClientImpl.class);
         factory.createConnection();
     }
 

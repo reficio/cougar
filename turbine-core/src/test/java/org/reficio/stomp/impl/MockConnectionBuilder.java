@@ -1,6 +1,11 @@
 package org.reficio.stomp.impl;
 
+import org.reficio.stomp.StompException;
+import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameValidator;
+import org.reficio.stomp.core.StompResource;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,6 +41,18 @@ public class MockConnectionBuilder extends TurbineConnectionBuilder {
                 return new MockTransactionalConnectionImpl();
             }
         };
+    }
+
+    @SuppressWarnings("unchecked") // impossible to omit
+    static <T extends StompResource> Builder<T> builder(Class<T> clazz) {
+        if (clazz.equals(Client.class)) {
+            return (Builder<T>) mockClient();
+        } else if (clazz.equals(Connection.class)) {
+            return (Builder<T>) mockConnection();
+        } else if (clazz.equals(TransactionalConnection.class)) {
+            return (Builder<T>) mockTransactionalConnection();
+        }
+        throw new StompException(clazz.getName() + " is not supported");
     }
 
 }

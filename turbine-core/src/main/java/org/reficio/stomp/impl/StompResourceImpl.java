@@ -15,9 +15,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 abstract class StompResourceImpl implements StompResource {
 
     protected String hostname;
-    protected int port;
+    protected Integer port;
     protected String encoding;
-    protected int timeout;
+    protected Integer timeout;
     protected String username;
     protected String password;
     protected String sessionId;
@@ -51,7 +51,7 @@ abstract class StompResourceImpl implements StompResource {
     }
 
     @Override
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 
@@ -61,7 +61,7 @@ abstract class StompResourceImpl implements StompResource {
     }
 
     @Override
-    public int getTimeout() {
+    public Integer getTimeout() {
         return timeout;
     }
 

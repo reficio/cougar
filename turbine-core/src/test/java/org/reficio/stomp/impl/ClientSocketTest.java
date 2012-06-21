@@ -37,6 +37,7 @@ public class ClientSocketTest {
             hostname("localhost");
             port(32611);
             encoding(encoding);
+            timeout(1000);
             postConstruct();
         }
 

@@ -43,8 +43,13 @@ public class TurbineConnectionFactory<T extends StompResource> implements Connec
         this.clazz = clazz;
     }
 
-    protected T buildConnetion() {
+    protected TurbineConnectionBuilder.Builder<T> getBuilder() {
         TurbineConnectionBuilder.Builder<T> builder = TurbineConnectionBuilder.<T>builder(clazz);
+        return builder;
+    }
+
+    protected T buildConnetion() {
+        TurbineConnectionBuilder.Builder<T> builder = getBuilder();
         if (hostname != null)
             builder.hostname(hostname);
         if (port != null)
@@ -84,11 +89,11 @@ public class TurbineConnectionFactory<T extends StompResource> implements Connec
         return username;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 
-    public int getTimeout() {
+    public Integer getTimeout() {
         return timeout;
     }
 

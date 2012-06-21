@@ -36,9 +36,9 @@ public interface StompResource {
 	String getHostname();
 	String getPassword();
 	String getUsername();
-	int getPort();
+	Integer getPort();
 	String getSessionId();
     String getEncoding();
-    int getTimeout();
+    Integer getTimeout();
 
 }

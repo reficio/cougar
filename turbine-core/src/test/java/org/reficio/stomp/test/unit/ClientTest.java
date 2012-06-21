@@ -197,11 +197,11 @@ public class ClientTest {
         // connection.init("localhost", 61613, "user", "pass", "UTF-8", 100);
         connection.connect();
         assertEquals(connection.getHostname(), "localhost");
-        assertEquals(connection.getPort(), 61613);
+        assertEquals(connection.getPort(), Integer.valueOf(61613));
         assertEquals(connection.getUsername(), "user");
         assertEquals(connection.getPassword(), "pass");
         assertEquals(connection.getEncoding(), "UTF-8");
-        assertEquals(connection.getTimeout(), 100);
+        assertEquals(connection.getTimeout(), Integer.valueOf(100));
         assertNotNull(connection.getSessionId());
     }
 
