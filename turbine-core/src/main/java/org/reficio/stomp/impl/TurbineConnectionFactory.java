@@ -17,7 +17,6 @@
 
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.connection.ConnectionFactory;
 import org.reficio.stomp.core.StompResource;
 
@@ -29,7 +28,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class StompConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
+public class TurbineConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
 
     protected String hostname;
     protected Integer port;
@@ -40,28 +39,33 @@ public class StompConnectionFactory<T extends StompResource> implements Connecti
 
     protected final Class clazz;
 
-    public StompConnectionFactory(Class<? extends T> clazz) {
+    public TurbineConnectionFactory(Class<T> clazz) {
         this.clazz = clazz;
+    }
+
+    protected T buildConnetion() {
+        TurbineConnectionBuilder.Builder<T> builder = TurbineConnectionBuilder.<T>builder(clazz);
+        if (hostname != null)
+            builder.hostname(hostname);
+        if (port != null)
+            builder.port(port);
+        if (encoding != null)
+            builder.encoding(encoding);
+        if (timeout != null)
+            builder.timeout(timeout);
+        if (username != null)
+            builder.username(username);
+        if (password != null)
+            builder.password(password);
+        T resource = builder.build();
+        return resource;
     }
 
     @Override
     public T createConnection() {
-//        try {
-//            T conn = (T) clazz.newInstance();
-//            if (hostname != null) conn.hostname(hostname);
-//            if (port != null) conn.port(port);
-//            if (encoding != null) conn.encoding(encoding);
-//            if (timeout != null) conn.timeout(timeout);
-//            if (username != null) conn.username(username);
-//            if (password != null) conn.password(password);
-//            conn.init();
-//            return conn;
-//        } catch (InstantiationException e) {
-//            throw new StompConnectionException("Error during the creation of a new connection", e);
-//        } catch (IllegalAccessException e) {
-//            throw new StompConnectionException("Error during the creation of a new connection", e);
-//        }
-        return null;
+        T resource = buildConnetion();
+        resource.connect();
+        return resource;
     }
 
     public String getEncoding() {
@@ -104,11 +108,11 @@ public class StompConnectionFactory<T extends StompResource> implements Connecti
         this.username = username;
     }
 
-    public void setPort(int port) {
+    public void setPort(Integer port) {
         this.port = port;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(Integer timeout) {
         this.timeout = timeout;
     }
 

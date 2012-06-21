@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.Turbine;
+import org.reficio.stomp.impl.TurbineConnectionBuilder;
 
 import java.util.UUID;
 
@@ -39,7 +39,7 @@ public class AMQClientTest extends AbstractAMQIntegrationTest<Client> {
 
     @Override
     public Client createConnection() {
-        return Turbine.client().hostname(HOSTNAME).port(PORT).buildAndInit();
+        return TurbineConnectionBuilder.client().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
     @Test
@@ -52,8 +52,8 @@ public class AMQClientTest extends AbstractAMQIntegrationTest<Client> {
 
     @Test
     public void connectNotUTF() {
-        Client client = Turbine.client().hostname("localhost").port(61613).encoding("cp1252").build();
-        client.init();
+        Client client = TurbineConnectionBuilder.client().hostname("localhost").port(61613).encoding("cp1252").build();
+        client.connect();
         assertTrue(client.isInitialized());
         client.close();
         assertFalse(client.isInitialized());

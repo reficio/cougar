@@ -17,6 +17,8 @@
 
 package org.reficio.stomp.impl;
 
+import org.reficio.stomp.core.FramePreprocessor;
+import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.impl.ConnectionImpl;
 
 /**
@@ -28,11 +30,14 @@ import org.reficio.stomp.impl.ConnectionImpl;
  * http://www.reficio.org
  */
 public class MockFactoryConnectionImpl extends ConnectionImpl {
-    public MockFactoryConnectionImpl() {
+    protected MockFactoryConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
+        super(wireFormat, preprocessor);
     }
+//    public MockFactoryConnectionImpl() {
+//    }
 
     @Override
-    public void init() {
+    public void connect() {
     }
 
 }

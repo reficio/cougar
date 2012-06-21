@@ -21,11 +21,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.reficio.stomp.StompEncodingException;
-import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.impl.MockConnectionBuilder;
 import org.reficio.stomp.impl.MockConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 
@@ -43,12 +42,12 @@ import static org.junit.Assert.assertNotNull;
  * http://www.reficio.org/
  */
 public class ConnectionTest {
-    
+
     private MockConnectionImpl connection;
 
     @Before
     public void initialize() {
-        connection = MockConnectionImpl.create();
+        connection = MockConnectionBuilder.mockConnection().build();
         // register handlers
         connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
@@ -69,7 +68,7 @@ public class ConnectionTest {
         });
         // initialize the connection
         // connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.hostname("localhost").port(61613).encoding("UTF-8").init();
+        connection.connect();
     }
 
     @After
@@ -122,7 +121,7 @@ public class ConnectionTest {
         assertEquals(frame.destination(), "queue1");
     }
 
-     @Test
+    @Test
     public void subscribeWithoutIdDecorator() {
         connection.subscribe("queue1", new FrameDecorator() {
             @Override
@@ -194,7 +193,7 @@ public class ConnectionTest {
 
     @Test(expected = StompEncodingException.class)
     public void testServerRejectsEncoding() {
-        MockConnectionImpl conn = MockConnectionImpl.create();
+        MockConnectionImpl conn = MockConnectionBuilder.mockConnection().build();
         // register handlers
         conn.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
@@ -206,14 +205,14 @@ public class ConnectionTest {
             }
         });
 
-        conn.hostname("localhost").port(61613).encoding("UTF-8").init();
+        conn.connect();
     }
 
-    @Test
-    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
-        Connection connection = ConnectionImpl.create().hostname("localhost");
-        connection.port(123).password("123");
-    }
+//    @Test
+//    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
+//        Connection connection = ConnectionImpl.create().hostname("localhost");
+//        connection.port(123).password("123");
+//    }
 
 
 }

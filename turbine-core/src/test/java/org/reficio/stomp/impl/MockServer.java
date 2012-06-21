@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.mock;
+package org.reficio.stomp.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.WireFormatImpl;
+import org.reficio.stomp.test.mock.IMockMessageHandler;
 
 import java.io.IOException;
 import java.io.Reader;

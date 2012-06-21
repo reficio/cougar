@@ -32,7 +32,7 @@
 		<level value="debug" />
 	</logger>
 
-	<logger name="org.reficio.stomp.test.mock.MockServer">
+	<logger name="org.reficio.stomp.impl.MockServer">
 		<level value="warn" />
 	</logger>
 

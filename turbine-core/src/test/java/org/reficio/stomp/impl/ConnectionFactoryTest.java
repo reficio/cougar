@@ -15,17 +15,28 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.impl;
 
 import org.junit.Test;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.impl.ConnectionImpl;
+import org.reficio.stomp.core.StompWireFormat;
+import org.reficio.stomp.domain.Command;
+import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.MockFactoryConnectionImpl;
-import org.reficio.stomp.impl.StompConnectionFactory;
-import org.reficio.stomp.test.mock.PrivateConstructorResource;
+import org.reficio.stomp.impl.TurbineConnectionFactory;
+import sun.misc.IOUtils;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -37,12 +48,38 @@ import static org.junit.Assert.assertEquals;
  */
 public class ConnectionFactoryTest {
 
-    abstract class CanInstantiateAbstract extends ConnectionImpl {
+    private Runnable startMockServer() {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                try {
+                    ServerSocket srv = new ServerSocket(61613);
+                    try {
+                        srv.setSoTimeout(2000);
+                        Socket comm = srv.accept();
+                        Frame response = new Frame(Command.CONNECTED);
+                        response.session(UUID.randomUUID().toString());
+                        StompWireFormat wireFormat = new WireFormatImpl();
+                        OutputStream out = comm.getOutputStream();
+                        Writer writer = new OutputStreamWriter(out);
+                        wireFormat.marshal(response, writer);
+                        writer.close();
+                    } finally {
+                        srv.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+        return runnable;
     }
 
-    @Test
+    @Test(timeout = 4000)
     public void createConnection() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(MockFactoryConnectionImpl.class);
+        startMockServer();
+        TurbineConnectionFactory<Connection> factory = new TurbineConnectionFactory<Connection>(Connection.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
@@ -59,23 +96,19 @@ public class ConnectionFactoryTest {
         assertEquals(factory.getTimeout(), conn.getTimeout());
     }
 
-    @Test
+    @Test(timeout = 4000)
     public void createConnectionDefault() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(MockFactoryConnectionImpl.class);
+        startMockServer();
+        TurbineConnectionFactory<Connection> factory = new TurbineConnectionFactory<Connection>(Connection.class);
         Connection conn = factory.createConnection();
     }
 
     @Test(expected = StompException.class)
     public void createConnectionEx() {
-        StompConnectionFactory<Connection> factory = new StompConnectionFactory<Connection>(CanInstantiateAbstract.class);
+        TurbineConnectionFactory<MockFactoryConnectionImpl> factory = new TurbineConnectionFactory<MockFactoryConnectionImpl>(MockFactoryConnectionImpl.class);
         factory.createConnection();
     }
 
-    @Test(expected = StompException.class)
-    public void createConnectionEx2() {
-        StompConnectionFactory<PrivateConstructorResource> factory = new StompConnectionFactory<PrivateConstructorResource>(PrivateConstructorResource.class);
-        factory.createConnection();
-    }
 
 }
 

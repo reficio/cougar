@@ -26,7 +26,7 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Ack;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.Turbine;
+import org.reficio.stomp.impl.TurbineConnectionBuilder;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
     public Connection createConnection() {
-        return Turbine.connection().hostname(HOSTNAME).port(PORT).buildAndInit();
+        return TurbineConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
     @Test
@@ -284,9 +284,6 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
         StompConnection connection;
         String queue = getQueueName() + System.currentTimeMillis();
-
-
-
 
         Sender sender1 = new Sender(1000, queue);
         Thread t1 = new Thread(sender1);

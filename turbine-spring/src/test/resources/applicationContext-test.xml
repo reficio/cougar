@@ -29,7 +29,7 @@
 	<tx:annotation-driven transaction-manager="jmsTransactionManager"/>
 
 	<bean id="stompConnectionFactory" class="org.reficio.stomp.spring.test.mock.MockConnectionFactory">
-		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.impl.MockTxConnectionImpl"/>
+		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.impl.MockTransactionalConnectionImpl"/>
         <property name="hostname" value="127.0.0.1"/>
         <property name="port" value="4444"/>
         <property name="username" value="kajek"/>

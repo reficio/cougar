@@ -1,11 +1,12 @@
 package org.reficio.stomp;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dipesh
- * Date: 19/09/11
- * Time: 8:05 PM
- * To change this template use File | Settings | File Templates.
+ * User: Tom Bujok (tom.bujok@reficio.org)
+ * Date: 2010-11-22
+ * Time: 7:54 PM
+ * <p/>
+ * Reficio (TM) - Reestablish your software!
+ * http://www.reficio.org
  */
 public class StompSocketTimeoutException extends RuntimeException {
 

@@ -17,6 +17,8 @@
 
 package org.reficio.stomp.test.mock;
 
+import org.reficio.stomp.impl.MockServer;
+
 import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,7 +53,7 @@ public class MockConnectionStub {
         this.executor = Executors.newFixedThreadPool(1);
     }
 
-    protected void closeStreams() {
+    public void closeStreams() {
         try {
             this.serverReader.close();
         } catch (IOException e) {
@@ -78,7 +80,7 @@ public class MockConnectionStub {
         }
     }
 
-    protected void initializeStreams(String encoding) {
+    public void initializeStreams(String encoding) {
         try {
             this.clientInputStream = new PipedInputStream(1024 * 1024);
             this.serverInputStream = new PipedInputStream(1024 * 1024);

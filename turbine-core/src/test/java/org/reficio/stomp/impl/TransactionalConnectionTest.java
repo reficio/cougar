@@ -23,13 +23,10 @@ import org.junit.Test;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Ack;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.MockTxConnectionImpl;
-import org.reficio.stomp.impl.TransactionalConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 
 import java.util.List;
@@ -46,9 +43,9 @@ import static org.junit.Assert.assertNotNull;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org/
  */
-public class TxConnectionTest {
+public class TransactionalConnectionTest {
 
-    private MockTxConnectionImpl connection;
+    private MockTransactionalConnectionImpl connection;
     private EmptyDecorator decorator;
 
     class EmptyDecorator implements FrameDecorator {
@@ -59,7 +56,7 @@ public class TxConnectionTest {
 
     @Before
     public void initialize() {
-        connection = new MockTxConnectionImpl();
+        connection = MockConnectionBuilder.mockTransactionalConnection().build();
         decorator = new EmptyDecorator();
         // register handlers
         connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
@@ -92,7 +89,7 @@ public class TxConnectionTest {
         // initialize the connection
         connection.hostname("localhost")
                 .port(61613).timeout(1000);
-                connection.init();
+        connection.connect();
     }
 
     @After
@@ -294,7 +291,7 @@ public class TxConnectionTest {
 
     @Test(expected = StompConnectionException.class)
     public void txUninitializedConnection() {
-        MockTxConnectionImpl conn = new MockTxConnectionImpl();
+        MockTransactionalConnectionImpl conn = new MockTransactionalConnectionImpl();
         conn.begin();
     }
 
@@ -331,12 +328,5 @@ public class TxConnectionTest {
         Frame disconnect = frames.get(4);
         assertEquals(Command.DISCONNECT, disconnect.getCommand());
     }
-
-    @Test
-    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
-        TransactionalConnection txConn = TransactionalConnectionImpl.create().hostname("localhost");
-        txConn.port(123).password("123");
-    }
-
 
 }

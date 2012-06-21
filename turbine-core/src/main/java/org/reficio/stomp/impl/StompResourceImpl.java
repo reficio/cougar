@@ -14,24 +14,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 abstract class StompResourceImpl implements StompResource {
 
-    protected String hostname = DEFAULT_HOSTNAME;
-    protected int port = DEFAULT_PORT;
-    protected String encoding = DEFAULT_ENCODING;
-    protected int timeout = DEFAULT_TIMEOUT_IN_MILLIS;
+    protected String hostname;
+    protected int port;
+    protected String encoding;
+    protected int timeout;
     protected String username;
     protected String password;
     protected String sessionId;
 
-    public static final String DEFAULT_ENCODING = "UTF-8";
-    public static final String DEFAULT_HOSTNAME = "localhost";
-    public static final int DEFAULT_PORT = 61613;
-    public static final int DEFAULT_TIMEOUT_IN_MILLIS = 1000;
-
     // ----------------------------------------------------------------------------------
     // Getters and setters - setters are only for internal usage - parameters VALIDATED
     // ----------------------------------------------------------------------------------
-    protected void setHostname(String hostname) {
-        this.hostname = checkNotNull(hostname, "hostname cannot be null");
+    protected StompResourceImpl hostname(String hostname) {
+        this.hostname = hostname;
+        return this;
     }
 
     @Override
@@ -39,8 +35,9 @@ abstract class StompResourceImpl implements StompResource {
         return hostname;
     }
 
-    protected void setPassword(String password) {
-        this.password = checkNotNull(password, "password cannot be null");
+    protected StompResourceImpl password(String password) {
+        this.password = password;
+        return this;
     }
 
     @Override
@@ -48,9 +45,9 @@ abstract class StompResourceImpl implements StompResource {
         return password;
     }
 
-    protected void setPort(int port) {
-        checkArgument(port > 0, "port must be positive");
+    protected StompResourceImpl port(int port) {
         this.port = port;
+        return this;
     }
 
     @Override
@@ -58,9 +55,9 @@ abstract class StompResourceImpl implements StompResource {
         return port;
     }
 
-    protected void setTimeout(int timeout) {
-        checkArgument(timeout >= 0, "timeout must be positive or zero");
+    protected StompResourceImpl timeout(int timeout) {
         this.timeout = timeout;
+        return this;
     }
 
     @Override
@@ -68,8 +65,9 @@ abstract class StompResourceImpl implements StompResource {
         return timeout;
     }
 
-    protected void setSessionId(String sessionId) {
-        this.sessionId = checkNotNull(sessionId, "sessionId cannot be null");
+    protected StompResourceImpl sessionId(String sessionId) {
+        this.sessionId = sessionId;
+        return this;
     }
 
     @Override
@@ -77,8 +75,9 @@ abstract class StompResourceImpl implements StompResource {
         return sessionId;
     }
 
-    protected void setUsername(String username) {
-        this.username = checkNotNull(username, "username cannot be null");
+    protected StompResourceImpl username(String username) {
+        this.username = username;
+        return this;
     }
 
     @Override
@@ -86,13 +85,16 @@ abstract class StompResourceImpl implements StompResource {
         return username;
     }
 
-    protected void setEncoding(String encoding) {
-        this.encoding = checkNotNull(encoding, "encoding cannot be null");
+    protected StompResourceImpl encoding(String encoding) {
+        this.encoding = encoding;
+        return this;
     }
 
     @Override
     public String getEncoding() {
         return encoding;
     }
+
+    public abstract void postConstruct();
 
 }

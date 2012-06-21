@@ -18,27 +18,26 @@
 package org.reficio.stomp.impl;
 
 import org.reficio.stomp.core.FramePreprocessor;
+import org.reficio.stomp.core.FrameValidator;
 import org.reficio.stomp.core.StompResourceState;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.test.mock.MockConnectionStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-12-27
- * Time: 03:23 PM
+ * Time: 03:24 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class MockConnectionImpl extends ConnectionImpl {
+public class MockTransactionalConnectionImpl extends TransactionalConnectionImpl {
 
     private MockTransmissionHandler mockTransmissionHandler;
 
-    protected MockConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
-        super(wireFormat, preprocessor);
-        this.mockTransmissionHandler = new MockTransmissionHandler(wireFormat);
+    protected MockTransactionalConnectionImpl() {
+        super(new WireFormatImpl(), new FrameValidator());
+        this.mockTransmissionHandler = new MockTransmissionHandler(new WireFormatImpl());
     }
 
     public void postConstruct() {

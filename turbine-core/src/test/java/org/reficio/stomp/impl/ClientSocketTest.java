@@ -19,17 +19,12 @@ package org.reficio.stomp.impl;
 import org.junit.Test;
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompEncodingException;
-import org.reficio.stomp.connection.Client;
-import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.impl.ClientImpl;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Tom Bujok (tom.bujok@gmail.com)
@@ -37,51 +32,48 @@ import static org.junit.Assert.*;
 public class ClientSocketTest {
 
     public class TestClientImpl extends ClientImpl {
-        protected TestClientImpl() {
-            super(null);
+        protected TestClientImpl(String encoding) {
+            super(new WireFormatImpl());
+            hostname("localhost");
+            port(32611);
+            encoding(encoding);
+            postConstruct();
         }
-        protected void connect() {
+
+        protected void doConnect() {
+            // skip the handshake as it's only a socket connection test
         }
     }
 
     @Test
     public void connectAndClose() throws IOException {
-        ServerSocket srv = null;
-        srv = new ServerSocket(32611);
-        Client client = new TestClientImpl();
-        client.hostname("localhost").port(32611).init();
-        Socket comm = srv.accept();
-        assertNotNull(comm);
-        client.close();
-        srv.close();
+        ServerSocket srv = new ServerSocket(32611);
+        try {
+            TestClientImpl client = new TestClientImpl("UTF-8");
+            client.connect();
+            Socket comm = srv.accept();
+            assertNotNull(comm);
+            client.close();
+        } finally {
+            srv.close();
+        }
     }
 
     @Test(expected = StompEncodingException.class)
     public void unsupportedEncoding() throws IOException {
-        ServerSocket srv = null;
-        srv = new ServerSocket(32611);
-//        Client client = new TestClientImpl();
-//        client.init("localhost", 32611, "user", "pass", "NO_SUCH_ENCODING");
-        Client client = new TestClientImpl();
-        client.hostname("localhost").port(32611).encoding("NO_SUCH_ENCODING").init();
+        ServerSocket srv = new ServerSocket(32611);
+        try {
+            TestClientImpl client = new TestClientImpl("NO_SUCH_ENCODING");
+            client.connect();
+        } finally {
+            srv.close();
+        }
     }
 
     @Test(expected = StompConnectionException.class)
     public void connectionError() throws IOException {
-//        Client client = new TestClientImpl();
-//        client.init("localhost", 32612, "user", "pass", "UTF-8");
-        Client client = new TestClientImpl();
-        client.hostname("localhost").port(32612).encoding("UTF-8").init();
-    }
-
-    @Test
-    public void receive() throws IOException {
-//        ServerSocket srv = null;
-//        srv = new ServerSocket(32611);
-//        Client client = new TestClientImpl();
-//        client.init("localhost", 32611, "user", "pass", "UTF-8");
-//        srv.close();
-//        client.close();
+        TestClientImpl client = new TestClientImpl("UTF-8");
+        client.connect();
     }
 
 }

@@ -2,9 +2,8 @@ package org.reficio.stomp.perf.sender;
 
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.domain.Command;
-import org.reficio.stomp.impl.StompConnectionFactory;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.ClientImpl;
+import org.reficio.stomp.impl.TurbineConnectionFactory;
 
 /**
  * @author Tom Bujok (tom.bujok@gmail.com)
@@ -15,7 +14,7 @@ public class TurbineSender implements ISender {
 
     @Override
     public void initialize(String hostname, int port, String username, String password, String encoding) {
-        StompConnectionFactory<Client> factory = new StompConnectionFactory<Client>(ClientImpl.class);
+        TurbineConnectionFactory<Client> factory = new TurbineConnectionFactory<Client>(Client.class);
         factory.setEncoding(encoding);
         factory.setHostname(hostname);
         factory.setPort(port);

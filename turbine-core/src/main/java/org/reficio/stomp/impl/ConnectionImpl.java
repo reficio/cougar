@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.reficio.stomp.core.StompResourceState.NEW;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -45,8 +46,13 @@ class ConnectionImpl extends ClientImpl implements Connection {
 
     protected FramePreprocessor preprocessor;
 
-    protected ConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
+    ConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
         super(wireFormat);
+        this.preprocessor = preprocessor;
+    }
+
+    public void postConstruct() {
+        super.postConstruct();
     }
 
     public void abort(String transactionId, FrameDecorator frameDecorator) {
@@ -75,7 +81,6 @@ class ConnectionImpl extends ClientImpl implements Connection {
         ack(messageId, emptyDecorator);
     }
 
-
     public void begin(String transactionId, FrameDecorator frameDecorator) {
         checkNotNull(transactionId, "transactionId cannot be null");
         Frame frame = new Frame(Command.BEGIN);
@@ -84,11 +89,9 @@ class ConnectionImpl extends ClientImpl implements Connection {
         send(frame);
     }
 
-
     public void begin(String transactionId) {
         begin(transactionId, emptyDecorator);
     }
-
 
     public void commit(String transactionId, FrameDecorator frameDecorator) {
         checkNotNull(transactionId, "transactionId cannot be null");
@@ -97,7 +100,6 @@ class ConnectionImpl extends ClientImpl implements Connection {
         preprocessor.decorate(frame, frameDecorator);
         send(frame);
     }
-
 
     public void commit(String transactionId) {
         commit(transactionId, emptyDecorator);

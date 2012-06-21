@@ -23,7 +23,7 @@
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="stompConnectionFactory" class="org.reficio.stomp.impl.StompConnectionFactory">
+    <bean id="stompConnectionFactory" class="org.reficio.stomp.impl.TurbineConnectionFactory">
 		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.impl.TransactionalConnectionImpl"/>
         <property name="hostname" value="127.0.0.1"/>
         <property name="port" value="61612"/>

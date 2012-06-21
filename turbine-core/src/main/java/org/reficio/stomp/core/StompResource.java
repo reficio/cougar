@@ -29,7 +29,7 @@ import org.reficio.stomp.StompException;
  */
 public interface StompResource {
 
-    void init();
+    void connect();
 	void close() throws StompException;
     boolean isInitialized();
 

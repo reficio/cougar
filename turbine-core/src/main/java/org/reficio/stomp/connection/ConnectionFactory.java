@@ -29,6 +29,6 @@ import org.reficio.stomp.core.StompResource;
  */
 public interface ConnectionFactory<T extends StompResource> {
 
-	T createConnection();
-	
+    T createConnection();
+
 }

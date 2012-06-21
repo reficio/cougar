@@ -20,7 +20,6 @@ package org.reficio.stomp.connection;
 import org.reficio.stomp.core.StompAccessor;
 import org.reficio.stomp.core.StompResource;
 
-
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-12-30

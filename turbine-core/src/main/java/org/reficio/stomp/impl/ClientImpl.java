@@ -50,29 +50,39 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
 
     private TransmissionHandler transmissionHandler;
     private StompResourceState state;
+    private final StompWireFormat wireFormat;
 
     public static final int INDEFINITE_RECEPTION_TIMEOUT = 0;
     public static final int NOWAIT_RECEPTION_TIMEOUT = 100;
 
+
     // ----------------------------------------------------------------------------------
     // Constructor - only for internal usage
     // ----------------------------------------------------------------------------------
-    protected ClientImpl(StompWireFormat wireFormat) {
+    ClientImpl(StompWireFormat wireFormat) {
+        this.wireFormat = wireFormat;
         setState(NEW);
+    }
+
+    public void postConstruct() {
         this.transmissionHandler = CloseTransmissionOnErrorInvocationHandler.getHandler(
                 new TransmissionHandlerImpl(wireFormat, hostname, port, encoding));
+    }
+
+    void setTransmissionHandler(TransmissionHandler transmissionHandler) {
+        this.transmissionHandler = transmissionHandler;
     }
 
     // ----------------------------------------------------------------------------------
     // StompResource methods
     // ----------------------------------------------------------------------------------
     @Override
-    public void init() {
+    public void connect() {
         assertNew();
         log.info(String.format("Initializing connection=[%s]", this));
         transmissionHandler.initializeCommunication(timeout);
         setState(COMMUNICATION_INITIALIZED);
-        connect();
+        doConnect();
         setState(OPERATIONAL);
     }
 
@@ -94,7 +104,7 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
     // ----------------------------------------------------------------------------------
     // Helper methods -> connection state modifiers
     // ----------------------------------------------------------------------------------
-    protected void connect() {
+    protected void doConnect() {
         Frame frame = new Frame(Command.CONNECT);
         frame.login(username);
         frame.passcode(password);
@@ -116,7 +126,7 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
     private void setSessionIdFromHandshakeIfNotNull(Frame serverHandshake) {
         String sessionId = serverHandshake.session();
         if (sessionId != null) {
-            setSessionId(sessionId);
+            sessionId(sessionId);
         } else {
             log.warn("Server has not returned a session id");
         }
