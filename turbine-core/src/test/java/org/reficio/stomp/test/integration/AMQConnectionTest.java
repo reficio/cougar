@@ -28,6 +28,7 @@ import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.TurbineConnectionBuilder;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -207,7 +208,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
                     @Override
                     public void decorateFrame(Frame frame) {
                         frame.custom("activemq.prefetchSize", "1");
-                        if(!autoAck) {
+                        if (!autoAck) {
                             frame.ack(Ack.CLIENT);
                         }
                     }
@@ -217,7 +218,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
                 if (rcv != null) {
                     received++;
                     counter.incrementAndGet();
-                    if(!autoAck) {
+                    if (!autoAck) {
                         connReceiver.ack(rcv.messageId());
                     }
                 }
@@ -228,7 +229,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
                     if (afterUnsubscribe != null && afterUnsubscribe.getCommand().equals(Command.MESSAGE)) {
                         received++;
                         counter.incrementAndGet();
-                        if(!autoAck)
+                        if (!autoAck)
                             connReceiver.ack(afterUnsubscribe.messageId());
                     }
 //                    else {
@@ -280,52 +281,47 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
     }
 
     @Test
+    // ActiveMQ prefetchSize header works only in manual ACK mode!!!!!
     public void prefetchSize() throws Exception {
-
-        StompConnection connection;
+        int messagesCount = 1000;
         String queue = getQueueName() + System.currentTimeMillis();
 
-        Sender sender1 = new Sender(1000, queue);
-        Thread t1 = new Thread(sender1);
-        t1.start();
-        t1.join();
+        StompConnection sender = new StompConnection();
+        sender.open("localhost", 61613);
+        sender.connect("user", "password");
+        for(int i = 0 ; i < messagesCount ; i++) {
+            sender.send(queue, "David Hasselhoff is cool");
+        }
+        sender.disconnect();
 
-        connection = new StompConnection();
+        StompConnection connection = new StompConnection();
         connection.open("localhost", 61613);
         connection.connect("user", "password");
-        System.out.println("Connected");
 
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(Stomp.Headers.Send.PERSISTENT, "true");
         map.put("activemq.prefetchSize", "1");
         map.put("activemq.dispatchAsync", "false");
-        connection.subscribe(queue, Stomp.Headers.Subscribe.AckModeValues.AUTO, map);
+        connection.subscribe(queue, Stomp.Headers.Subscribe.AckModeValues.INDIVIDUAL, map);
 
         StompFrame frame = connection.receive();
-        if(frame != null) {
-            System.out.println("Message received");
-        }
+        connection.ack(frame);
+        assertNotNull(frame);
         connection.unsubscribe(queue);
-        System.out.println("Unsubscribed");
 
-        Thread.sleep(1000);
-
-
-        int received = 1;
-
-        for (int i = 0; i < 1001; i++) {
-            StompFrame afterUnsubscribe = connection.receive(1500);
-            if (afterUnsubscribe != null) {
-                // System.out.println("Message received, after unsubscribe");
-                // assertTrue(false);
-                received++;
-                System.out.println(received);
+        int receivedAfterUnsubscribe = 0;
+        try {
+            for (int i = 0; i < messagesCount; i++) {
+                StompFrame afterUnsubscribe = connection.receive(1500);
+                if (afterUnsubscribe != null) {
+                    receivedAfterUnsubscribe++;
+                }
             }
+        } catch (SocketTimeoutException ex) {
+            // ignore
         }
-
         connection.disconnect();
-        System.out.println("Disconnected");
-
+        assertEquals(0, receivedAfterUnsubscribe);
     }
 
     @Test
@@ -362,7 +358,6 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
         int enqueued = sender1.getSent() + sender2.getSent();
         int inQueue = getQueueLength();
         int dequeued = receiver1.getReceived() + receiver2.getReceived();
-
 
 
         assertEquals(enqueued, inQueue + dequeued);
@@ -409,7 +404,6 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
         assertEquals(enqueued, inQueue + dequeued);
         System.out.println(inQueue);
     }
-
 
 
 }
