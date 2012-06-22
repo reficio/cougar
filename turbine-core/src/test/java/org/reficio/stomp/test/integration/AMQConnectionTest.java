@@ -17,21 +17,16 @@
 
 package org.reficio.stomp.test.integration;
 
-import org.apache.activemq.transport.stomp.Stomp;
-import org.apache.activemq.transport.stomp.StompConnection;
-import org.apache.activemq.transport.stomp.StompFrame;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.reficio.stomp.StompSocketTimeoutException;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.domain.Ack;
-import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.TurbineConnectionBuilder;
+import org.reficio.stomp.test.util.DisconnectingReceiver;
+import org.reficio.stomp.test.util.Receiver;
+import org.reficio.stomp.test.util.Sender;
 
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,10 +42,6 @@ import static org.junit.Assert.*;
  */
 public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
-    public Connection createConnection() {
-        return TurbineConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
-    }
-
     @Test
     public void connect() {
         Connection conn = createConnection();
@@ -61,7 +52,6 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
     @Test
     public void singleSendReceive() throws Exception {
-
         final String receiptId = UUID.randomUUID().toString();
         final String payload = "James Bond 007!";
         Connection connSender = createConnection();
@@ -111,303 +101,57 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
         connReceiver = null;
     }
 
-    class Sender implements Runnable {
-        private int toSendCount;
-        private String queueName;
-        private int sent = 0;
-
-        public Sender(int toSendCount, String queueName) {
-            this.toSendCount = toSendCount;
-            this.queueName = queueName;
-        }
-
-        @Override
-        public void run() {
-            Connection connSender = createConnection();
-            for (int i = 0; i < toSendCount; i++) {
-                connSender.send(queueName, new FrameDecorator() {
-                    @Override
-                    public void decorateFrame(Frame frame) {
-                        frame.payload(Thread.currentThread().getName() + "\t" + (sent++));
-                    }
-                });
-            }
-            connSender.close();
-        }
-
-        public int getSent() {
-            return sent;
-        }
-    }
-
-    class Receiver implements Runnable {
-        private int toReceiveCount;
-        private String queueName;
-        private int received = 0;
-        private AtomicInteger counter;
-
-        public Receiver(AtomicInteger counter, int toReceiveCount, String queueName) {
-            this.toReceiveCount = toReceiveCount;
-            this.queueName = queueName;
-            this.counter = counter;
-        }
-
-        @Override
-        public void run() {
-            Connection connReceiver = createConnection();
-            String subId = connReceiver.subscribe(getQueueName(), new FrameDecorator() {
-                @Override
-                public void decorateFrame(Frame frame) {
-                    frame.custom("activemq.prefetchSize", "1");
-                }
-            });
-            while (true) {
-                Frame rcv = connReceiver.receive(250);
-                if (rcv != null) {
-                    received++;
-                }
-                if (counter.addAndGet(1) >= toReceiveCount) {
-                    break;
-                }
-            }
-            connReceiver.unsubscribe(subId);
-            Frame afterUnsubscribe = connReceiver.receive(1000);
-            if (afterUnsubscribe != null) {
-                counter.incrementAndGet();
-                received++;
-            }
-            connReceiver.close();
-            connReceiver = null;
-        }
-
-        public int getReceived() {
-            return received;
-        }
-    }
-
-    class DisconnectingReceiver implements Runnable {
-        private int toReceiveCount;
-        private String queueName;
-        private int received = 0;
-        private AtomicInteger counter;
-        private boolean autoAck;
-
-        public DisconnectingReceiver(boolean autoAck, AtomicInteger counter, int toReceiveCount, String queueName) {
-            this.toReceiveCount = toReceiveCount;
-            this.queueName = queueName;
-            this.counter = counter;
-            this.autoAck = autoAck;
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                if (counter.get() >= toReceiveCount) {
-                    break;
-                }
-                Connection connReceiver = createConnection();
-                String subId = connReceiver.subscribe(getQueueName(), new FrameDecorator() {
-                    @Override
-                    public void decorateFrame(Frame frame) {
-                        frame.custom("activemq.prefetchSize", "1");
-                        if (!autoAck) {
-                            frame.ack(Ack.CLIENT);
-                        }
-                    }
-                });
-
-                Frame rcv = connReceiver.receive(250);
-                if (rcv != null) {
-                    received++;
-                    counter.incrementAndGet();
-                    if (!autoAck) {
-                        connReceiver.ack(rcv.messageId());
-                    }
-                }
-                connReceiver.unsubscribe(subId);
-
-                try {
-                    for (int i = 0; i < 10; i++) {
-                        Frame afterUnsubscribe = connReceiver.receive(300);
-                        if (afterUnsubscribe != null && afterUnsubscribe.getCommand().equals(Command.MESSAGE)) {
-                            received++;
-                            counter.incrementAndGet();
-                            if (!autoAck)
-                                connReceiver.ack(afterUnsubscribe.messageId());
-                        }
-                    }
-                } catch (StompSocketTimeoutException ex) {
-                    // ignore
-                }
-
-                connReceiver.close();
-                connReceiver = null;
-            }
-        }
-
-        public int getReceived() {
-            return received;
-        }
-    }
 
     @Test
     public void parallelSendReceive() throws Exception {
         String queue = getQueueName();
         AtomicInteger counter = new AtomicInteger(0);
 
+        Sender sender1 = new Sender(HOSTNAME, PORT);
+        Sender sender2 = new Sender(HOSTNAME, PORT);
+        Receiver receiver1 = new Receiver(HOSTNAME, PORT);
+        Receiver receiver2 = new Receiver(HOSTNAME, PORT);
 
-        Sender sender1 = new Sender(100, queue);
-        Sender sender2 = new Sender(100, queue);
+        receiver1.execute(counter, queue, 200);
+        receiver2.execute(counter, queue, 200);
+        sender1.execute(queue, 100);
+        sender2.execute(queue, 100);
 
-        Receiver receiver1 = new Receiver(counter, 200, queue);
-        Receiver receiver2 = new Receiver(counter, 200, queue);
-
-        Thread t1 = new Thread(sender1);
-        Thread t2 = new Thread(sender2);
-
-        Thread t3 = new Thread(receiver1);
-        Thread t4 = new Thread(receiver2);
-
-        t3.start();
-        t4.start();
-        t1.start();
-        t2.start();
-
-        t3.join();
-        t4.join();
-        t1.join();
-        t2.join();
+        receiver1.join();
+        receiver2.join();
+        sender1.join();
+        sender2.join();
 
         assertEquals(sender1.getSent() + sender2.getSent(), receiver1.getReceived() + receiver2.getReceived());
-
-
     }
 
     @Test
-    // ActiveMQ prefetchSize header works only in manual ACK mode!!!!!
-    public void prefetchSize() throws Exception {
-        int messagesCount = 1000;
-        String queue = getQueueName();
-
-        StompConnection sender = new StompConnection();
-        sender.open("localhost", 61613);
-        sender.connect("user", "password");
-        for (int i = 0; i < messagesCount; i++) {
-            sender.send(queue, "David Hasselhoff is cool");
-        }
-        sender.disconnect();
-
-        StompConnection connection = new StompConnection();
-        connection.open("localhost", 61613);
-        connection.connect("user", "password");
-
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put(Stomp.Headers.Send.PERSISTENT, "true");
-        map.put("activemq.prefetchSize", "1");
-        map.put("activemq.dispatchAsync", "false");
-        connection.subscribe(queue, Stomp.Headers.Subscribe.AckModeValues.INDIVIDUAL, map);
-
-        StompFrame frame = connection.receive();
-        assertNotNull(frame);
-        connection.ack(frame);
-        connection.unsubscribe(queue);
-
-        int receivedAfterUnsubscribe = 0;
-        try {
-            for (int i = 0; i < messagesCount; i++) {
-                StompFrame afterUnsubscribe = connection.receive(1500);
-                if (afterUnsubscribe != null) {
-                    receivedAfterUnsubscribe++;
-                }
-            }
-        } catch (SocketTimeoutException ex) {
-            // ignore
-        }
-        connection.disconnect();
-        // one message may arrive between ack and unsubscribe
-        assertTrue(receivedAfterUnsubscribe <= 1);
-    }
-
-    @Test
-    @Ignore
-    // Does not work with auto ack
-    public void parallelSendReceiveDisconnectingAutoAck() throws Exception {
+    public void parallelSendReceiveDisconnectAfterReception() throws Exception {
         String queue = getQueueName();
         AtomicInteger counter = new AtomicInteger(0);
+        boolean autoAck = false;
 
-        assertEquals(0, getQueueLength());
+        Sender sender1 = new Sender(HOSTNAME, PORT);
+        Sender sender2 = new Sender(HOSTNAME, PORT);
+        DisconnectingReceiver receiver1 = new DisconnectingReceiver(HOSTNAME, PORT);
+        DisconnectingReceiver receiver2 = new DisconnectingReceiver(HOSTNAME, PORT);
 
+        receiver1.execute(counter, queue, 200, autoAck);
+        receiver2.execute(counter, queue, 200, autoAck);
+        sender1.execute(queue, 100);
+        sender2.execute(queue, 100);
 
-        Sender sender1 = new Sender(4, queue);
-        Sender sender2 = new Sender(4, queue);
+        receiver1.join();
+        receiver2.join();
+        sender1.join();
+        sender2.join();
 
-        DisconnectingReceiver receiver1 = new DisconnectingReceiver(false, counter, 8, queue);
-        DisconnectingReceiver receiver2 = new DisconnectingReceiver(false, counter, 8, queue);
-
-        Thread t1 = new Thread(sender1);
-        Thread t2 = new Thread(sender2);
-
-        Thread t3 = new Thread(receiver1);
-        Thread t4 = new Thread(receiver2);
-
-        t3.start();
-        t4.start();
-        t1.start();
-        t2.start();
-
-        t3.join();
-        t4.join();
-        t1.join();
-        t2.join();
-
-
-        int enqueued = sender1.getSent() + sender2.getSent();
-        int inQueue = getQueueLength();
-        int dequeued = receiver1.getReceived() + receiver2.getReceived();
-
-
-        assertEquals(enqueued, inQueue + dequeued);
-
-
+        assertEquals(sender1.getSent() + sender2.getSent(), receiver1.getReceived() + receiver2.getReceived());
     }
 
-
-    @Test
-    public void parallelSendReceiveDisconnectingManualAckPrefetchSize() throws Exception {
-        String queue = getQueueName();
-        AtomicInteger counter = new AtomicInteger(0);
-
-        assertEquals(0, getQueueLength());
-
-
-        Sender sender1 = new Sender(4, queue);
-        Sender sender2 = new Sender(4, queue);
-
-        DisconnectingReceiver receiver1 = new DisconnectingReceiver(true, counter, 8, queue);
-        DisconnectingReceiver receiver2 = new DisconnectingReceiver(true, counter, 8, queue);
-
-        Thread t1 = new Thread(sender1);
-        Thread t2 = new Thread(sender2);
-
-        Thread t3 = new Thread(receiver1);
-        Thread t4 = new Thread(receiver2);
-
-        t3.start();
-        t4.start();
-        t1.start();
-        t2.start();
-
-        t3.join();
-        t4.join();
-        t1.join();
-        t2.join();
-
-        int enqueued = sender1.getSent() + sender2.getSent();
-        int inQueue = getQueueLength();
-        int dequeued = receiver1.getReceived() + receiver2.getReceived();
-
-        assertEquals(enqueued, inQueue + dequeued);
+    @Override
+    public Connection createConnection() {
+        return TurbineConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
-
 
 }

@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.reficio.stomp.core.StompResource;
 
+import static junit.framework.Assert.assertEquals;
+
 /**
  * User: Tom Bujok (tomasz.bujok@centeractive.com)
  * Date: 16/10/11
@@ -52,6 +54,7 @@ public abstract class AbstractAMQIntegrationTest<T extends StompResource> {
     @Before
     public void setup() throws Exception {
         broker.getAdminView().addQueue(destinationName);
+        assertEquals(0, getQueueLength());
     }
 
     @After
