@@ -17,10 +17,7 @@
 
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.core.FramePreprocessor;
-import org.reficio.stomp.core.FrameValidator;
 import org.reficio.stomp.core.StompResourceState;
-import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.test.mock.MockConnectionStub;
 
 /**

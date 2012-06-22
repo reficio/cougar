@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.reficio.stomp.StompInvalidHeaderException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.FramePreprocessor;
-import org.reficio.stomp.core.FrameValidator;
+import org.reficio.stomp.impl.FrameValidator;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 

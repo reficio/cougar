@@ -5,7 +5,7 @@ import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Ack;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.TurbineConnectionBuilder;
+import org.reficio.stomp.impl.ConnectionBuilder;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +48,7 @@ public class DisconnectingReceiver implements Runnable {
     }
 
     public Connection createConnection() {
-        return TurbineConnectionBuilder.connection().hostname(hostname).port(port).buildAndConnect();
+        return ConnectionBuilder.connection().hostname(hostname).port(port).buildAndConnect();
     }
 
     @Override

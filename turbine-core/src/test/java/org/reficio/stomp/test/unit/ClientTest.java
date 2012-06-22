@@ -26,7 +26,6 @@ import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.MockClientImpl;
 import org.reficio.stomp.impl.MockConnectionBuilder;
-import org.reficio.stomp.impl.MockConnectionImpl;
 import org.reficio.stomp.test.mock.IMockMessageHandler;
 
 import java.util.UUID;
@@ -91,9 +90,9 @@ public class ClientTest {
         connection.connect();
 
         // test logic
-        assertTrue(connection.isInitialized());
+        assertTrue(connection.isConnected());
         connection.close();
-        assertFalse(connection.isInitialized());
+        assertFalse(connection.isConnected());
     }
 
     @Test
@@ -229,8 +228,8 @@ public class ClientTest {
 //            public synchronized void init() {
 //                assertNew();
 //                initializeCommunication(1000);
-//                setState(StompResourceState.COMMUNICATION_INITIALIZED);
-//                setState(StompResourceState.OPERATIONAL);
+//                setState(StompResourceState.CONNECTING);
+//                setState(StompResourceState.CONNECTED);
 //            }
 //        }
 //

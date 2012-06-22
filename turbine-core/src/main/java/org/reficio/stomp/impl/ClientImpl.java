@@ -44,7 +44,7 @@ import static org.reficio.stomp.core.StompResourceState.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
+class ClientImpl extends StompResourceImpl implements Client {
 
     private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
 
@@ -81,9 +81,9 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
         assertNew();
         log.info(String.format("Initializing connection=[%s]", this));
         transmissionHandler.initializeCommunication(timeout);
-        setState(COMMUNICATION_INITIALIZED);
+        setState(CONNECTING);
         doConnect();
-        setState(OPERATIONAL);
+        setState(CONNECTED);
     }
 
     @Override
@@ -97,8 +97,8 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
     }
 
     @Override
-    public boolean isInitialized() {
-        return state.equals(OPERATIONAL);
+    public boolean isConnected() {
+        return state.equals(CONNECTED);
     }
 
     // ----------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
     }
 
     protected void closeCommunicationOnError() {
-        setState(ERROR);
+        setState(BROKEN);
         transmissionHandler.closeCommunication();
     }
 
@@ -200,7 +200,7 @@ class ClientImpl extends StompResourceImpl implements StompAccessor, Client {
     // Helper methods -> connection state verification
     // ----------------------------------------------------------------------------------
     protected void assertOperational() {
-        if (isInitialized() == false) {
+        if (isConnected() == false) {
             throw new StompConnectionException(
                     String.format("Connection is not operational. Connection state is [%s]", getState()));
         }

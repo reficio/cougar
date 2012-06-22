@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.core;
+package org.reficio.stomp.impl;
 
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class FrameValidator implements FramePreprocessor {
-
-    private static final transient Logger log = LoggerFactory.getLogger(FrameValidator.class);
-
+class FrameValidator implements FramePreprocessor {
     @Override
     public void decorate(Frame frame, FrameDecorator decorator) {
         checkNotNull(decorator, "decorator cannot be null");

@@ -32,13 +32,9 @@ import org.reficio.stomp.core.StompResource;
 public interface TransactionalConnection extends StompResource, StompOperations {
 
     void begin() throws StompException;
-
     void rollback(FrameDecorator frameDecorator) throws StompException;
-
 	void rollback() throws StompException;
-
 	void commit(FrameDecorator frameDecorator) throws StompException;
-
 	void commit() throws StompException;
 
 }

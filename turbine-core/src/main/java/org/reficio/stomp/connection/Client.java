@@ -17,8 +17,9 @@
 
 package org.reficio.stomp.connection;
 
-import org.reficio.stomp.core.StompAccessor;
+import org.reficio.stomp.StompException;
 import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.domain.Frame;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -28,5 +29,11 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface Client extends StompAccessor, StompResource {
+public interface Client extends StompResource {
+
+    void send(Frame frame) throws StompException;
+	Frame receive() throws StompException;
+    Frame receive(int timeout) throws StompException;
+    Frame receiveNoWait() throws StompException;
+
 }

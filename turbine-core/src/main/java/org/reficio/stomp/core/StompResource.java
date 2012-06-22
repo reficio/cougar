@@ -30,8 +30,8 @@ import org.reficio.stomp.StompException;
 public interface StompResource {
 
     void connect();
-	void close() throws StompException;
-    boolean isInitialized();
+    boolean isConnected();
+    void close();
 
 	String getHostname();
 	String getPassword();

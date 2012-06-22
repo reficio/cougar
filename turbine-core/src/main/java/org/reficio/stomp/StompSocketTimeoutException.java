@@ -8,14 +8,20 @@ package org.reficio.stomp;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class StompSocketTimeoutException extends RuntimeException {
+public class StompSocketTimeoutException extends StompException {
+
+    private static final long serialVersionUID = 1L;
 
     public StompSocketTimeoutException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 
     public StompSocketTimeoutException(String message, Throwable cause) {
         super(message, cause);
     }
+
+	public StompSocketTimeoutException(String message) {
+		super(message);
+	}
 
 }

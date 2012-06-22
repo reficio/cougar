@@ -27,9 +27,9 @@ package org.reficio.stomp.core;
  */
 public enum StompResourceState {
     NEW,
-    COMMUNICATION_INITIALIZED,
-    OPERATIONAL,
-    ERROR,
+    CONNECTING,
+    CONNECTED,
+    BROKEN,
     CLOSING,
     CLOSED
 }

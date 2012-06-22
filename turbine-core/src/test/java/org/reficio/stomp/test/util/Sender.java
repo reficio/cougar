@@ -3,7 +3,7 @@ package org.reficio.stomp.test.util;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.TurbineConnectionBuilder;
+import org.reficio.stomp.impl.ConnectionBuilder;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,7 +22,7 @@ public class Sender implements Runnable {
     private Thread thread;
 
     public Connection createConnection() {
-        return TurbineConnectionBuilder.connection().hostname(hostname).port(port).buildAndConnect();
+        return ConnectionBuilder.connection().hostname(hostname).port(port).buildAndConnect();
     }
 
     public Sender(String hostname, int port) {

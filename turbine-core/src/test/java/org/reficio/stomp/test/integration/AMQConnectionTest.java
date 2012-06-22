@@ -17,12 +17,11 @@
 
 package org.reficio.stomp.test.integration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.TurbineConnectionBuilder;
+import org.reficio.stomp.impl.ConnectionBuilder;
 import org.reficio.stomp.test.util.DisconnectingReceiver;
 import org.reficio.stomp.test.util.Receiver;
 import org.reficio.stomp.test.util.Sender;
@@ -45,9 +44,9 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
     @Test
     public void connect() {
         Connection conn = createConnection();
-        assertTrue(conn.isInitialized());
+        assertTrue(conn.isConnected());
         conn.close();
-        assertFalse(conn.isInitialized());
+        assertFalse(conn.isConnected());
     }
 
     @Test
@@ -151,7 +150,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
     @Override
     public Connection createConnection() {
-        return TurbineConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
+        return ConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
 }

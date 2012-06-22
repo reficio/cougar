@@ -86,7 +86,6 @@ public class AMQSpikesTest extends AbstractAMQIntegrationTest<Connection> {
         assertTrue("receivedAfterUnsubscribe was " + receivedAfterUnsubscribe, receivedAfterUnsubscribe <= 1);
     }
 
-
     @Override
     public Connection createConnection() {
         return null;

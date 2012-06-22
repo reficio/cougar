@@ -4,7 +4,6 @@ import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.connection.TransactionalConnection;
-import org.reficio.stomp.core.FrameValidator;
 import org.reficio.stomp.core.StompResource;
 
 /**
@@ -14,7 +13,7 @@ import org.reficio.stomp.core.StompResource;
  * Time: 4:28 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MockConnectionBuilder extends TurbineConnectionBuilder {
+public class MockConnectionBuilder extends ConnectionBuilder {
 
     public static Builder<MockClientImpl> mockClient() {
         return new AbstractBuilder<MockClientImpl>() {

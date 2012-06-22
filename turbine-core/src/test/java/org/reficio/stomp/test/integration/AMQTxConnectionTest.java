@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.TurbineConnectionBuilder;
+import org.reficio.stomp.impl.ConnectionBuilder;
 
 import static org.junit.Assert.*;
 
@@ -36,15 +36,15 @@ import static org.junit.Assert.*;
 public class AMQTxConnectionTest extends AbstractAMQIntegrationTest<TransactionalConnection> {
 
     public TransactionalConnection createConnection() {
-        return TurbineConnectionBuilder.transactionalConnection().hostname(HOSTNAME).port(PORT).buildAndConnect();
+        return ConnectionBuilder.transactionalConnection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
     @Test
     public void connect() {
         TransactionalConnection conn = createConnection();
-        assertTrue(conn.isInitialized());
+        assertTrue(conn.isConnected());
         conn.close();
-        assertFalse(conn.isInitialized());
+        assertFalse(conn.isConnected());
     }
 
     @Test

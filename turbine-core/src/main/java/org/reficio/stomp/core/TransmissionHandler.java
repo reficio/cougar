@@ -19,11 +19,9 @@ import java.net.SocketException;
  * To change this template use File | Settings | File Templates.
  */
 public interface TransmissionHandler {
-
     void initializeCommunication(int timeout);
     void closeCommunication();
     void setReceptionTimeoutInMillis(int timeout);
     void marshall(Frame frame);
     Frame unmarshall();
-
 }

@@ -15,12 +15,15 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.impl;
+package org.reficio.stomp.factory;
 
 import org.reficio.stomp.connection.ConnectionFactory;
 import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.impl.ConnectionBuilder;
 
 /**
+ * A simple implementation of ConnectionFactory that return a new connection for each invocation of the createConnection method.
+ * <p/>
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-12-30
  * Time: 12:48 AM
@@ -28,7 +31,7 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class TurbineConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
+public class SimpleConnectionFactory<T extends StompResource> implements ConnectionFactory<T> {
 
     protected String hostname;
     protected Integer port;
@@ -39,17 +42,17 @@ public class TurbineConnectionFactory<T extends StompResource> implements Connec
 
     protected final Class clazz;
 
-    public TurbineConnectionFactory(Class<T> clazz) {
+    public SimpleConnectionFactory(Class<T> clazz) {
         this.clazz = clazz;
     }
 
-    protected TurbineConnectionBuilder.Builder<T> getBuilder() {
-        TurbineConnectionBuilder.Builder<T> builder = TurbineConnectionBuilder.<T>builder(clazz);
+    protected ConnectionBuilder.Builder<T> getBuilder() {
+        ConnectionBuilder.Builder<T> builder = ConnectionBuilder.<T>builder(clazz);
         return builder;
     }
 
     protected T buildConnetion() {
-        TurbineConnectionBuilder.Builder<T> builder = getBuilder();
+        ConnectionBuilder.Builder<T> builder = getBuilder();
         if (hostname != null)
             builder.hostname(hostname);
         if (port != null)

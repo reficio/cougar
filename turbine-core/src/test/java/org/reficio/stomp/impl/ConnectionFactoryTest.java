@@ -23,6 +23,7 @@ import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.factory.SimpleConnectionFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -75,7 +76,7 @@ public class ConnectionFactoryTest {
     @Test(timeout = 4000)
     public void createConnection() {
         startMockServer();
-        TurbineConnectionFactory<Connection> factory = new TurbineConnectionFactory<Connection>(Connection.class);
+        SimpleConnectionFactory<Connection> factory = new SimpleConnectionFactory<Connection>(Connection.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
@@ -95,7 +96,7 @@ public class ConnectionFactoryTest {
     @Test(timeout = 4000)
     public void createConnectionDefault() {
         startMockServer();
-        TurbineConnectionFactory<Connection> factory = new TurbineConnectionFactory<Connection>(Connection.class);
+        SimpleConnectionFactory<Connection> factory = new SimpleConnectionFactory<Connection>(Connection.class);
         Connection conn = factory.createConnection();
     }
 
@@ -103,7 +104,7 @@ public class ConnectionFactoryTest {
     public void createConnectionEx() {
         class NotSupportedClientImpl extends MockClientImpl {
         }
-        TurbineConnectionFactory<NotSupportedClientImpl> factory = new TurbineConnectionFactory<NotSupportedClientImpl>(NotSupportedClientImpl.class);
+        SimpleConnectionFactory<NotSupportedClientImpl> factory = new SimpleConnectionFactory<NotSupportedClientImpl>(NotSupportedClientImpl.class);
         factory.createConnection();
     }
 
