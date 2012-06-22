@@ -17,10 +17,10 @@
 package org.reficio.stomp.spring.core;
 
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 
 public interface ConnectionCallback<T> {
 
-	T doInStomp(TransactionalConnection connection) throws StompException;
+	T doInStomp(TransactionalClient client) throws StompException;
 
 }

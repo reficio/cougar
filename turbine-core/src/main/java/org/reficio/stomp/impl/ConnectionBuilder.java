@@ -3,7 +3,7 @@ package org.reficio.stomp.impl;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.reficio.stomp.core.StompResource;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -108,40 +108,40 @@ public class ConnectionBuilder {
 
     }
 
-    public static Builder<Client> client() {
-        return new AbstractBuilder<Client>() {
-            @Override
-            public Client instantiate() {
-                return new ClientImpl(new WireFormatImpl());
-            }
-        };
-    }
-
-    public static Builder<Connection> connection() {
+    public static Builder<Connection> client() {
         return new AbstractBuilder<Connection>() {
             @Override
             public Connection instantiate() {
-                return new ConnectionImpl(new WireFormatImpl(), new FrameValidator());
+                return new ConnectionImpl(new WireFormatImpl());
             }
         };
     }
 
-    public static Builder<TransactionalConnection> transactionalConnection() {
-        return new AbstractBuilder<TransactionalConnection>() {
+    public static Builder<Client> connection() {
+        return new AbstractBuilder<Client>() {
             @Override
-            public TransactionalConnection instantiate() {
-                return new TransactionalConnectionImpl(new WireFormatImpl(), new FrameValidator());
+            public Client instantiate() {
+                return new ClientImpl(new WireFormatImpl(), new FrameValidator());
+            }
+        };
+    }
+
+    public static Builder<TransactionalClient> transactionalConnection() {
+        return new AbstractBuilder<TransactionalClient>() {
+            @Override
+            public TransactionalClient instantiate() {
+                return new TransactionalClientImpl(new WireFormatImpl(), new FrameValidator());
             }
         };
     }
 
     @SuppressWarnings("unchecked") // impossible to omit
     public static <T extends StompResource> Builder<T> builder(Class<T> clazz) {
-        if (clazz.equals(Client.class)) {
+        if (clazz.equals(Connection.class)) {
             return (Builder<T>) client();
-        } else if (clazz.equals(Connection.class)) {
+        } else if (clazz.equals(Client.class)) {
             return (Builder<T>) connection();
-        } else if (clazz.equals(TransactionalConnection.class)) {
+        } else if (clazz.equals(TransactionalClient.class)) {
             return (Builder<T>) transactionalConnection();
         }
         throw new StompException(clazz.getName() + " is not supported");

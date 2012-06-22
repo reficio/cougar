@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.impl;
+package org.reficio.stomp.connection;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,7 +27,9 @@ import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Ack;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.test.mock.IMockMessageHandler;
+import org.reficio.stomp.impl.IMockMessageHandler;
+import org.reficio.stomp.impl.MockConnectionBuilder;
+import org.reficio.stomp.impl.MockTransactionalClientImpl;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TransactionalConnectionTest {
 
-    private MockTransactionalConnectionImpl connection;
+    private MockTransactionalClientImpl txClient;
     private EmptyDecorator decorator;
 
     class EmptyDecorator implements FrameDecorator {
@@ -56,10 +58,11 @@ public class TransactionalConnectionTest {
 
     @Before
     public void initialize() {
-        connection = MockConnectionBuilder.mockTransactionalConnection().build();
+        txClient = MockConnectionBuilder.mockTransactionalConnection().hostname("localhost")
+                .port(61613).timeout(1000).build();
         decorator = new EmptyDecorator();
         // register handlers
-        connection.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
+        txClient.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
                 Frame response = new Frame(Command.CONNECTED);
@@ -68,7 +71,7 @@ public class TransactionalConnectionTest {
             }
         });
 
-        connection.getStub().getServer().registerHandler(Command.SUBSCRIBE, new IMockMessageHandler() {
+        txClient.getStub().getServer().registerHandler(Command.SUBSCRIBE, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
                 Frame response = new Frame(Command.MESSAGE);
@@ -78,7 +81,7 @@ public class TransactionalConnectionTest {
             }
         });
 
-        connection.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
+        txClient.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
                 Frame response = new Frame(Command.RECEIPT);
@@ -86,26 +89,24 @@ public class TransactionalConnectionTest {
                 return response;
             }
         });
-        // initialize the connection
-        connection.hostname("localhost")
-                .port(61613).timeout(1000);
-        connection.connect();
+        // initialize the txClient
+        txClient.connect();
     }
 
     @After
     public void cleanup() {
-        connection = null;
+        txClient = null;
         decorator = null;
     }
 
 
     @Test
     public void ackInTransactiona() {
-        connection.begin();
-        connection.ack("msg1", decorator);
-        connection.commit();
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        txClient.ack("msg1", decorator);
+        txClient.commit();
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -131,16 +132,16 @@ public class TransactionalConnectionTest {
     @Test
     public void send() {
         final String payload = "msg1";
-        connection.begin();
-        connection.send("queue1", new FrameDecorator() {
+        txClient.begin();
+        txClient.send("queue1", new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
                 frame.payload(payload);
             }
         });
-        connection.commit();
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.commit();
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -167,7 +168,7 @@ public class TransactionalConnectionTest {
     @Test(expected = StompInvalidHeaderException.class)
     public void transactionSetExplicitly() {
         final String payload = "msg1";
-        connection.send("queue1", new FrameDecorator() {
+        txClient.send("queue1", new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
                 frame.payload(payload);
@@ -179,10 +180,10 @@ public class TransactionalConnectionTest {
     @Test
     public void beginComit() {
         final String payload = "msg1";
-        connection.begin();
-        connection.commit();
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        txClient.commit();
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -204,10 +205,10 @@ public class TransactionalConnectionTest {
     @Test
     public void beginCommitDecorator() {
         final String payload = "msg1";
-        connection.begin();
-        connection.commit(decorator);
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        txClient.commit(decorator);
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -230,10 +231,10 @@ public class TransactionalConnectionTest {
     @Test
     public void beginAbort() {
         final String payload = "msg1";
-        connection.begin();
-        connection.rollback();
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        txClient.rollback();
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -255,10 +256,10 @@ public class TransactionalConnectionTest {
     @Test
     public void beginAbortDecorator() {
         final String payload = "msg1";
-        connection.begin();
-        connection.rollback(decorator);
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        txClient.rollback(decorator);
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(4, frames.size());
         // connect
         Frame connect = frames.get(0);
@@ -280,34 +281,34 @@ public class TransactionalConnectionTest {
 
     @Test(expected = StompIllegalTransactionStateException.class)
     public void doubleBegin() {
-        connection.begin();
-        connection.begin();
+        txClient.begin();
+        txClient.begin();
     }
 
     @Test(expected = StompIllegalTransactionStateException.class)
     public void comitNoBegin() {
-        connection.commit();
+        txClient.commit();
     }
 
     @Test(expected = StompConnectionException.class)
     public void txUninitializedConnection() {
-        MockTransactionalConnectionImpl conn = new MockTransactionalConnectionImpl();
+        MockTransactionalClientImpl conn = MockConnectionBuilder.mockTransactionalConnection().build();
         conn.begin();
     }
 
     @Test
     public void subscribeReceiveAckCheck() {
-        connection.subscribe("r/queue/1", new FrameDecorator() {
+        txClient.subscribe("r/queue/1", new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
                 frame.ack(Ack.CLIENT);
             }
         });
-        connection.begin();
-        Frame frame = connection.receive();
-        connection.ack(frame.messageId());
-        connection.close();
-        List<Frame> frames = connection.getServer().getFrames();
+        txClient.begin();
+        Frame frame = txClient.receive();
+        txClient.ack(frame.messageId());
+        txClient.close();
+        List<Frame> frames = txClient.getServer().getFrames();
         assertEquals(5, frames.size());
         // connect
         Frame connect = frames.get(0);

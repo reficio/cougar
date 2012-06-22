@@ -14,38 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.reficio.stomp.connection;
 
-package org.reficio.stomp.test.unit;
-
-import org.junit.Test;
-import org.reficio.stomp.domain.Header;
-import org.reficio.stomp.domain.HeaderType;
-
-import static org.junit.Assert.assertEquals;
+import org.reficio.stomp.StompException;
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.StompOperations;
+import org.reficio.stomp.core.StompResource;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2011-02-09
- * Time: 9:56 AM
+ * Date: 2011-07-28
+ * Time: 3:59 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
- * http://www.reficio.org/
+ * http://www.reficio.org
  */
-public class HeaderTest {
+public interface TransactionalClient extends StompResource, StompOperations {
 
-    @Test
-    public void createHeaderByType() {
-        Header h = Header.createHeader(HeaderType.CONTENT_LENGTH, "007");
-        assertEquals(h.getName(), HeaderType.CONTENT_LENGTH.getName());
-        assertEquals(h.getValue(), "007");
-    }
-
-    @Test
-    public void createHeaderByName() {
-        Header h = Header.createHeader("JMS_CORRELATION_ID", "007");
-        assertEquals(h.getName(), "JMS_CORRELATION_ID");
-        assertEquals(h.getValue(), "007");
-    }
-
+    void begin() throws StompException;
+    void rollback(FrameDecorator frameDecorator) throws StompException;
+	void rollback() throws StompException;
+	void commit(FrameDecorator frameDecorator) throws StompException;
+	void commit() throws StompException;
 
 }

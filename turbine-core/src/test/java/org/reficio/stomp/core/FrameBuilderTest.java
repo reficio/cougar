@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.core;
 
 import org.junit.Test;
 import org.reficio.stomp.StompInvalidHeaderException;

@@ -19,7 +19,7 @@ package org.reficio.stomp.impl;
 
 import org.junit.Test;
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
@@ -76,14 +76,14 @@ public class ConnectionFactoryTest {
     @Test(timeout = 4000)
     public void createConnection() {
         startMockServer();
-        SimpleConnectionFactory<Connection> factory = new SimpleConnectionFactory<Connection>(Connection.class);
+        SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
         factory.setPort(61613);
         factory.setUsername("system");
         factory.setPassword("manager");
         factory.setTimeout(1000);
-        Connection conn = factory.createConnection();
+        Client conn = factory.createConnection();
 
         assertEquals(factory.getEncoding(), conn.getEncoding());
         assertEquals(factory.getHostname(), conn.getHostname());
@@ -96,15 +96,15 @@ public class ConnectionFactoryTest {
     @Test(timeout = 4000)
     public void createConnectionDefault() {
         startMockServer();
-        SimpleConnectionFactory<Connection> factory = new SimpleConnectionFactory<Connection>(Connection.class);
-        Connection conn = factory.createConnection();
+        SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
+        Client conn = factory.createConnection();
     }
 
     @Test(expected = StompException.class)
     public void createConnectionEx() {
-        class NotSupportedClientImpl extends MockClientImpl {
+        class NotSupportedConnectionImpl extends MockConnectionImpl {
         }
-        SimpleConnectionFactory<NotSupportedClientImpl> factory = new SimpleConnectionFactory<NotSupportedClientImpl>(NotSupportedClientImpl.class);
+        SimpleConnectionFactory<NotSupportedConnectionImpl> factory = new SimpleConnectionFactory<NotSupportedConnectionImpl>(NotSupportedConnectionImpl.class);
         factory.createConnection();
     }
 

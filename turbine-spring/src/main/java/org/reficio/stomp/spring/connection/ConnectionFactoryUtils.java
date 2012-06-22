@@ -18,7 +18,7 @@ package org.reficio.stomp.spring.connection;
 
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.ConnectionFactory;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.ResourceHolderSynchronization;
@@ -29,15 +29,15 @@ public class ConnectionFactoryUtils {
 
 	private static final transient Logger log = LoggerFactory.getLogger(ConnectionFactoryUtils.class);
 	
-	public static void releaseConnection(TransactionalConnection connection) {
-		if (connection == null) {
+	public static void releaseConnection(TransactionalClient client) {
+		if (client == null) {
 			return;
 		}
 		try {
-			connection.close();
+			client.close();
 		}
 		catch (Throwable ex) {
-			log.debug("Could not close Stomp Connection", ex);
+			log.debug("Could not close Stomp Client", ex);
 		}
 	}
 	
@@ -47,23 +47,23 @@ public class ConnectionFactoryUtils {
 	 * @param cf the JMS ConnectionFactory that the Session originated from
 	 * @return whether the Session is transactional
 	 */
-	public static boolean isConnectionTransactional(TransactionalConnection connection, ConnectionFactory<TransactionalConnection> cf) {
-		if (connection == null || cf == null) {
+	public static boolean isConnectionTransactional(TransactionalClient client, ConnectionFactory<TransactionalClient> cf) {
+		if (client == null || cf == null) {
 			return false;
 		}
 		StompResourceHolder resourceHolder = (StompResourceHolder) TransactionSynchronizationManager.getResource(cf);
-		return (resourceHolder != null && resourceHolder.containsConnection(connection));
+		return (resourceHolder != null && resourceHolder.containsConnection(client));
 	}
 	
-	public static TransactionalConnection getTransactionalConnection(
-			final ConnectionFactory<TransactionalConnection> cf, final boolean synchedLocalTransactionAllowed, final boolean receptionTransactional) {
+	public static TransactionalClient getTransactionalConnection(
+			final ConnectionFactory<TransactionalClient> cf, final boolean synchedLocalTransactionAllowed, final boolean receptionTransactional) {
 
 		return doGetTransactionalConnection(cf, new ResourceFactory() {
-			public TransactionalConnection getConnection(StompResourceHolder holder) {
+			public TransactionalClient getConnection(StompResourceHolder holder) {
 				return (holder.getConnection());
 			}
-			public TransactionalConnection createConnection() {
-				TransactionalConnection conn = cf.createConnection();
+			public TransactionalClient createConnection() {
+				TransactionalClient conn = cf.createConnection();
                 // TODO double-check
 				// conn.setAutoTransactional(synchedLocalTransactionAllowed);
                 // conn.setReceptionTransactional(receptionTransactional);
@@ -85,14 +85,14 @@ public class ConnectionFactoryUtils {
 	 * (used as TransactionSynchronizationManager key)
 	 * @param resourceFactory the ResourceFactory to use for extracting or creating
 	 * JMS resources
-	 * @param startConnection whether the underlying JMS Connection approach should be
-	 * started in order to allow for receiving messages. Note that a reused Connection
+	 * @param startConnection whether the underlying JMS Client approach should be
+	 * started in order to allow for receiving messages. Note that a reused Client
 	 * may already have been started before, even if this flag is <code>false</code>.
 	 * @return the transactional Session, or <code>null</code> if none found
 	 * @throws JMSException in case of JMS failure
 	 */
-	public static TransactionalConnection doGetTransactionalConnection(
-			ConnectionFactory<TransactionalConnection> connectionFactory, ResourceFactory resourceFactory) {
+	public static TransactionalClient doGetTransactionalConnection(
+			ConnectionFactory<TransactionalClient> connectionFactory, ResourceFactory resourceFactory) {
 
 		Assert.notNull(connectionFactory, "ConnectionFactory must not be null");
 		Assert.notNull(resourceFactory, "ResourceFactory must not be null");
@@ -100,9 +100,9 @@ public class ConnectionFactoryUtils {
 		StompResourceHolder resourceHolder =
 				(StompResourceHolder) TransactionSynchronizationManager.getResource(connectionFactory);
 		if (resourceHolder != null) {
-			TransactionalConnection connection = resourceFactory.getConnection(resourceHolder);
-			if (connection != null) {
-				return connection;
+			TransactionalClient client = resourceFactory.getConnection(resourceHolder);
+			if (client != null) {
+				return client;
 			}
 			if (resourceHolder.isFrozen()) {
 				return null;
@@ -115,18 +115,18 @@ public class ConnectionFactoryUtils {
 		if (resourceHolderToUse == null) {
 			resourceHolderToUse = new StompResourceHolder();
 		}
-		TransactionalConnection connection = resourceFactory.getConnection(resourceHolderToUse);
+		TransactionalClient client = resourceFactory.getConnection(resourceHolderToUse);
 		try {
-			boolean isExistingCon = (connection != null);
+			boolean isExistingCon = (client != null);
 			if (!isExistingCon) {
-				connection = resourceFactory.createConnection();
-				resourceHolderToUse.addConnection(connection);
+				client = resourceFactory.createConnection();
+				resourceHolderToUse.addConnection(client);
 			}
 		}
 		catch (StompException ex) {
-			if (connection != null) {
+			if (client != null) {
 				try {
-					connection.close();
+					client.close();
 				}
 				catch (Throwable ex2) {
 					// ignore
@@ -141,7 +141,7 @@ public class ConnectionFactoryUtils {
 			resourceHolderToUse.setSynchronizedWithTransaction(true);
 			TransactionSynchronizationManager.bindResource(connectionFactory, resourceHolderToUse);
 		}
-		return connection;
+		return client;
 	}
 	
 	
@@ -152,19 +152,19 @@ public class ConnectionFactoryUtils {
 	public interface ResourceFactory {
 
 		/**
-		 * Fetch an appropriate Connection from the given StompResourceHolder.
+		 * Fetch an appropriate Client from the given StompResourceHolder.
 		 * @param holder the StompResourceHolder
-		 * @return an appropriate Connection fetched from the holder,
+		 * @return an appropriate Client fetched from the holder,
 		 * or <code>null</code> if none found
 		 */
-		TransactionalConnection getConnection(StompResourceHolder holder);
+		TransactionalClient getConnection(StompResourceHolder holder);
 
 		/**
-		 * Create a new JMS Connection for registration with a StompResourceHolder.
-		 * @return the new JMS Connection
+		 * Create a new JMS Client for registration with a StompResourceHolder.
+		 * @return the new JMS Client
 		 * @throws JMSException if thrown by JMS API methods
 		 */
-		TransactionalConnection createConnection();
+		TransactionalClient createConnection();
 
 		/**
 		 * Return whether to allow for a local JMS transaction that is synchronized with

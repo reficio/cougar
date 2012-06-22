@@ -18,22 +18,22 @@ package org.reficio.stomp.spring.core;
 
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.ConnectionFactory;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.reficio.stomp.spring.connection.StompResourceHolder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 public abstract class StompAccessor implements InitializingBean {
 
-	private volatile ConnectionFactory<TransactionalConnection> connectionFactory;
+	private volatile ConnectionFactory<TransactionalClient> connectionFactory;
 	
 	protected abstract <T> T execute(ConnectionCallback<T> action) throws StompException;
 	
-	public void setConnectionFactory(ConnectionFactory<TransactionalConnection> connectionFactory) {
+	public void setConnectionFactory(ConnectionFactory<TransactionalClient> connectionFactory) {
 		this.connectionFactory = connectionFactory;
 	}
 
-	public ConnectionFactory<TransactionalConnection> getConnectionFactory() {
+	public ConnectionFactory<TransactionalClient> getConnectionFactory() {
 		return this.connectionFactory;
 	}
 
@@ -41,7 +41,7 @@ public abstract class StompAccessor implements InitializingBean {
 		Assert.notNull(this.connectionFactory, "ConnectionFactory is required");
 	}
 
-	protected TransactionalConnection getConnection(StompResourceHolder holder) {
+	protected TransactionalClient getConnection(StompResourceHolder holder) {
 		return holder.getConnection();
 	}
 	

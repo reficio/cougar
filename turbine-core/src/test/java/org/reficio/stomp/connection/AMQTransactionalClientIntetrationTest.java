@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.integration;
+package org.reficio.stomp.connection;
 
 import org.junit.Test;
-import org.reficio.stomp.connection.TransactionalConnection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionBuilder;
@@ -33,15 +32,15 @@ import static org.junit.Assert.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class AMQTxConnectionTest extends AbstractAMQIntegrationTest<TransactionalConnection> {
+public class AMQTransactionalClientIntetrationTest extends AbstractAMQIntegrationTest<TransactionalClient> {
 
-    public TransactionalConnection createConnection() {
+    public TransactionalClient createConnection() {
         return ConnectionBuilder.transactionalConnection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
     @Test
     public void connect() {
-        TransactionalConnection conn = createConnection();
+        TransactionalClient conn = createConnection();
         assertTrue(conn.isConnected());
         conn.close();
         assertFalse(conn.isConnected());
@@ -52,7 +51,7 @@ public class AMQTxConnectionTest extends AbstractAMQIntegrationTest<Transactiona
         assertEquals(0, getQueueLength());
 
         final int NUMBER_OF_MSGS = 100;
-        TransactionalConnection connSender = createConnection();
+        TransactionalClient connSender = createConnection();
         connSender.begin();
         for (int i = 0; i < NUMBER_OF_MSGS; i++)
             connSender.send(getQueueName(), new FrameDecorator() {

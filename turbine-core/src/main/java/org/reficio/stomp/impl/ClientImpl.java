@@ -17,24 +17,19 @@
 
 package org.reficio.stomp.impl;
 
-import org.apache.commons.lang.StringUtils;
-import org.reficio.stomp.*;
+import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.Client;
-import org.reficio.stomp.core.*;
+import org.reficio.stomp.core.FrameDecorator;
+import org.reficio.stomp.core.FramePreprocessor;
+import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.reficio.stomp.core.StompResourceState.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -44,214 +39,135 @@ import static org.reficio.stomp.core.StompResourceState.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-class ClientImpl extends StompResourceImpl implements Client {
+class ClientImpl extends ConnectionImpl implements Client {
 
     private static final transient Logger log = LoggerFactory.getLogger(ClientImpl.class);
 
-    private TransmissionHandler transmissionHandler;
-    private StompResourceState state;
-    private final StompWireFormat wireFormat;
+    protected FramePreprocessor preprocessor;
 
-    public static final int INDEFINITE_RECEPTION_TIMEOUT = 0;
-    public static final int NOWAIT_RECEPTION_TIMEOUT = 100;
-
-
-    // ----------------------------------------------------------------------------------
-    // Constructor - only for internal usage
-    // ----------------------------------------------------------------------------------
-    ClientImpl(StompWireFormat wireFormat) {
-        this.wireFormat = wireFormat;
-        setState(NEW);
+    ClientImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
+        super(wireFormat);
+        this.preprocessor = preprocessor;
     }
 
     public void postConstruct() {
-        this.transmissionHandler = CloseTransmissionOnErrorInvocationHandler.getHandler(
-                new TransmissionHandlerImpl(wireFormat, hostname, port, encoding));
+        super.postConstruct();
     }
 
-    void setTransmissionHandler(TransmissionHandler transmissionHandler) {
-        this.transmissionHandler = transmissionHandler;
+    public void abort(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
+        Frame frame = new Frame(Command.ABORT);
+        frame.transaction(transactionId);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
     }
 
-    // ----------------------------------------------------------------------------------
-    // StompResource methods
-    // ----------------------------------------------------------------------------------
-    @Override
-    public void connect() {
-        assertNew();
-        log.info(String.format("Initializing connection=[%s]", this));
-        transmissionHandler.initializeCommunication(timeout);
-        setState(CONNECTING);
-        doConnect();
-        setState(CONNECTED);
+    public void abort(String transactionId) {
+        abort(transactionId, emptyDecorator);
     }
 
     @Override
-    public void close() {
-        assertOperational();
-        log.info(String.format("Closing connection=[%s]", this));
-        setState(CLOSING);
-        disconnect();
-        transmissionHandler.closeCommunication();
-        setState(CLOSED);
+    public void ack(String messageId, FrameDecorator frameDecorator) {
+        checkNotNull(messageId, "messageId cannot be null");
+        Frame frame = new Frame(Command.ACK);
+        frame.messageId(messageId);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
     }
 
     @Override
-    public boolean isConnected() {
-        return state.equals(CONNECTED);
+    public void ack(String messageId) {
+        ack(messageId, emptyDecorator);
     }
 
-    // ----------------------------------------------------------------------------------
-    // Helper methods -> connection state modifiers
-    // ----------------------------------------------------------------------------------
-    protected void doConnect() {
-        Frame frame = new Frame(Command.CONNECT);
-        frame.login(username);
-        frame.passcode(password);
-        frame.encoding(encoding);
-        transmissionHandler.marshall(frame);
-
-        try {
-            Frame serverHandshake = transmissionHandler.unmarshall();
-            validateServerHandshake(serverHandshake);
-            validateTransmissionEncoding(serverHandshake);
-            setSessionIdFromHandshakeIfNotNull(serverHandshake);
-
-        } catch (StompSocketTimeoutException exception) {
-            closeCommunicationOnError();
-            throw new StompProtocolException("Server handshake frame reception timeout -> aborting!");
-        }
+    public void begin(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
+        Frame frame = new Frame(Command.BEGIN);
+        frame.transaction(transactionId);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
     }
 
-    private void setSessionIdFromHandshakeIfNotNull(Frame serverHandshake) {
-        String sessionId = serverHandshake.session();
-        if (sessionId != null) {
-            sessionId(sessionId);
-        } else {
-            log.warn("Server has not returned a session id");
-        }
+    public void begin(String transactionId) {
+        begin(transactionId, emptyDecorator);
     }
 
-    private void validateServerHandshake(Frame serverHandshake) {
-        if (isProperServerHandshake(serverHandshake) == false) {
-            closeCommunicationOnError();
-            throw new StompProtocolException("Expected CONNECTED command, instead received "
-                    + serverHandshake.getCommand().name());
-        }
+    public void commit(String transactionId, FrameDecorator frameDecorator) {
+        checkNotNull(transactionId, "transactionId cannot be null");
+        Frame frame = new Frame(Command.COMMIT);
+        frame.transaction(transactionId);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
     }
 
-    private void validateTransmissionEncoding(Frame serverHandshake) {
-        if (isEncodingAccepted(serverHandshake.encoding()) == false) {
-            closeCommunicationOnError();
-            throw new StompEncodingException("Server cannot handle requested encoding and switched to [" +
-                    serverHandshake.encoding() + "] -> aborting!");
-        }
-    }
-
-    private boolean isProperServerHandshake(Frame serverHandshake) {
-        return serverHandshake.getCommand().equals(Command.CONNECTED);
-    }
-
-    private boolean isEncodingAccepted(String returnedEncoding) {
-        return StringUtils.isBlank(returnedEncoding) || encoding.equals(returnedEncoding);
-    }
-
-    protected void closeCommunicationOnError() {
-        setState(BROKEN);
-        transmissionHandler.closeCommunication();
-    }
-
-    protected void disconnect() {
-        Frame frame = new Frame(Command.DISCONNECT);
-        frame.session(sessionId);
-        transmissionHandler.marshall(frame);
-    }
-
-
-    // ----------------------------------------------------------------------------------
-    // StompAccessor methods
-    // ----------------------------------------------------------------------------------
-    @Override
-    public Frame receive() throws StompException {
-        transmissionHandler.setReceptionTimeoutInMillis(INDEFINITE_RECEPTION_TIMEOUT);
-        assertOperational();
-        return transmissionHandler.unmarshall();
+    public void commit(String transactionId) {
+        commit(transactionId, emptyDecorator);
     }
 
     @Override
-    public Frame receive(int timeout) throws StompException {
-        transmissionHandler.setReceptionTimeoutInMillis(timeout);
-        assertOperational();
-        return transmissionHandler.unmarshall();
+    public void send(String destination, FrameDecorator frameDecorator) {
+        checkNotNull(destination, "destination cannot be null");
+        Frame frame = new Frame(Command.SEND);
+        frame.destination(destination);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
     }
 
     @Override
-    public Frame receiveNoWait() throws StompException {
-        return receive(NOWAIT_RECEPTION_TIMEOUT);
+    public String subscribe(String destination, FrameDecorator frameDecorator) {
+        checkNotNull(destination, "destination cannot be null");
+        Frame frame = new Frame(Command.SUBSCRIBE);
+        frame.destination(destination);
+        preprocessor.decorate(frame, frameDecorator);
+        String subscriptionId = frame.subscriptionId();
+        if (subscriptionId == null) {
+            subscriptionId = UUID.randomUUID().toString();
+        }
+        frame.subscriptionId(subscriptionId);
+        send(frame);
+        return subscriptionId;
     }
 
     @Override
-    public void send(Frame frame) throws StompException {
-        assertOperational();
-        transmissionHandler.marshall(checkNotNull(frame));
+    public String subscribe(String destination) throws StompException {
+        return subscribe(destination, emptyDecorator);
     }
 
-    // ----------------------------------------------------------------------------------
-    // Helper methods -> connection state verification
-    // ----------------------------------------------------------------------------------
-    protected void assertOperational() {
-        if (isConnected() == false) {
-            throw new StompConnectionException(
-                    String.format("Connection is not operational. Connection state is [%s]", getState()));
+    @Override
+    public String subscribe(String id, String destination) throws StompException {
+        return subscribe(id, destination, emptyDecorator);
+    }
+
+    @Override
+    public String subscribe(String id, String destination, FrameDecorator frameDecorator) throws StompException {
+        checkNotNull(id, "id cannot be null");
+        checkNotNull(destination, "destination cannot be null");
+        Frame frame = new Frame(Command.SUBSCRIBE);
+        frame.destination(destination);
+        frame.subscriptionId(id);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
+        return id;
+    }
+
+    @Override
+    public void unsubscribe(String id) {
+        unsubscribe(id, emptyDecorator);
+    }
+
+    @Override
+    public void unsubscribe(String id, FrameDecorator frameDecorator) {
+        checkNotNull(id, "id cannot be null");
+        Frame frame = new Frame(Command.UNSUBSCRIBE);
+        frame.subscriptionId(id);
+        preprocessor.decorate(frame, frameDecorator);
+        send(frame);
+    }
+
+    protected FrameDecorator emptyDecorator = new FrameDecorator() {
+        @Override
+        public void decorateFrame(Frame frame) {
         }
-    }
-
-    protected void assertNew() {
-        if (getState().equals(NEW) == false) {
-            throw new StompConnectionException("Connection is not in NEW state");
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Connection state mutators
-    // ----------------------------------------------------------------------------------
-    protected StompResourceState getState() {
-        return this.state;
-    }
-
-    protected void setState(StompResourceState state) {
-        log.info(String.format("Setting connection state to [%s]", state.name()));
-        this.state = state;
-    }
-
-    private static class CloseTransmissionOnErrorInvocationHandler implements InvocationHandler {
-
-        private final TransmissionHandler target;
-
-        public CloseTransmissionOnErrorInvocationHandler(TransmissionHandler target) {
-            this.target = target;
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            try {
-                return method.invoke(this.target, args);
-            } catch (InvocationTargetException ex) {
-                Throwable targetException = ex.getTargetException();
-                if ((targetException instanceof StompSocketTimeoutException) == false) {
-                    target.closeCommunication();
-                }
-                throw targetException;
-            }
-        }
-
-        public static TransmissionHandler getHandler(TransmissionHandler target) {
-            List<Class> classes = new ArrayList<Class>();
-            classes.add(TransmissionHandler.class);
-            return (TransmissionHandler) Proxy.newProxyInstance(
-                    TransmissionHandler.class.getClassLoader(),
-                    classes.toArray(new Class[classes.size()]),
-                    new CloseTransmissionOnErrorInvocationHandler(target));
-        }
-    }
+    };
 
 }

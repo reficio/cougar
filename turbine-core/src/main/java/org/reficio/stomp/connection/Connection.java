@@ -18,9 +18,8 @@
 package org.reficio.stomp.connection;
 
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.core.StompOperations;
 import org.reficio.stomp.core.StompResource;
+import org.reficio.stomp.domain.Frame;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -30,18 +29,11 @@ import org.reficio.stomp.core.StompResource;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface Connection extends StompResource, StompOperations {
+public interface Connection extends StompResource {
 
-	void begin(String transactionId, FrameDecorator frameDecorator) throws StompException;
-	
-	void begin(String transactionId) throws StompException;
-	
-	void abort(String transactionId, FrameDecorator frameDecorator) throws StompException;
-	
-	void abort(String transactionId) throws StompException;
-	
-	void commit(String transactionId, FrameDecorator frameDecorator) throws StompException;
-	
-	void commit(String transactionId) throws StompException;
+    void send(Frame frame) throws StompException;
+	Frame receive() throws StompException;
+    Frame receive(int timeout) throws StompException;
+    Frame receiveNoWait() throws StompException;
 
 }

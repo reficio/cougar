@@ -14,20 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.spring.connection;
 
-import org.reficio.stomp.connection.TransactionalConnection;
+package org.reficio.stomp.domain;
 
-public interface TxConnectionProxy extends TransactionalConnection {
+import org.junit.Test;
+import org.reficio.stomp.domain.Command;
+import org.reficio.stomp.domain.Frame;
 
-	/**
-	 * Return the target Session of this proxy.
-	 * <p>
-	 * This will typically be the native provider Session or a wrapper from a
-	 * session pool.
-	 * 
-	 * @return the underlying Session (never <code>null</code>)
-	 */
-	TransactionalConnection getTargetConnection();
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * User: Tom Bujok (tom.bujok@reficio.org)
+ * Date: 2010-12-29
+ * Time: 9:27 AM
+ * <p/>
+ * Reficio (TM) - Reestablish your software!
+ * http://www.reficio.org/
+ */
+
+public class FrameTest {
+
+    @Test
+    public void checkError() {
+        Frame frame = new Frame(Command.ERROR);
+        assertTrue(frame.indicatesError());
+    }
+
+    @Test
+    public void checkNotError() {
+        Frame frame = new Frame(Command.COMMIT);
+        assertFalse(frame.indicatesError());
+    }
 
 }

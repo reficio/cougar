@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.connection;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,9 +24,9 @@ import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.StompProtocolException;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.MockClientImpl;
+import org.reficio.stomp.impl.IMockMessageHandler;
+import org.reficio.stomp.impl.MockConnectionImpl;
 import org.reficio.stomp.impl.MockConnectionBuilder;
-import org.reficio.stomp.test.mock.IMockMessageHandler;
 
 import java.util.UUID;
 
@@ -42,12 +42,12 @@ import static org.junit.Assert.*;
  */
 public class ClientTest {
 
-    private MockClientImpl connection;
+    private MockConnectionImpl client;
 
     @Before
     public void initialize() {
 
-        connection = MockConnectionBuilder.mockClient()
+        client = MockConnectionBuilder.mockClient()
                 .hostname("localhost")
                 .port(61613)
                 .username("user")
@@ -57,7 +57,7 @@ public class ClientTest {
                 .build();
 
         // register handlers
-        connection.getStub().getServer().registerHandler(Command.CONNECT,
+        client.getStub().getServer().registerHandler(Command.CONNECT,
                 new IMockMessageHandler() {
                     @Override
                     public Frame respond(Frame request) {
@@ -67,7 +67,7 @@ public class ClientTest {
                     }
                 });
 
-        connection.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
+        client.getStub().getServer().registerHandler(Command.DISCONNECT, new IMockMessageHandler() {
             @Override
             public Frame respond(Frame request) {
                 Frame response = new Frame(Command.RECEIPT);
@@ -79,28 +79,28 @@ public class ClientTest {
 
     @After
     public void cleanup() {
-        connection = null;
+        client = null;
     }
 
 
     @Test
     public void connect() {
-        // initialize the connection
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.connect();
+        // initialize the client
+        // client.init("localhost", 61613, "user", "pass", "UTF-8");
+        client.connect();
 
         // test logic
-        assertTrue(connection.isConnected());
-        connection.close();
-        assertFalse(connection.isConnected());
+        assertTrue(client.isConnected());
+        client.close();
+        assertFalse(client.isConnected());
     }
 
     @Test
     public void connectNoSessionIdInResponse() {
-        connection = MockConnectionBuilder.mockClient().build();
+        client = MockConnectionBuilder.mockClient().build();
 
         // register handlers
-        connection.getStub().getServer().registerHandler(Command.CONNECT,
+        client.getStub().getServer().registerHandler(Command.CONNECT,
                 new IMockMessageHandler() {
                     @Override
                     public Frame respond(Frame request) {
@@ -108,15 +108,15 @@ public class ClientTest {
                         return response;
                     }
                 });
-        // initialize the connection
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        connection.connect();
+        // initialize the client
+        // client.init("localhost", 61613, "user", "pass", "UTF-8");
+        client.connect();
     }
 
     @Test(expected = StompProtocolException.class)
     public void connectHandshakeError() {
-        // create connection object
-        MockClientImpl conn = MockConnectionBuilder.mockClient().build();
+        // create client object
+        MockConnectionImpl conn = MockConnectionBuilder.mockClient().build();
         // register handlers
         conn.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
@@ -126,60 +126,60 @@ public class ClientTest {
                 return response;
             }
         });
-        // initialize the connection
+        // initialize the client
         conn.connect();
     }
 
     @Test(expected = StompConnectionException.class)
     public void notInitializedError() {
-        MockClientImpl connection = MockConnectionBuilder.mockClient().build();
+        MockConnectionImpl connection = MockConnectionBuilder.mockClient().build();
         connection.send(new Frame(Command.MESSAGE.getName()));
     }
 
     @Test(expected = StompConnectionException.class)
     public void doubleInitError() {
-        // initialize the connection
-        connection.connect();
-        connection.connect();
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8");
+        // initialize the client
+        client.connect();
+        client.connect();
+        // client.init("localhost", 61613, "user", "pass", "UTF-8");
+        // client.init("localhost", 61613, "user", "pass", "UTF-8");
     }
 
     @Test
     public void errorStateCheck() {
-        // initialize the connection
+        // initialize the client
         Exception e = null;
-        connection.connect();
-        // connection.init("localhost", 61613, "user", "pass", null);
+        client.connect();
+        // client.init("localhost", 61613, "user", "pass", null);
         try {
-            connection.connect();
-            // connection.init("localhost", 61613, "user", "pass", null);
+            client.connect();
+            // client.init("localhost", 61613, "user", "pass", null);
         } catch (Exception ex) {
             e = ex;
         } finally {
             assertNotNull(e);
             assertEquals(e.getClass(), StompConnectionException.class);
         }
-        connection.send(new Frame(Command.ACK));
+        client.send(new Frame(Command.ACK));
     }
 
     @Test(expected = NullPointerException.class)
     public void errorStateCheckSecondInit() {
-//        // initialize the connection
+//        // initialize the client
 //        Exception e = null;
-//        // connection.init("localhost", 61613, "user", "pass", null);
-//        connection.init();
+//        // client.init("localhost", 61613, "user", "pass", null);
+//        client.init();
 //        try {
-//            // connection.init("localhost", 61613, "user", "pass", null);
-//            connection.init();
+//            // client.init("localhost", 61613, "user", "pass", null);
+//            client.init();
 //        } catch (Exception ex) {
 //            e = ex;
 //        } finally {
 //            assertNotNull(e);
 //        }
-//        // connection.init("localhost", 61613, "user", "pass", null);
-//        connection.hostname("localhost").port(61613).encoding(null).init();
-        connection = MockConnectionBuilder.mockClient()
+//        // client.init("localhost", 61613, "user", "pass", null);
+//        client.hostname("localhost").port(61613).encoding(null).init();
+        client = MockConnectionBuilder.mockClient()
                 .hostname("localhost")
                 .port(61613)
                 .username("user")
@@ -192,28 +192,28 @@ public class ClientTest {
 
     @Test
     public void checkAttributes() {
-        // initialize the connection
-        // connection.init("localhost", 61613, "user", "pass", "UTF-8", 100);
-        connection.connect();
-        assertEquals(connection.getHostname(), "localhost");
-        assertEquals(connection.getPort(), Integer.valueOf(61613));
-        assertEquals(connection.getUsername(), "user");
-        assertEquals(connection.getPassword(), "pass");
-        assertEquals(connection.getEncoding(), "UTF-8");
-        assertEquals(connection.getTimeout(), Integer.valueOf(100));
-        assertNotNull(connection.getSessionId());
+        // initialize the client
+        // client.init("localhost", 61613, "user", "pass", "UTF-8", 100);
+        client.connect();
+        assertEquals(client.getHostname(), "localhost");
+        assertEquals(client.getPort(), Integer.valueOf(61613));
+        assertEquals(client.getUsername(), "user");
+        assertEquals(client.getPassword(), "pass");
+        assertEquals(client.getEncoding(), "UTF-8");
+        assertEquals(client.getTimeout(), Integer.valueOf(100));
+        assertNotNull(client.getSessionId());
     }
 
 //    @Test(expected = StompConnectionException.class)
 //    public void notMockedIOExceptionInSocketInit() {
-//        Client client = ClientImpl.create();
+//        Connection client = ClientImpl.create();
 //        client.hostname("localhost").port(TestUtil.getFreePort());
 //        client.init();
 //    }
 
 //    @Test(expected = StompConnectionException.class)
 //    public void notMockedIOExceptionInStreamsInit() {
-//        class MockClientImpl extends ClientImpl {
+//        class MockConnectionImpl extends ClientImpl {
 //            protected void initializeCommunication(int timeout) {
 //                initializeSocket(timeout);
 //                // initializeStreams(timeout);
@@ -233,7 +233,7 @@ public class ClientTest {
 //            }
 //        }
 //
-//        ClientImpl client = new MockClientImpl();
+//        ClientImpl client = new MockConnectionImpl();
 //        ServerSocket localmachine = null;
 //        int port = 0;
 //        try {
@@ -244,7 +244,7 @@ public class ClientTest {
 //        }
 //
 //        client.hostname("localhost").port(port);
-//        MockClientImpl clientMock = ((MockClientImpl) client);
+//        MockConnectionImpl clientMock = ((MockConnectionImpl) client);
 //        clientMock.init();
 //        try {
 //            localmachine.close();
@@ -257,7 +257,7 @@ public class ClientTest {
 
 //    @Test
 //    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
-//        Client client = ClientImpl.create().hostname("localhost");
+//        Connection client = ClientImpl.create().hostname("localhost");
 //        client.port(123).password("123");
 //    }
 //

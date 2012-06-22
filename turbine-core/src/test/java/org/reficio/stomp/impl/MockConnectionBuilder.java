@@ -1,9 +1,9 @@
 package org.reficio.stomp.impl;
 
 import org.reficio.stomp.StompException;
-import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.connection.Connection;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.reficio.stomp.core.StompResource;
 
 /**
@@ -15,40 +15,40 @@ import org.reficio.stomp.core.StompResource;
  */
 public class MockConnectionBuilder extends ConnectionBuilder {
 
-    public static Builder<MockClientImpl> mockClient() {
-        return new AbstractBuilder<MockClientImpl>() {
-            @Override
-            public MockClientImpl instantiate() {
-                return new MockClientImpl();
-            }
-        };
-    }
-
-    public static Builder<MockConnectionImpl> mockConnection() {
+    public static Builder<MockConnectionImpl> mockClient() {
         return new AbstractBuilder<MockConnectionImpl>() {
             @Override
             public MockConnectionImpl instantiate() {
-                return new MockConnectionImpl(new WireFormatImpl(), new FrameValidator());
+                return new MockConnectionImpl();
             }
         };
     }
 
-    public static Builder<MockTransactionalConnectionImpl> mockTransactionalConnection() {
-        return new AbstractBuilder<MockTransactionalConnectionImpl>() {
+    public static Builder<MockClientImpl> mockConnection() {
+        return new AbstractBuilder<MockClientImpl>() {
             @Override
-            public MockTransactionalConnectionImpl instantiate() {
-                return new MockTransactionalConnectionImpl();
+            public MockClientImpl instantiate() {
+                return new MockClientImpl(new WireFormatImpl(), new FrameValidator());
+            }
+        };
+    }
+
+    public static Builder<MockTransactionalClientImpl> mockTransactionalConnection() {
+        return new AbstractBuilder<MockTransactionalClientImpl>() {
+            @Override
+            public MockTransactionalClientImpl instantiate() {
+                return new MockTransactionalClientImpl();
             }
         };
     }
 
     @SuppressWarnings("unchecked") // impossible to omit
-    static <T extends StompResource> Builder<T> builder(Class<T> clazz) {
-        if (clazz.equals(Client.class)) {
+    public static <T extends StompResource> Builder<T> builder(Class<T> clazz) {
+        if (clazz.equals(Connection.class)) {
             return (Builder<T>) mockClient();
-        } else if (clazz.equals(Connection.class)) {
+        } else if (clazz.equals(Client.class)) {
             return (Builder<T>) mockConnection();
-        } else if (clazz.equals(TransactionalConnection.class)) {
+        } else if (clazz.equals(TransactionalClient.class)) {
             return (Builder<T>) mockTransactionalConnection();
         }
         throw new StompException(clazz.getName() + " is not supported");

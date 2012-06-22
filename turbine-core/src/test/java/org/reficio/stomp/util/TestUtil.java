@@ -14,21 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.reficio.stomp.util;
 
-package org.reficio.stomp.test.mock;
-
-import org.reficio.stomp.domain.Frame;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2011-01-29
- * Time: 11:31 PM
+ * Date: 2011-08-29
+ * Time: 9:36 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface IMockMessageHandler {
+public class TestUtil {
 
-    public Frame respond(Frame request);
-
+    public static int getFreePort() {
+        try {
+            ServerSocket localmachine = new ServerSocket(0);
+            localmachine.close();
+            int port = localmachine.getLocalPort();
+            return port;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

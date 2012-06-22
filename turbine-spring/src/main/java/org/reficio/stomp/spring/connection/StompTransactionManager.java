@@ -18,7 +18,7 @@ package org.reficio.stomp.spring.connection;
 
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.connection.ConnectionFactory;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.InvalidIsolationLevelException;
@@ -35,7 +35,7 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 
 	private static final long serialVersionUID = 1L;
 
-	private ConnectionFactory<TransactionalConnection> connectionFactory;
+	private ConnectionFactory<TransactionalClient> connectionFactory;
 
 
 	/**
@@ -58,7 +58,7 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 	 * Create a new RabbitTransactionManager, given a ConnectionFactory.
 	 * @param connectionFactory the ConnectionFactory to use
 	 */
-	public StompTransactionManager(ConnectionFactory<TransactionalConnection> connectionFactory) {
+	public StompTransactionManager(ConnectionFactory<TransactionalClient> connectionFactory) {
 		this();
 		this.connectionFactory = connectionFactory;
 		afterPropertiesSet();
@@ -67,7 +67,7 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 	/**
 	 * @param cf the connectionFactory to set
 	 */
-	public void setConnectionFactory(ConnectionFactory<TransactionalConnection> cf) {
+	public void setConnectionFactory(ConnectionFactory<TransactionalClient> cf) {
 		if (cf instanceof ManagedTxAwareConnectionFactoryProxy) {
 			// If we got a TransactionAwareConnectionFactoryProxy, we need to perform transactions
 			// for its underlying target ConnectionFactory, else JMS access code won't see
@@ -82,7 +82,7 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 	/**
 	 * @return the connectionFactory
 	 */
-	public ConnectionFactory<TransactionalConnection> getConnectionFactory() {
+	public ConnectionFactory<TransactionalClient> getConnectionFactory() {
 		return connectionFactory;
 	}
 
@@ -111,8 +111,8 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 		return (txObject.getResourceHolder() != null);
 	}
 	
-	protected TransactionalConnection createConnection() {
-		TransactionalConnection conn = connectionFactory.createConnection();
+	protected TransactionalClient createConnection() {
+		TransactionalClient conn = connectionFactory.createConnection();
         // TODO double-check
 		// always use transactional connection
 		// conn.setAutoTransactional(true);
@@ -125,14 +125,14 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 			throw new InvalidIsolationLevelException("AMQP does not support an isolation level concept");
 		}
 		StompTransactionObject txObject = (StompTransactionObject) transaction;
-		TransactionalConnection connection = null;
+		TransactionalClient client = null;
 		try {					
-			connection = createConnection();
-            connection.begin();
+			client = createConnection();
+            client.begin();
 			if (logger.isDebugEnabled()) {
-				logger.debug("Created JMS transaction on Connection [" + connection + "]");
+				logger.debug("Created JMS transaction on Client [" + client + "]");
 			}
-			txObject.setResourceHolder(new StompResourceHolder(connection));
+			txObject.setResourceHolder(new StompResourceHolder(client));
 			txObject.getResourceHolder().setSynchronizedWithTransaction(true);
 			int timeout = determineTimeout(definition);
 			if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
@@ -141,9 +141,9 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 			TransactionSynchronizationManager.bindResource(
 					getConnectionFactory(), txObject.getResourceHolder());
 		} catch (StompException ex) {
-			if (connection != null) {
+			if (client != null) {
 				try {
-					connection.close();
+					client.close();
 				}
 				catch (Throwable ex2) {
 					// ignore
@@ -165,12 +165,12 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 
 	protected void doCommit(DefaultTransactionStatus status) {
 		StompTransactionObject txObject = (StompTransactionObject) status.getTransaction();
-		TransactionalConnection connection = txObject.getResourceHolder().getConnection();
+		TransactionalClient client = txObject.getResourceHolder().getConnection();
 		try {
 			if (status.isDebug()) {
-				logger.debug("Committing Stomp transaction on Connection [" + connection + "]");
+				logger.debug("Committing Stomp transaction on Client [" + client + "]");
 			}
-			connection.commit();
+			client.commit();
 		}
 		catch (StompException ex) {
 			throw new TransactionSystemException("Could not commit Stomp transaction", ex);
@@ -179,12 +179,12 @@ public class StompTransactionManager extends AbstractPlatformTransactionManager 
 
 	protected void doRollback(DefaultTransactionStatus status) {
 		StompTransactionObject txObject = (StompTransactionObject) status.getTransaction();
-		TransactionalConnection connection = txObject.getResourceHolder().getConnection();
+		TransactionalClient client = txObject.getResourceHolder().getConnection();
 		try {
 			if (status.isDebug()) {
-				logger.debug("Rolling back Stomp transaction on Connection [" + connection + "]");
+				logger.debug("Rolling back Stomp transaction on Client [" + client + "]");
 			}
-			connection.rollback();
+			client.rollback();
 		}
 		catch (StompException ex) {
 			throw new TransactionSystemException("Could not roll back Stomp transaction", ex);

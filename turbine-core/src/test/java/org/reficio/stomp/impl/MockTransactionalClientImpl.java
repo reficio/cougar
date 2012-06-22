@@ -18,7 +18,6 @@
 package org.reficio.stomp.impl;
 
 import org.reficio.stomp.core.StompResourceState;
-import org.reficio.stomp.test.mock.MockConnectionStub;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
@@ -28,11 +27,11 @@ import org.reficio.stomp.test.mock.MockConnectionStub;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class MockTransactionalConnectionImpl extends TransactionalConnectionImpl {
+public class MockTransactionalClientImpl extends TransactionalClientImpl {
 
     private MockTransmissionHandler mockTransmissionHandler;
 
-    protected MockTransactionalConnectionImpl() {
+    protected MockTransactionalClientImpl() {
         super(new WireFormatImpl(), new FrameValidator());
         this.mockTransmissionHandler = new MockTransmissionHandler(new WireFormatImpl());
     }

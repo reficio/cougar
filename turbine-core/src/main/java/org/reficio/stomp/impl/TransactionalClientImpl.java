@@ -20,7 +20,7 @@ package org.reficio.stomp.impl;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.StompIllegalTransactionStateException;
 import org.reficio.stomp.StompInvalidHeaderException;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.core.StompWireFormat;
@@ -39,13 +39,13 @@ import java.util.UUID;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-class TransactionalConnectionImpl extends ConnectionImpl implements TransactionalConnection {
+class TransactionalClientImpl extends ClientImpl implements TransactionalClient {
 
-    private static final transient Logger log = LoggerFactory.getLogger(TransactionalConnectionImpl.class);
+    private static final transient Logger log = LoggerFactory.getLogger(TransactionalClientImpl.class);
 
     protected String transactionId;
 
-    TransactionalConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
+    TransactionalClientImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
         super(wireFormat, preprocessor);
     }
 

@@ -15,36 +15,56 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.domain;
 
 import org.junit.Test;
 import org.reficio.stomp.domain.Command;
-import org.reficio.stomp.domain.Frame;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
  * Date: 2010-12-29
- * Time: 9:27 AM
+ * Time: 12:24 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org/
  */
 
-public class FrameTest {
+public class CommandTest {
 
     @Test
-    public void checkError() {
-        Frame frame = new Frame(Command.ERROR);
-        assertTrue(frame.indicatesError());
+    public void getCommand() {
+        Command command = Command.getCommand("CONNECTED");
+        assertNotNull(command);
     }
 
     @Test
-    public void checkNotError() {
-        Frame frame = new Frame(Command.COMMIT);
-        assertFalse(frame.indicatesError());
+    public void getNonExistingCommand() {
+        Command command = Command.getCommand("JAMES_BOND_007");
+        assertNull(command);
     }
+
+    @Test
+    public void getNullCommand() {
+        Command command = Command.getCommand(null);
+        assertNull(command);
+    }
+
+    @Test
+    public void getClientCommand() {
+        Command command = Command.getCommand("CONNECT");
+        assertNotNull(command);
+        assertTrue(command.isClientCommand());
+    }
+
+    @Test
+    public void getServerCommand() {
+        Command command = Command.getCommand("CONNECTED");
+        assertNotNull(command);
+        assertTrue(command.isServerCommand());
+    }
+
+
 
 }

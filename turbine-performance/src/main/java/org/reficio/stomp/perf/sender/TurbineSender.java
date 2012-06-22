@@ -1,6 +1,6 @@
 package org.reficio.stomp.perf.sender;
 
-import org.reficio.stomp.connection.Client;
+import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.factory.SimpleConnectionFactory;
@@ -10,22 +10,22 @@ import org.reficio.stomp.factory.SimpleConnectionFactory;
  */
 public class TurbineSender implements ISender {
 
-    private Client client;
+    private Connection connection;
 
     @Override
     public void initialize(String hostname, int port, String username, String password, String encoding) {
-        SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
+        SimpleConnectionFactory<Connection> factory = new SimpleConnectionFactory<Connection>(Connection.class);
         factory.setEncoding(encoding);
         factory.setHostname(hostname);
         factory.setPort(port);
         factory.setUsername(username);
         factory.setPassword(password);
-        client = factory.createConnection();
+        connection = factory.createConnection();
     }
 
     @Override
     public void close() {
-        client.close();
+        connection.close();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TurbineSender implements ISender {
         frame.destination(queue);
         frame.payload(payload);
         frame.custom("persistent", "false");
-        client.send(frame);
+        connection.send(frame);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class TurbineSender implements ISender {
         frame.receipt(receiptId);
         frame.custom("persistent", "false");
         frame.payload(payload);
-        client.send(frame);
+        connection.send(frame);
     }
 
     @Override
     public String receiveReceipt() throws Exception {
-        Frame frame = client.receive();
+        Frame frame = connection.receive();
         return frame.receiptId();
     }
 

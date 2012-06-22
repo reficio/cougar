@@ -15,56 +15,37 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.domain;
 
 import org.junit.Test;
-import org.reficio.stomp.domain.Command;
+import org.reficio.stomp.domain.Header;
+import org.reficio.stomp.domain.HeaderType;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2010-12-29
- * Time: 12:24 PM
+ * Date: 2011-02-09
+ * Time: 9:56 AM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org/
  */
-
-public class CommandTest {
+public class HeaderTest {
 
     @Test
-    public void getCommand() {
-        Command command = Command.getCommand("CONNECTED");
-        assertNotNull(command);
+    public void createHeaderByType() {
+        Header h = Header.createHeader(HeaderType.CONTENT_LENGTH, "007");
+        assertEquals(h.getName(), HeaderType.CONTENT_LENGTH.getName());
+        assertEquals(h.getValue(), "007");
     }
 
     @Test
-    public void getNonExistingCommand() {
-        Command command = Command.getCommand("JAMES_BOND_007");
-        assertNull(command);
+    public void createHeaderByName() {
+        Header h = Header.createHeader("JMS_CORRELATION_ID", "007");
+        assertEquals(h.getName(), "JMS_CORRELATION_ID");
+        assertEquals(h.getValue(), "007");
     }
-
-    @Test
-    public void getNullCommand() {
-        Command command = Command.getCommand(null);
-        assertNull(command);
-    }
-
-    @Test
-    public void getClientCommand() {
-        Command command = Command.getCommand("CONNECT");
-        assertNotNull(command);
-        assertTrue(command.isClientCommand());
-    }
-
-    @Test
-    public void getServerCommand() {
-        Command command = Command.getCommand("CONNECTED");
-        assertNotNull(command);
-        assertTrue(command.isServerCommand());
-    }
-
 
 
 }

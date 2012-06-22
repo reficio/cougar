@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.reficio.stomp.StompConnectionException;
 import org.reficio.stomp.connection.ConnectionFactory;
-import org.reficio.stomp.connection.TransactionalConnection;
+import org.reficio.stomp.connection.TransactionalClient;
 import org.springframework.jca.cci.connection.SingleConnectionFactory;
 import org.springframework.util.Assert;
 
@@ -51,9 +51,9 @@ import org.springframework.util.Assert;
  * will behave properly within a transaction, that is, always work on the transactional
  * Session. If not within a transaction, normal ConnectionFactory behavior applies.
  *
- * <p>Note that transactional JMS Sessions will be registered on a per-Connection
+ * <p>Note that transactional JMS Sessions will be registered on a per-Client
  * basis. To share the same JMS Session across a transaction, make sure that you
- * operate on the same JMS Connection handle - either through reusing the handle
+ * operate on the same JMS Client handle - either through reusing the handle
  * or through configuring a {@link SingleConnectionFactory} underneath.
  *
  * <p>Returned transactional Session proxies will implement the {@link SessionProxy}
@@ -67,12 +67,12 @@ import org.springframework.util.Assert;
  * @see UserCredentialsConnectionFactoryAdapter
  * @see SingleConnectionFactory
  */
-public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<TransactionalConnection> {
+public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<TransactionalClient> {
 
 	private boolean synchedLocalTransactionAllowed = false;
     private boolean receptionTransactional = false;
 
-	private ConnectionFactory<TransactionalConnection> targetConnectionFactory;
+	private ConnectionFactory<TransactionalClient> targetConnectionFactory;
 
 
 	/**
@@ -85,7 +85,7 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 	 * Create a new TransactionAwareConnectionFactoryProxy.
 	 * @param targetConnectionFactory the target ConnectionFactory
 	 */
-	public ManagedTxAwareConnectionFactoryProxy(ConnectionFactory<TransactionalConnection> targetConnectionFactory) {
+	public ManagedTxAwareConnectionFactoryProxy(ConnectionFactory<TransactionalClient> targetConnectionFactory) {
 		setTargetConnectionFactory(targetConnectionFactory);
 	}
 
@@ -93,7 +93,7 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 	/**
 	 * Set the target ConnectionFactory that this ConnectionFactory should delegate to.
 	 */
-	public final void setTargetConnectionFactory(ConnectionFactory<TransactionalConnection> targetConnectionFactory) {
+	public final void setTargetConnectionFactory(ConnectionFactory<TransactionalClient> targetConnectionFactory) {
 		Assert.notNull(targetConnectionFactory, "targetConnectionFactory must not be nul");
 		this.targetConnectionFactory = targetConnectionFactory;
 	}
@@ -101,7 +101,7 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 	/**
 	 * Return the target ConnectionFactory that this ConnectionFactory should delegate to.
 	 */
-	protected ConnectionFactory<TransactionalConnection> getTargetConnectionFactory() {
+	protected ConnectionFactory<TransactionalClient> getTargetConnectionFactory() {
 		return this.targetConnectionFactory;
 	}
 
@@ -137,13 +137,13 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
     }
 
 
-	public TransactionalConnection createConnection() {
-		TransactionalConnection connection = ConnectionFactoryUtils.getTransactionalConnection(
+	public TransactionalClient createConnection() {
+		TransactionalClient client = ConnectionFactoryUtils.getTransactionalConnection(
 				getTargetConnectionFactory(), isSynchedLocalTransactionAllowed(), isReceptionTransactional());
-		if (connection != null) {
-			return getCloseSuppressingConnectionProxy(connection);
+		if (client != null) {
+			return getCloseSuppressingConnectionProxy(client);
 		} else {
-			TransactionalConnection conn = getTargetConnectionFactory().createConnection();
+			TransactionalClient conn = getTargetConnectionFactory().createConnection();
 			// TODO double-check
 			// conn.setAutoTransactional(isSynchedLocalTransactionAllowed());
             // conn.setReceptionTransactional(isReceptionTransactional());
@@ -151,11 +151,11 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 		}
 	}
 
-	private TransactionalConnection getCloseSuppressingConnectionProxy(TransactionalConnection target) {
+	private TransactionalClient getCloseSuppressingConnectionProxy(TransactionalClient target) {
 		List<Class> classes = new ArrayList<Class>(3);
-		classes.add(TxConnectionProxy.class);
-		return (TransactionalConnection) Proxy.newProxyInstance(
-				TxConnectionProxy.class.getClassLoader(),
+		classes.add(TxClientProxy.class);
+		return (TransactionalClient) Proxy.newProxyInstance(
+				TxClientProxy.class.getClassLoader(),
 				classes.toArray(new Class[classes.size()]),
 				new CloseSuppressingConnectionInvocationHandler(target));
 	}
@@ -166,9 +166,9 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 	 */
 	private static class CloseSuppressingConnectionInvocationHandler implements InvocationHandler {
 
-		private final TransactionalConnection target;
+		private final TransactionalClient target;
 
-		public CloseSuppressingConnectionInvocationHandler(TransactionalConnection target) {
+		public CloseSuppressingConnectionInvocationHandler(TransactionalClient target) {
 			this.target = target;
 		}
 
@@ -180,7 +180,7 @@ public class ManagedTxAwareConnectionFactoryProxy implements ConnectionFactory<T
 				return (proxy == args[0]);
 			}
 			else if (method.getName().equals("hashCode")) {
-				// Use hashCode of Connection proxy.
+				// Use hashCode of Client proxy.
 				return System.identityHashCode(proxy);
 			}
 			else if (method.getName().equals("commit")) {

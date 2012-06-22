@@ -14,27 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.connection;
 
-import org.reficio.stomp.StompException;
-import org.reficio.stomp.core.FrameDecorator;
-import org.reficio.stomp.core.StompOperations;
-import org.reficio.stomp.core.StompResource;
+package org.reficio.stomp.impl;
+
+import org.reficio.stomp.domain.Frame;
 
 /**
  * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2011-07-28
- * Time: 3:59 PM
+ * Date: 2011-01-29
+ * Time: 11:31 PM
  * <p/>
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public interface TransactionalConnection extends StompResource, StompOperations {
+public interface IMockMessageHandler {
 
-    void begin() throws StompException;
-    void rollback(FrameDecorator frameDecorator) throws StompException;
-	void rollback() throws StompException;
-	void commit(FrameDecorator frameDecorator) throws StompException;
-	void commit() throws StompException;
+    public Frame respond(Frame request);
 
 }

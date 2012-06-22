@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.connection;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,9 +24,9 @@ import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
+import org.reficio.stomp.impl.IMockMessageHandler;
 import org.reficio.stomp.impl.MockConnectionBuilder;
-import org.reficio.stomp.impl.MockConnectionImpl;
-import org.reficio.stomp.test.mock.IMockMessageHandler;
+import org.reficio.stomp.impl.MockClientImpl;
 
 import java.util.UUID;
 
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ConnectionTest {
 
-    private MockConnectionImpl connection;
+    private MockClientImpl connection;
 
     @Before
     public void initialize() {
@@ -193,7 +193,7 @@ public class ConnectionTest {
 
     @Test(expected = StompEncodingException.class)
     public void testServerRejectsEncoding() {
-        MockConnectionImpl conn = MockConnectionBuilder.mockConnection().build();
+        MockClientImpl conn = MockConnectionBuilder.mockConnection().build();
         // register handlers
         conn.getStub().getServer().registerHandler(Command.CONNECT, new IMockMessageHandler() {
             @Override
@@ -210,7 +210,7 @@ public class ConnectionTest {
 
 //    @Test
 //    public void testInheritanceHierarchyAndFactoryMethodsAccessibility() {
-//        Connection connection = ConnectionImpl.create().hostname("localhost");
+//        Client connection = ConnectionImpl.create().hostname("localhost");
 //        connection.port(123).password("123");
 //    }
 

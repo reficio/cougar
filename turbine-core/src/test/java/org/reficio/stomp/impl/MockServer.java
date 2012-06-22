@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.reficio.stomp.core.StompWireFormat;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.test.mock.IMockMessageHandler;
 
 import java.io.IOException;
 import java.io.Reader;

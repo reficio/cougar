@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.integration;
+package org.reficio.stomp.connection;
 
 import org.junit.Test;
-import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionBuilder;
@@ -35,40 +34,40 @@ import static org.junit.Assert.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class AMQClientTest extends AbstractAMQIntegrationTest<Client> {
+public class AMQClientIntegrationTest extends AbstractAMQIntegrationTest<Connection> {
 
     @Override
-    public Client createConnection() {
+    public Connection createConnection() {
         return ConnectionBuilder.client().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 
     @Test
     public void connect() {
-        Client client = createConnection();
-        assertTrue(client.isConnected());
-        client.close();
-        assertFalse(client.isConnected());
+        Connection connection = createConnection();
+        assertTrue(connection.isConnected());
+        connection.close();
+        assertFalse(connection.isConnected());
     }
 
     @Test
     public void connectNotUTF() {
-        Client client = ConnectionBuilder.client().hostname("localhost").port(61613).encoding("cp1252").build();
-        client.connect();
-        assertTrue(client.isConnected());
-        client.close();
-        assertFalse(client.isConnected());
+        Connection connection = ConnectionBuilder.client().hostname("localhost").port(61613).encoding("cp1252").build();
+        connection.connect();
+        assertTrue(connection.isConnected());
+        connection.close();
+        assertFalse(connection.isConnected());
     }
 
     @Test
     public void send() throws Exception {
-        Client client = createConnection();
+        Connection connection = createConnection();
 
         final String receiptSubscribe = UUID.randomUUID().toString();
         Frame frameSubscribe = new Frame(Command.SUBSCRIBE);
         frameSubscribe.destination(getQueueName());
         frameSubscribe.receipt(receiptSubscribe);
-        client.send(frameSubscribe);
-        Frame responseSubscribe = client.receive();
+        connection.send(frameSubscribe);
+        Frame responseSubscribe = connection.receive();
         assertNotNull(responseSubscribe);
 
         final String payload = "TEST MESSAGE";
@@ -77,16 +76,16 @@ public class AMQClientTest extends AbstractAMQIntegrationTest<Client> {
         frame.destination(getQueueName());
         frame.payload(payload);
         frame.receipt(receiptId);
-        client.send(frame);
-        Frame receipt = client.receive();
+        connection.send(frame);
+        Frame receipt = connection.receive();
         assertTrue(receipt.getCommand().equals(Command.RECEIPT));
 
-        Frame receivedFrame = client.receive();
+        Frame receivedFrame = connection.receive();
         assertNotNull(receivedFrame);
         assertEquals(payload, receivedFrame.payload());
         assertEquals(getQueueName(), receivedFrame.destination());
 
-        client.close();
+        connection.close();
     }
 
 }

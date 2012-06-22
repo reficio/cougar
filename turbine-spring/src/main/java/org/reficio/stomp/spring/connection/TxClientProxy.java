@@ -14,29 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.reficio.stomp.test.util;
+package org.reficio.stomp.spring.connection;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import org.reficio.stomp.connection.TransactionalClient;
 
-/**
- * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2011-08-29
- * Time: 9:36 PM
- * <p/>
- * Reficio (TM) - Reestablish your software!
- * http://www.reficio.org
- */
-public class TestUtil {
+public interface TxClientProxy extends TransactionalClient {
 
-    public static int getFreePort() {
-        try {
-            ServerSocket localmachine = new ServerSocket(0);
-            localmachine.close();
-            int port = localmachine.getLocalPort();
-            return port;
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	/**
+	 * Return the target Session of this proxy.
+	 * <p>
+	 * This will typically be the native provider Session or a wrapper from a
+	 * session pool.
+	 * 
+	 * @return the underlying Session (never <code>null</code>)
+	 */
+	TransactionalClient getTargetConnection();
+
 }

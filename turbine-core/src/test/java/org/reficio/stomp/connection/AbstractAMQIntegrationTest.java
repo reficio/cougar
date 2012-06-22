@@ -1,4 +1,4 @@
-package org.reficio.stomp.test.integration;
+package org.reficio.stomp.connection;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;

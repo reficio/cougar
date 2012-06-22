@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.mock;
+package org.reficio.stomp.impl;
 
 import org.reficio.stomp.impl.MockServer;
 

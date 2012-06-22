@@ -1,15 +1,9 @@
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.StompConnectionException;
-import org.reficio.stomp.StompEncodingException;
 import org.reficio.stomp.StompException;
 import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.core.TransmissionHandler;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.test.mock.MockConnectionStub;
 
-import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**

@@ -24,7 +24,7 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="stompConnectionFactory" class="org.reficio.stomp.factory.SimpleConnectionFactory">
-		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.impl.TransactionalConnectionImpl"/>
+		<constructor-arg type="java.lang.Class" value="org.reficio.stomp.impl.TransactionalClientImpl"/>
         <property name="hostname" value="127.0.0.1"/>
         <property name="port" value="61612"/>
         <property name="username" value="confitura"/>

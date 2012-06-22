@@ -3,11 +3,8 @@ package org.reficio.stomp.spring.test.mock;
 import org.reficio.stomp.core.StompResource;
 import org.reficio.stomp.domain.Command;
 import org.reficio.stomp.domain.Frame;
-import org.reficio.stomp.impl.MockConnectionFactory;
-import org.reficio.stomp.impl.MockConnectionImpl;
-import org.reficio.stomp.impl.MockServer;
-import org.reficio.stomp.impl.MockTransactionalConnectionImpl;
-import org.reficio.stomp.test.mock.IMockMessageHandler;
+import org.reficio.stomp.impl.*;
+import org.reficio.stomp.impl.IMockMessageHandler;
 
 import java.util.UUID;
 
@@ -31,10 +28,10 @@ public class SpringMockConnectionFactory<T extends StompResource>  extends MockC
 
     private void registerDefaultHandlers(StompResource resource) {
         MockServer server = null;
-        if (resource instanceof MockConnectionImpl) {
-            server = ((MockConnectionImpl) resource).getServer();
-        } else if (resource instanceof MockTransactionalConnectionImpl) {
-            server = ((MockTransactionalConnectionImpl) resource).getServer();
+        if (resource instanceof MockClientImpl) {
+            server = ((MockClientImpl) resource).getServer();
+        } else if (resource instanceof MockTransactionalClientImpl) {
+            server = ((MockTransactionalClientImpl) resource).getServer();
         }
         if (server == null) {
             return;

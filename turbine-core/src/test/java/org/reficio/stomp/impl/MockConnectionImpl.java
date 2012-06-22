@@ -1,44 +1,20 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.reficio.stomp.impl;
 
-import org.reficio.stomp.core.FramePreprocessor;
 import org.reficio.stomp.core.StompResourceState;
-import org.reficio.stomp.core.StompWireFormat;
-import org.reficio.stomp.test.mock.MockConnectionStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * User: Tom Bujok (tom.bujok@reficio.org)
- * Date: 2010-12-27
- * Time: 03:23 PM
- * <p/>
- * Reficio (TM) - Reestablish your software!
- * http://www.reficio.org
+ * Created by IntelliJ IDEA.
+ * User: tom
+ * Date: 6/20/12
+ * Time: 2:45 PM
+ * To change this template use File | Settings | File Templates.
  */
 public class MockConnectionImpl extends ConnectionImpl {
-
     private MockTransmissionHandler mockTransmissionHandler;
 
-    protected MockConnectionImpl(StompWireFormat wireFormat, FramePreprocessor preprocessor) {
-        super(wireFormat, preprocessor);
-        this.mockTransmissionHandler = new MockTransmissionHandler(wireFormat);
+    protected MockConnectionImpl() {
+        super(new WireFormatImpl());
+        this.mockTransmissionHandler = new MockTransmissionHandler(new WireFormatImpl());
     }
 
     public void postConstruct() {
@@ -62,5 +38,4 @@ public class MockConnectionImpl extends ConnectionImpl {
         mockTransmissionHandler.getStub().close();
         setState(StompResourceState.CLOSED);
     }
-
 }

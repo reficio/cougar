@@ -29,10 +29,10 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Tom Bujok (tom.bujok@gmail.com)
  */
-public class ClientSocketTest {
+public class ConnectionSocketTest {
 
-    public class TestClientImpl extends ClientImpl {
-        protected TestClientImpl(String encoding) {
+    public class TestConnectionImpl extends ConnectionImpl {
+        protected TestConnectionImpl(String encoding) {
             super(new WireFormatImpl());
             hostname("localhost");
             port(32611);
@@ -50,7 +50,7 @@ public class ClientSocketTest {
     public void connectAndClose() throws IOException {
         ServerSocket srv = new ServerSocket(32611);
         try {
-            TestClientImpl client = new TestClientImpl("UTF-8");
+            TestConnectionImpl client = new TestConnectionImpl("UTF-8");
             client.connect();
             Socket comm = srv.accept();
             assertNotNull(comm);
@@ -64,7 +64,7 @@ public class ClientSocketTest {
     public void unsupportedEncoding() throws IOException {
         ServerSocket srv = new ServerSocket(32611);
         try {
-            TestClientImpl client = new TestClientImpl("NO_SUCH_ENCODING");
+            TestConnectionImpl client = new TestConnectionImpl("NO_SUCH_ENCODING");
             client.connect();
         } finally {
             srv.close();
@@ -73,7 +73,7 @@ public class ClientSocketTest {
 
     @Test(expected = StompConnectionException.class)
     public void connectionError() throws IOException {
-        TestClientImpl client = new TestClientImpl("UTF-8");
+        TestConnectionImpl client = new TestConnectionImpl("UTF-8");
         client.connect();
     }
 

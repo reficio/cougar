@@ -1,6 +1,6 @@
-package org.reficio.stomp.test.util;
+package org.reficio.stomp.util;
 
-import org.reficio.stomp.connection.Connection;
+import org.reficio.stomp.connection.Client;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionBuilder;
@@ -21,7 +21,7 @@ public class Sender implements Runnable {
     private int sent = 0;
     private Thread thread;
 
-    public Connection createConnection() {
+    public Client createConnection() {
         return ConnectionBuilder.connection().hostname(hostname).port(port).buildAndConnect();
     }
 
@@ -47,7 +47,7 @@ public class Sender implements Runnable {
 
     @Override
     public void run() {
-        Connection connSender = createConnection();
+        Client connSender = createConnection();
         for (int i = 0; i < toSendCount; i++) {
             connSender.send(queueName, new FrameDecorator() {
                 @Override

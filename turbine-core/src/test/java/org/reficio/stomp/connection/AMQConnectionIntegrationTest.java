@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.integration;
+package org.reficio.stomp.connection;
 
 import org.junit.Test;
-import org.reficio.stomp.connection.Connection;
 import org.reficio.stomp.core.FrameDecorator;
 import org.reficio.stomp.domain.Frame;
 import org.reficio.stomp.impl.ConnectionBuilder;
-import org.reficio.stomp.test.util.DisconnectingReceiver;
-import org.reficio.stomp.test.util.Receiver;
-import org.reficio.stomp.test.util.Sender;
+import org.reficio.stomp.util.DisconnectingReceiver;
+import org.reficio.stomp.util.Receiver;
+import org.reficio.stomp.util.Sender;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,11 +38,11 @@ import static org.junit.Assert.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
+public class AMQConnectionIntegrationTest extends AbstractAMQIntegrationTest<Client> {
 
     @Test
     public void connect() {
-        Connection conn = createConnection();
+        Client conn = createConnection();
         assertTrue(conn.isConnected());
         conn.close();
         assertFalse(conn.isConnected());
@@ -53,7 +52,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
     public void singleSendReceive() throws Exception {
         final String receiptId = UUID.randomUUID().toString();
         final String payload = "James Bond 007!";
-        Connection connSender = createConnection();
+        Client connSender = createConnection();
         connSender.send(getQueueName(), new FrameDecorator() {
             @Override
             public void decorateFrame(Frame frame) {
@@ -66,7 +65,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
 
         assertEquals(1, getQueueLength());
 
-        Connection connReceiver = createConnection();
+        Client connReceiver = createConnection();
         connReceiver.subscribe(getQueueName());
         Frame frame = connReceiver.receive();
         assertNotNull(frame);
@@ -79,7 +78,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
     @Test
     public void consecutiveSendReceive() throws Exception {
         final int NUMBER_OF_MSGS = 100;
-        Connection connSender = createConnection();
+        Client connSender = createConnection();
         for (int i = 0; i < NUMBER_OF_MSGS; i++) {
             connSender.send(getQueueName(), new FrameDecorator() {
                 @Override
@@ -90,7 +89,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
         }
         connSender.close();
 
-        Connection connReceiver = createConnection();
+        Client connReceiver = createConnection();
         String subId = connReceiver.subscribe(getQueueName());
         for (int i = 0; i < NUMBER_OF_MSGS; i++) {
             assertNotNull(connReceiver.receive());
@@ -149,7 +148,7 @@ public class AMQConnectionTest extends AbstractAMQIntegrationTest<Connection> {
     }
 
     @Override
-    public Connection createConnection() {
+    public Client createConnection() {
         return ConnectionBuilder.connection().hostname(HOSTNAME).port(PORT).buildAndConnect();
     }
 

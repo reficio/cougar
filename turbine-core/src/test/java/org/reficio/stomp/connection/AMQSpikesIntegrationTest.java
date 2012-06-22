@@ -1,10 +1,9 @@
-package org.reficio.stomp.test.integration;
+package org.reficio.stomp.connection;
 
 import org.apache.activemq.transport.stomp.Stomp;
 import org.apache.activemq.transport.stomp.StompConnection;
 import org.apache.activemq.transport.stomp.StompFrame;
 import org.junit.Test;
-import org.reficio.stomp.connection.Connection;
 
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  * Time: 9:00 AM
  * To change this template use File | Settings | File Templates.
  */
-public class AMQSpikesTest extends AbstractAMQIntegrationTest<Connection> {
+public class AMQSpikesIntegrationTest extends AbstractAMQIntegrationTest<Client> {
 
     // ActiveMQ prefetchSize header works only in manual ACK mode!!!!!
     public int checkPrefetchSizeReception(int messagesCount, String ackMode) throws Exception {
@@ -87,7 +86,7 @@ public class AMQSpikesTest extends AbstractAMQIntegrationTest<Connection> {
     }
 
     @Override
-    public Connection createConnection() {
+    public Client createConnection() {
         return null;
     }
 

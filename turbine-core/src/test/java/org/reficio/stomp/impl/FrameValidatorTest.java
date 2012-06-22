@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.reficio.stomp.test.unit;
+package org.reficio.stomp.impl;
 
 import org.junit.Test;
 import org.reficio.stomp.StompInvalidHeaderException;
@@ -33,7 +33,7 @@ import org.reficio.stomp.domain.Frame;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org/
  */
-public class PreprocessorTest {
+public class FrameValidatorTest {
 
     @Test(expected = StompInvalidHeaderException.class)
     public void validationFails() {
