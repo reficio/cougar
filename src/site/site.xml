@@ -44,11 +44,11 @@
         </head>
 
         <menu name="Modules">
-            <item name="Turbine" href="index.html"/>
+            <item name="Cougar" href="index.html"/>
             <item name="Modules" href="">
-                <item name="Turbine Core" href="turbine-core/index.html"/>
-                <item name="Turbine Spring" href="turbine-spring/index.html"/>
-                <item name="Turbine Features" href="turbine-features/index.html"/>
+                <item name="Cougar Core" href="cougar-core/index.html"/>
+                <item name="Cougar Spring" href="cougar-spring/index.html"/>
+                <item name="Cougar Features" href="cougar-features/index.html"/>
             </item>
         </menu>
         <menu name="Overview">

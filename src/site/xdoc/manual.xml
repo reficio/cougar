@@ -88,7 +88,7 @@
 
         <section name="Public API">
 
-            <p>There are three ways to use the public API defined by Turbine</p>
+            <p>There are three ways to use the public API defined by Cougar</p>
 
 <subsection name="org.reficio.connection.Client">
 <pre class="prettyprint lang-java">
