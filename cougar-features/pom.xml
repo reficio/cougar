@@ -102,8 +102,8 @@
                                 <descriptor>mvn:org.apache.karaf/apache-karaf/${karaf.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
-                                <feature>turbine</feature>
-                                <feature>turbine-spring</feature>
+                                <feature>cougar</feature>
+                                <feature>cougar-spring</feature>
                             </features>
                             <repository>target/features-repo</repository>
                         </configuration>
@@ -122,6 +122,7 @@
     </build>
 
     <dependencies>
+
         <dependency>
             <groupId>org.reficio</groupId>
             <artifactId>cougar-core</artifactId>
@@ -132,6 +133,7 @@
             <artifactId>cougar-spring</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.karaf</groupId>
             <artifactId>apache-karaf</artifactId>
