@@ -52,7 +52,7 @@ public class AMQClientIntegrationTest extends AbstractAMQIntegrationTest<Connect
 
     @Test
     public void connectNotUTF() {
-        Connection connection = ConnectionBuilder.client().hostname("localhost").port(61613).encoding("cp1252").build();
+        Connection connection = ConnectionBuilder.client().hostname("localhost").port(PORT).encoding("cp1252").build();
         connection.connect();
         assertTrue(connection.isConnected());
         connection.close();

@@ -7,6 +7,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.reficio.cougar.core.StompResource;
+import org.reficio.cougar.util.TestUtil;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -22,7 +23,7 @@ public abstract class AbstractAMQIntegrationTest<T extends StompResource> {
     private String destinationName = "request";
 
     protected static final String HOSTNAME = "localhost";
-    protected static final int PORT = 61613;
+    protected static final int PORT = TestUtil.getFreePort();
 
     public abstract T createConnection();
 

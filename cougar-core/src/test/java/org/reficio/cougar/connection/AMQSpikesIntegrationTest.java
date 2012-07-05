@@ -26,7 +26,7 @@ public class AMQSpikesIntegrationTest extends AbstractAMQIntegrationTest<Client>
         String queue = "/queue/spikes" + System.currentTimeMillis();
 
         StompConnection sender = new StompConnection();
-        sender.open("localhost", 61613);
+        sender.open("localhost", PORT);
         sender.connect("user", "password");
         for (int i = 0; i < messagesCount; i++) {
             sender.send(queue, "David Hasselhoff is cool");
@@ -34,7 +34,7 @@ public class AMQSpikesIntegrationTest extends AbstractAMQIntegrationTest<Client>
         sender.disconnect();
 
         StompConnection connection = new StompConnection();
-        connection.open("localhost", 61613);
+        connection.open("localhost", PORT);
         connection.connect("user", "password");
 
         HashMap<String, String> map = new HashMap<String, String>();
