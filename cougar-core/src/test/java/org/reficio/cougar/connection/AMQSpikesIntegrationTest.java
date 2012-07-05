@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
  * Time: 9:00 AM
  * To change this template use File | Settings | File Templates.
  */
-@Ignore
 public class AMQSpikesIntegrationTest extends AbstractAMQIntegrationTest<Client> {
 
     // ActiveMQ prefetchSize header works only in manual ACK mode!!!!!

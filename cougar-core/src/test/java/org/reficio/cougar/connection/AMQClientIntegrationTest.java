@@ -35,7 +35,6 @@ import static org.junit.Assert.*;
  * Reficio (TM) - Reestablish your software!
  * http://www.reficio.org
  */
-@Ignore
 public class AMQClientIntegrationTest extends AbstractAMQIntegrationTest<Connection> {
 
     @Override
