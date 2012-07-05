@@ -40,7 +40,7 @@ public class ConnectionBuilder {
         private static final String DEFAULT_ENCODING = "UTF-8";
         private static final String DEFAULT_HOSTNAME = "localhost";
         private static final int DEFAULT_PORT = 61613;
-        private static final int DEFAULT_TIMEOUT_IN_MILLIS = 10000;
+        private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000;
 
         // ----------------------------------------------------------------------------------
         // Builder methods - parameters VALIDATED

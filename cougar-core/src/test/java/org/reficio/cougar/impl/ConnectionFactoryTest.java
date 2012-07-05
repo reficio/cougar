@@ -36,6 +36,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,10 +54,12 @@ public class ConnectionFactoryTest {
 
     private int startMockServer() {
         final int port = TestUtil.getFreePort();
+        final CountDownLatch latch = new CountDownLatch(1);
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
                     ServerSocket srv = new ServerSocket(port, 0, InetAddress.getByName(null));
+                    latch.countDown();
                     try {
                         srv.setSoTimeout(15000);
                         Socket comm = srv.accept();
@@ -77,10 +80,14 @@ public class ConnectionFactoryTest {
         };
         Thread thread = new Thread(runnable);
         thread.start();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+        }
         return port;
     }
 
-    @Test(timeout = 8000)
+    @Test(timeout = 15000)
     public void createConnection() {
         int port = startMockServer();
         SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
@@ -89,7 +96,7 @@ public class ConnectionFactoryTest {
         factory.setPort(port);
         factory.setUsername("system");
         factory.setPassword("manager");
-        factory.setTimeout(4000);
+        factory.setTimeout(10000);
         Client conn = factory.createConnection();
 
         assertEquals(factory.getEncoding(), conn.getEncoding());
@@ -100,10 +107,11 @@ public class ConnectionFactoryTest {
         assertEquals(factory.getTimeout(), conn.getTimeout());
     }
 
-    @Test(timeout = 8000)
+    @Test(timeout = 15000)
     public void createConnectionDefault() {
-        startMockServer();
+        int port = startMockServer();
         SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
+        factory.setPort(port);
         Client conn = factory.createConnection();
     }
 
