@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.UUID;
@@ -55,9 +56,9 @@ public class ConnectionFactoryTest {
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
-                    ServerSocket srv = new ServerSocket(port);
+                    ServerSocket srv = new ServerSocket(port, 0, InetAddress.getByName(null));
                     try {
-                        srv.setSoTimeout(2000);
+                        srv.setSoTimeout(15000);
                         Socket comm = srv.accept();
                         Frame response = new Frame(Command.CONNECTED);
                         response.session(UUID.randomUUID().toString());
@@ -79,7 +80,7 @@ public class ConnectionFactoryTest {
         return port;
     }
 
-    @Test(timeout = 4000)
+    @Test(timeout = 8000)
     public void createConnection() {
         int port = startMockServer();
         SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
@@ -88,7 +89,7 @@ public class ConnectionFactoryTest {
         factory.setPort(port);
         factory.setUsername("system");
         factory.setPassword("manager");
-        factory.setTimeout(1000);
+        factory.setTimeout(4000);
         Client conn = factory.createConnection();
 
         assertEquals(factory.getEncoding(), conn.getEncoding());
@@ -99,7 +100,7 @@ public class ConnectionFactoryTest {
         assertEquals(factory.getTimeout(), conn.getTimeout());
     }
 
-    @Test(timeout = 4000)
+    @Test(timeout = 8000)
     public void createConnectionDefault() {
         startMockServer();
         SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
