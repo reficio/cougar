@@ -17,6 +17,8 @@
 
 package org.reficio.cougar.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.reficio.cougar.StompException;
 import org.reficio.cougar.connection.Client;
@@ -24,6 +26,7 @@ import org.reficio.cougar.core.StompWireFormat;
 import org.reficio.cougar.domain.Command;
 import org.reficio.cougar.domain.Frame;
 import org.reficio.cougar.factory.SimpleConnectionFactory;
+import org.reficio.cougar.util.TestUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,11 +48,14 @@ import static org.junit.Assert.assertEquals;
  */
 public class ConnectionFactoryTest {
 
-    private Runnable startMockServer() {
+    private final Log log = LogFactory.getLog(ConnectionFactoryTest.class);
+
+    private int startMockServer() {
+        final int port = TestUtil.getFreePort();
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
-                    ServerSocket srv = new ServerSocket(61613);
+                    ServerSocket srv = new ServerSocket(port);
                     try {
                         srv.setSoTimeout(2000);
                         Socket comm = srv.accept();
@@ -64,22 +70,22 @@ public class ConnectionFactoryTest {
                         srv.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("IO exception", e);
                 }
             }
         };
         Thread thread = new Thread(runnable);
         thread.start();
-        return runnable;
+        return port;
     }
 
     @Test(timeout = 4000)
     public void createConnection() {
-        startMockServer();
+        int port = startMockServer();
         SimpleConnectionFactory<Client> factory = new SimpleConnectionFactory<Client>(Client.class);
         factory.setEncoding("UTF-8");
         factory.setHostname("localhost");
-        factory.setPort(61613);
+        factory.setPort(port);
         factory.setUsername("system");
         factory.setPassword("manager");
         factory.setTimeout(1000);
