@@ -23,8 +23,8 @@
          xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
     <skin>
         <groupId>org.reficio</groupId>
-        <artifactId>skin</artifactId>
-        <version>1.0</version>
+        <artifactId>maven-skin</artifactId>
+        <version>1.0.0</version>
     </skin>
 
     <body>
@@ -43,14 +43,6 @@
             </script>
         </head>
 
-        <menu name="Modules">
-            <item name="Cougar" href="index.html"/>
-            <item name="Modules" href="">
-                <item name="Cougar Core" href="cougar-core/index.html"/>
-                <item name="Cougar Spring" href="cougar-spring/index.html"/>
-                <item name="Cougar Features" href="cougar-features/index.html"/>
-            </item>
-        </menu>
         <menu name="Overview">
             <item name="Usage" href="">
                 <item name="Manual" href="manual.html"/>

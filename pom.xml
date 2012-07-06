@@ -111,7 +111,6 @@
                 </configuration>
             </plugin>
 
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -121,7 +120,7 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
-                        <phase>test-compile</phase>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -183,6 +182,56 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.2</version>
+                            <configuration>
+                                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                            </configuration>
+                            <reports>
+                                <report>index</report>
+                                <report>project-team</report>
+                                <report>help</report>
+                                <report>cim</report>
+                                <report>issue-tracking</report>
+                                <report>license</report>
+                                <report>scm</report>
+                                <report>summary</report>
+                            </reports>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>2.8.1</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jxr-plugin</artifactId>
+                            <version>2.2</version>
+                            <configuration>
+                                <aggregate>true</aggregate>
+                            </configuration>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>jxr</report>
+                                        <report>test-jxr</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
+            </plugin>
         </plugins>
 
         <extensions>
@@ -192,124 +241,9 @@
                 <version>1.0-beta-7</version>
             </extension>
         </extensions>
-
     </build>
 
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.6</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.2</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>index</report>
-                            <report>project-team</report>
-                            <report>modules</report>
-                            <report>help</report>
-                            <report>cim</report>
-                            <report>issue-tracking</report>
-                            <report>license</report>
-                            <report>scm</report>
-                            <report>summary</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <targetJdk>1.6</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.3.2</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <tags>
-                        <tag>TODO</tag>
-                        <tag>@todo</tag>
-                        <tag>FIXME</tag>
-                        <tag>XXX</tag>
-                    </tags>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>jxr</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-        </plugins>
-    </reporting>
-
     <profiles>
-
-        <profile>
-            <id>maven-3</id>
-            <activation>
-                <file>
-                    <!--  This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
-                    <exists>${basedir}</exists>
-                </file>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-site-plugin</artifactId>
-                            <version>3.0-beta-3</version>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-site-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-descriptor</id>
-                                <goals>
-                                    <goal>attach-descriptor</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <profile>
             <id>license</id>
             <build>
@@ -393,83 +327,17 @@
                 </plugins>
             </reporting>
         </profile>
-
-        <profile>
-            <id>site</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.atlassian.maven.plugins</groupId>
-                        <artifactId>maven-clover2-plugin</artifactId>
-                        <version>${clover.version}</version>
-                        <executions>
-                            <execution>
-                                <id>source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>instrument</goal>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>main</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>instrument</goal>
-                                    <goal>aggregate</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>site</id>
-                                <phase>pre-site</phase>
-                                <goals>
-                                    <goal>instrument</goal>
-                                    <goal>aggregate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <license><![CDATA[oqOpphXtrKllvneDEkjXgDkvPpmTGLbQjmdnwuFQpLxqVM
-mi2KgUerHAs6tDnETtfFAboZ2Ksvk1nsLRjzW6Zk4oDwzv
-NMoowSqopRqnqnNnRQOwtrPpqnqooOmQoQxtUuttXvxuST
-MnmpmUUnpnqrqmmmmmmmUUnpnqrqmmmmmmmUU1ZXabjfZU
-Un
-]]></license>
-                            <statementContexts>
-                                <log>^log\..*;</log>
-                                <iflog>^if \(log\.is.*\(\)\).*\{.*\}</iflog>
-                                <iflogNoBrackets>^if \(log\.is.*\).*;</iflogNoBrackets>
-                            </statementContexts>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <groupId>com.atlassian.maven.plugins</groupId>
-                        <artifactId>maven-clover2-plugin</artifactId>
-                        <version>${clover.version}</version>
-                        <configuration>
-                            <contextFilters>log,iflog,iflogNoBrackets</contextFilters>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </reporting>
-        </profile>
     </profiles>
-
-    <distributionManagement>
-        <site>
-            <id>reficio-projects</id>
-            <url>${reficio.site.server}/projects/cougar/1.0/</url>
-        </site>
-    </distributionManagement>
 
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/reficio/cougar/issues</url>
     </issueManagement>
+
+    <ciManagement>
+        <system>jenkins</system>
+        <url>https://reficio.ci.cloudbees.com/job/cougar/</url>
+    </ciManagement>
 
     <developers>
         <developer>
@@ -508,6 +376,10 @@ Un
     </pluginRepositories>
 
     <repositories>
+        <repository>
+            <id>reficio</id>
+            <url>http://repo.reficio.org/maven/</url>
+        </repository>
         <repository>
             <id>jboss-developers</id>
             <url>http://repository.jboss.org/nexus/content/groups/public/</url>
@@ -558,8 +430,19 @@ Un
                 <enabled>true</enabled>
             </releases>
         </repository>
-
     </repositories>
+
+    <distributionManagement>
+        <site>
+            <id>reficio</id>
+            <url>${reficio.server}/projects/${project.artifactId}/${project.version}/</url>
+        </site>
+        <repository>
+            <id>reficio</id>
+            <name>Reficio Maven Repository</name>
+            <url>${reficio.server}/repo/maven</url>
+        </repository>
+    </distributionManagement>
 
 </project>
 
