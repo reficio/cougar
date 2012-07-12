@@ -14,7 +14,7 @@
         project is to provide the community with a proficient, reliable, performance-oriented and well-documented
         implementation of the STOMP protocol client for the JVM.
     </description>
-    <url>http://reficio.org/</url>
+    <url>http://projects.reficio.org/cougar/${project.version}</url>
 
     <modules>
         <module>cougar-core</module>
@@ -342,7 +342,7 @@
         <developer>
             <id>tom.bujok</id>
             <name>Tom Bujok</name>
-            <email>tom.bujok@reficio.org</email>
+            <email>tom.bujok@gmail.com</email>
             <roles>
                 <role>project lead</role>
                 <role>developer</role>
