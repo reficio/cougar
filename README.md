@@ -1,1 +1,1 @@
-# cougar {<img src="https://secure.travis-ci.org/reficio/cougar.png" />}[http://travis-ci.org/reficio/cougar.png]
+# cougar [![Build Status](https://secure.travis-ci.org/reficio/cougar.png)](http://travis-ci.org/reficio/cougar)
