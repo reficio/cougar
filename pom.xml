@@ -237,7 +237,12 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ftp</artifactId>
-                <version>1.0-beta-7</version>
+                <version>2.2</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.2</version>
             </extension>
         </extensions>
     </build>
@@ -348,7 +353,7 @@
                 <role>developer</role>
             </roles>
             <organization>Reficio</organization>
-            <organizationUrl>http://www.reficio.org</organizationUrl>
+            <organizationUrl>www.reficio.org</organizationUrl>
             <timezone>+1</timezone>
         </developer>
     </developers>
@@ -432,14 +437,10 @@
     </repositories>
 
     <distributionManagement>
-        <site>
-            <id>reficio</id>
-            <url>${reficio.server}/projects/${project.artifactId}/${project.version}/</url>
-        </site>
         <repository>
             <id>reficio</id>
             <name>Reficio Maven Repository</name>
-            <url>${reficio.server}/repo/maven</url>
+            <url>scp://${reficio.server}/var/www/repo/maven</url>
         </repository>
     </distributionManagement>
 
