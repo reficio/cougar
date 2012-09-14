@@ -182,7 +182,7 @@
                 </executions>
             </plugin>
 
-             <plugin>
+            <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
                 <version>3.1.7</version>
@@ -349,6 +349,31 @@
                     </plugin>
                 </plugins>
             </reporting>
+        </profile>
+        <profile>
+            <id>findbugs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>2.4.0</version>
+                        <executions>
+                            <execution>
+                                <id>findbugs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>findbugs</goal>
+                                </goals>
+                                <configuration>
+                                    <xmlOutput>true</xmlOutput>
+                                    <excludeFilterFile>src/main/resources/findbugs-exclude.xml</excludeFilterFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
